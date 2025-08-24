@@ -1,0 +1,57 @@
+# name: Laravel Deployment
+
+# on:
+#   push:
+#     branches:
+#       - main  # Runs on direct push to main
+#   pull_request:
+#     branches:
+#       - main  # Runs when a PR is opened or merged into main
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - name: Checkout Code
+#         uses: actions/checkout@v3
+
+#       - name: Deploy to EC2
+#         uses: appleboy/ssh-action@master
+#         with:
+#           host: ${{ secrets.EC2_HOST }}
+#           username: ${{ secrets.EC2_USER }}
+#           key: ${{ secrets.EC2_KEY }}
+#           script: |
+#             set -e
+#             echo "Fixing permissions..."
+#             sudo chown -R $USER:$USER /var/www/Sultan_project
+#             sudo chmod -R 775 /var/www/Sultan_project
+
+#             echo "Marking directory as safe..."
+#             git config --global --add safe.directory /var/www/piyvate
+
+#             echo "Checking if project directory exists..."
+#             if [ ! -d "/var/www/piyvate" ]; then
+#               echo "Cloning repository..."
+#               cd /var/www
+#               git clone git@github.com:Tatweer-Om/piyvate.git
+#             else
+#               echo "Project directory exists. Pulling latest changes..."
+#               cd /var/www/piyvate
+#               git pull origin main
+#             fi
+#             cd /var/www/piyvate
+#             sudo cp .env.example .env
+#             echo "installing dependencies ..."
+#             sudo composer install --no-dev --optimize-autoloader
+#             echo "shyhstem"
+#             sudo php artisan migrate --seed
+#             sudo php artisan config:clear
+#             sudo php artisan cache:clear
+#             sudo php artisan route:clear
+#             sudo php artisan view:clear
+#             echo "changing permsissions..."
+#             sudo chown -R www-data:www-data /var/www/piyvate
+#             echo "restarting apache2..."
+#             sudo systemctl restart apache2
+#             sudo systemctl status apache2

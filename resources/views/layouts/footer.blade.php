@@ -6,32 +6,19 @@
                 <p>Copyright © Designed &amp; Developed by <a href="http://Tatweersoft.om/" target="_blank">TatweerSoft</a> 2025</p>
             </div>
         </div>
-        <!--**********************************
-            Footer end
-        ***********************************-->
 
-		<!--**********************************
-           Support ticket button start
-        ***********************************-->
-
-        <!--**********************************
-           Support ticket button end
-        ***********************************-->
 
 
     </div>
-    <!--**********************************
-        Main wrapper end
-    ***********************************-->
 
-    <!--**********************************
-        Scripts
-    ***********************************-->
     <!-- Required vendors -->
     <script src="{{ asset('vendor/global/global.min.js') }}"></script>
     <script src="{{ asset('vendor/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
     <script src="{{ asset('vendor/chart.js/chart.bundle.min.js') }}"></script>
     <script src="{{ asset('vendor/owl-carousel/owl.carousel.js') }}"></script>
+        <script src="{{ asset('vendor/datatables/js/jquery-ui.min.js') }}"></script>
+
+<!-- Bootstrap 5 JS -->
 
     <!-- Apex Chart -->
     <script src="{{ asset('vendor/apexchart/apexchart.js') }}"></script>
@@ -39,26 +26,52 @@
     <!-- Dashboard 1 -->
     <script src="{{ asset('vendor/datatables/js/jquery.dataTables.min.js') }}"></script>
     <!-- clockpicker -->
-<script src="{{ asset('vendor/clockpicker/js/bootstrap-clockpicker.min.js') }}"></script>
 
-<!-- Clockpicker init -->
-<script src="{{ asset('js/plugins-init/clock-picker-init.js') }}"></script>
+    <script src="{{ asset('vendor/clockpicker/js/bootstrap-clockpicker.min.js') }}"></script>
 
-<script src="{{ asset('vendor/bootstrap-datetimepicker/js/moment.js') }}"></script>
-<script src="{{ asset('vendor/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js') }}"></script>
-<script src="{{ asset('vendor/bootstrap-datetimepicker-master/js/bootstrap-datetimepicker.min.js') }}"></script>
-
-
+    <!-- Clockpicker init -->
+    <script src="{{ asset('js/plugins-init/clock-picker-init.js') }}"></script>
+    <script src="{{ asset('vendor/bootstrap-datetimepicker/js/moment.js') }}"></script>
+    <script src="{{ asset('vendor/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js') }}"></script>
+    <script src="{{ asset('vendor/bootstrap-datetimepicker-master/js/bootstrap-datetimepicker.min.js') }}"></script>
+    <!-- Material color picker -->
+    <script src="{{ asset('vendor/bootstrap-material-datetimepicker/js/bootstrap-material-datetimepicker.js') }}"></script>
+    <!-- Material color picker init -->
+    <script src="{{ asset('js/plugins-init/material-date-picker-init.js') }}"></script>
     <script src="{{ asset('js/dashboard/dashboard-1.js') }}"></script>
-    <script src="{{ asset('js/custom.min.js') }}"></script>
+
+    <script src="{{ asset('vendor/fullcalendar/js/main.min.js') }}"></script>
+
+    <script src="{{ asset('js/plugins-init/fullcalendar-init.js') }}"></script>
+
     <script src="{{ asset('js/deznav-init.js') }}"></script>
+
     <script src="{{ asset('js/demo.js') }}"></script>
     <script src="{{ asset('js/styleSwitcher.js') }}"></script>
     <script src="{{ asset('vendor/chartist/js/chartist.min.js') }}"></script>
-<script src="{{ asset('vendor/chartist-plugin-tooltips/js/chartist-plugin-tooltip.min.js') }}"></script>
+    <script src="{{ asset('vendor/chartist-plugin-tooltips/js/chartist-plugin-tooltip.min.js') }}"></script>
+    <script src="{{ asset('vendor/toastr/js/toastr.min.js')}}"></script>
+    <script src="{{ asset('js/plugins-init/toastr-init.js')}}"></script>
+    <script src="{{  asset('js/custom.min.js')}}"></script>
+
+    <script src="{{ asset('vendor/sweetalert2/dist/sweetalert2.min.js')}}"></script>
+    <script src="{{  asset('js/plugins-init/sweetalert.init.js')}}"></script>
+
+<!-- DataTables core -->
+
+<!-- DataTables Buttons extension -->
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.flash.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
 
 
 
+
+<!-- All init script -->
 
 	<script>
 		function assignedDoctor(){
@@ -159,6 +172,35 @@
 
 
 	</script>
+
+@include('custom_js.custom_js')
+@php
+
+    $routeName = Route::currentRouteName();
+    $segments = explode('.', $routeName);
+    $route_name = isset($segments[0]) ? $segments[0] : null;
+
+@endphp
+
+    @if ($route_name == 'location')
+         @include('custom_js.location_js')
+         @elseif ($route_name == 'driver')
+         @include('custom_js.driver_js')
+         @elseif ($route_name == 'worker')
+         @include('custom_js.worker_js')
+         @elseif ($route_name == 'user')
+         @include('custom_js.user_js')
+         @elseif ($route_name == 'expense_category')
+         @include('custom_js.expensecat_js')
+         @elseif ($route_name == 'expense')
+         @include('custom_js.exepnse_js')
+         @elseif ($route_name == 'voucher')
+         @include('custom_js.voucher_js')
+         @elseif ($route_name == 'package')
+         @include('custom_js.package_js')
+         @elseif ($route_name == 'service')
+         @include('custom_js.service_js')
+    @endif
 
 </body>
 
