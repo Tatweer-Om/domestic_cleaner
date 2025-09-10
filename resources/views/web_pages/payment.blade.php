@@ -417,12 +417,12 @@
                                     {{ trans('messages.have_voucher', [], session('locale')) ?? 'Have a voucher?' }}
                                 </label>
                             </div>
-                            <form id= "voucher_form">
+                            <form id= "voucher_form" method="post">
                                 @csrf
                           <div id="voucher-entry" class="input-group input-group-sm mt-2 d-none js-voucher-entry">
                                 <input type="text" class="form-control" id="voucher-code"
                                        placeholder="{{ trans('messages.enter_voucher', [], session('locale')) ?? 'Enter voucher code' }}">
-                                <button class="btn btn-outline-primary" type="button" id="apply-voucher-btn">
+                                <button class="btn btn-outline-primary" type="submit" id="apply-voucher-btn">
                                     Apply
                                 </button>
                             </div>
@@ -513,59 +513,58 @@
 </div>
 
 
-
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-  const checkbox = document.getElementById('use-voucher');
-  const entryBox = document.getElementById('voucher-entry');
-  const input    = document.getElementById('voucher-code');
-  const feedback = document.getElementById('voucher-feedback');
-
-  if (!checkbox || !entryBox) return;
-
-  checkbox.addEventListener('change', function () {
-    if (checkbox.checked) {
-      entryBox.classList.remove('d-none'); // show input
-      if (input) input.focus();
+(function () {
+  function toggleEntry(entry, checked) {
+    if (!entry) return;
+    if (checked) {
+      entry.classList.remove('d-none');
+      entry.style.display = '';                 // clear any inline "display:none"
+      const firstInput = entry.querySelector('input,textarea');
+      if (firstInput) firstInput.focus();
     } else {
-      entryBox.classList.add('d-none');    // hide input
-      if (input) input.value = '';
-      if (feedback) {
-        feedback.classList.add('d-none');
-        feedback.textContent = '';
-      }
+      entry.classList.add('d-none');
+      entry.style.display = 'none';             // hard-hide as fallback
+      const firstInput = entry.querySelector('input,textarea');
+      if (firstInput) firstInput.value = '';    // optional: clear
     }
-  });
-});
+  }
 
-$(function () {
-  $('#apply-voucher-btn').on('click', function (e) {
-    alert(1);
-    e.preventDefault();
+  function initScope(scope) {
+    const cb    = scope.querySelector('#use-voucher, .js-use-voucher');
+    const entry = scope.querySelector('#voucher-entry, .js-voucher-entry');
+    if (!cb || !entry) return;
 
-    const form = $('#voucher_form');
-    const code = $('#voucher-code').val();
+    // set initial state
+    toggleEntry(entry, cb.checked);
 
-    $.ajax({
-      url: "{{ url('voucher_apply') }}",    // or route('voucher.apply')
-      type: "POST",
-      data: {
-        _token: form.find('input[name="_token"]').val(),
-        code: code
-      },
-      success: function (res) {
-        console.log('Success:', res);
-        // Example: show message
-        alert(res.message || 'Voucher applied!');
-      },
-      error: function (xhr) {
-        console.error('Error:', xhr.responseText);
-        alert('Something went wrong.');
-      }
+    // direct listener
+    cb.addEventListener('change', function () {
+      toggleEntry(entry, cb.checked);
     });
+  }
+
+  // init on ready (handles multiple cards)
+  function initAll() {
+    document.querySelectorAll('.payment-card, .payment-container, body').forEach(initScope);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAll);
+  } else {
+    initAll();
+  }
+
+  // delegated handler for dynamically-added content
+  document.addEventListener('change', function (e) {
+    if (!e.target.matches('#use-voucher, .js-use-voucher')) return;
+    const scope = e.target.closest('.payment-card, .payment-container') || document;
+    const entry = scope.querySelector('#voucher-entry, .js-voucher-entry');
+    toggleEntry(entry, e.target.checked);
   });
-});
+})();
 </script>
+
 
 
 

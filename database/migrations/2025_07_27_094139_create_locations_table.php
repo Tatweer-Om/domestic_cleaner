@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('location_name')->nullable();
             $table->string('location_fare')->nullable();
+            $table->string('driver_availabe')->nullable();
+
             $table->longText('notes')->nullable();
             $table->string('user_id', 255)->nullable();
             $table->string('added_by')->nullable();

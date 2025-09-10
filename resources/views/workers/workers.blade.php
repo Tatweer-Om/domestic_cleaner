@@ -91,6 +91,7 @@
                                             <th><i class="fa fa-clock me-1"></i>{{ trans('messages.location') }}</th>
 
                                             <th><i class="fa fa-clock me-1"></i>{{ trans('messages.shifts') }}</th>
+                                            <th><i class="fa fa-user-check me-1"></i>Status</th>
 
                                             <th><i class="fa fa-user-shield me-1"></i>{{ trans('messages.added_by') }}</th>
                                             <th><i class="fa fa-calendar me-1"></i>{{ trans('messages.added_on') }}</th>
@@ -187,6 +188,29 @@
                                             <option value="3">{{ trans('messages.both', [], session('locale')) }}
                                             </option>
                                         </select>
+                                    </div>
+                                </div>
+
+                                {{-- Status (checkbox pills) --}}
+                                <div class="col-lg-8 col-xl-8">
+                                    <div class="form-group">
+                                        <label class="col-form-label d-block mb-1">
+                                            <i class="fa fa-user-check"></i>
+                                            Worker Status
+                                        </label>
+                                        <div class="d-flex flex-wrap gap-2">
+                                            <input type="radio" class="btn-check" name="status" id="status_available" value="available" autocomplete="off">
+                                            <label class="btn btn-outline-success btn-sm rounded-pill" for="status_available">Available</label>
+
+                                            <input type="radio" class="btn-check" name="status" id="status_sick" value="sick" autocomplete="off">
+                                            <label class="btn btn-outline-warning btn-sm rounded-pill" for="status_sick">Sick</label>
+
+                                            <input type="radio" class="btn-check" name="status" id="status_emergency" value="emergency_leave" autocomplete="off">
+                                            <label class="btn btn-outline-danger btn-sm rounded-pill" for="status_emergency">Emergency Leave</label>
+
+                                            <input type="radio" class="btn-check" name="status" id="status_other" value="other" autocomplete="off">
+                                            <label class="btn btn-outline-secondary btn-sm rounded-pill" for="status_other">Other</label>
+                                        </div>
                                     </div>
                                 </div>
 

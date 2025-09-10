@@ -1,7 +1,7 @@
        <footer class="footer-common footer-section-s1">
     <div class="footer-wrap section-padding">
         <div class="footer-topbar">
-            <div class="container">
+            {{-- <div class="container">
                 <div class="wraper">
                     <h2 class="scroll-text-animation">
                         <span>New Creative Ideas</span> <br> send me an e-mail – <span class="color">
@@ -12,12 +12,12 @@
                                         src="assets/images/arrow-up-black.svg" alt=""></i>Get in
                                 tocuh</small></a></div>
                 </div>
-            </div>
+            </div> --}}
         </div>
         <div class="container">
             <div class="footer">
                 <div class="item widget-newsletter fade_bottom">
-                    <h2 class="title">Newslatter</h2>
+                    <h2 class="title">Contact Us</h2>
                     <div class="newsletter">
                         <form class="form-fild">
                             <input class="fild" type="email" placeholder="Get News & Updates">
@@ -59,7 +59,7 @@
         </div>
         <div class="footer-lower">
             <div class="container">
-                <div class="lower-footer-wrap">
+                {{-- <div class="lower-footer-wrap">
                     <div class="row align-items-center g-0">
                         <div class="col-lg-5 col-12">
                             <p class="copyright">Copyright &copy; <span>2025</span> Wpocean by
@@ -77,7 +77,7 @@
                             </ul>
                         </div>
                     </div>
-                </div>
+                </div> --}}
             </div>
             <div class="f-shape">
                 <img src="assets/images/footer-shape.png" alt="">
@@ -116,10 +116,42 @@
          @include('custom_js.web_js')
          @elseif ($route_name == 'worker_profile')
          @include('custom_js.worker_profile_js')
+         @elseif ($route_name == 'user_profile')
+         @include('custom_js.user_profile_js')
+          @elseif ($route_name == 'service_page')
+         @include('custom_js.web_js')
 
 
     @endif
+
+   <script>
+  const IS_RTL = window.APP_IS_RTL === true;
+
+  // Owl Carousel
+  if (window.jQuery && $.fn.owlCarousel) {
+    $('.owl-carousel').each(function(){
+      $(this).owlCarousel(Object.assign({ rtl: IS_RTL }, $(this).data('owl-options') || {}));
+    });
+  }
+
+  // Slick
+  if (window.jQuery && $.fn.slick) {
+    $('.slick-slider').each(function(){
+      $(this).slick(Object.assign({ rtl: IS_RTL }, $(this).data('slick-options') || {}));
+    });
+  }
+
+  // Swiper (auto-detects dir, usually no flag needed)
+  // Toastr
+  if (window.toastr) {
+    toastr.options = Object.assign({
+      rtl: IS_RTL,
+      positionClass: IS_RTL ? 'toast-top-left' : 'toast-top-right'
+    }, toastr.options || {});
+  }
+</script>
 </body>
+
 
 
 </html>

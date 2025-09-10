@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('driver_name');
             $table->string('phone')->nullable();
             $table->string('driver_user_id')->nullable();
+            $table->string('whatsapp_notification')->nullable();
             $table->text('notes')->nullable();
             $table->string('driver_image')->nullable();
             $table->string('shift')->nullable();

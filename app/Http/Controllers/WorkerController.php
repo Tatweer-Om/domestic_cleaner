@@ -21,6 +21,36 @@ class WorkerController extends Controller
     return view('workers.workers', compact('locations'));
 }
 
+
+   public function worker_page($id)
+{
+    $worker = Worker::where('id', $id)->first();
+    $location = Location::where('id', $worker->location_id)->first();
+    $location_name = $location->location_name;
+    $delivery = $location->driver_availabe;
+    $packages = Package::select('package_name', 'id')->get();
+    $locations = Location::select('location_name', 'id')->get();
+
+    // 🔹 Visit statistics
+    $total_visits = Visit::where('worker_id', $id)->count();
+    $completed_visits = Visit::where('worker_id', $id)->where('status', 2)->count();
+    $pending_visits = Visit::where('worker_id', $id)->where('status', 1)->count();
+    $cancelled_visits = Visit::where('worker_id', $id)->where('status', 3)->count();
+
+    return view('workers.worker_page', compact(
+        'worker',
+        'packages',
+        'location_name',
+        'delivery',
+        'locations',
+        'total_visits',
+        'completed_visits',
+        'pending_visits',
+        'cancelled_visits'
+    ));
+}
+
+
 public function show_worker()
 {
     $sno = 0;
@@ -65,6 +95,7 @@ public function show_worker()
                 '<span class="text-primary">' . $location_name . '</span>',
 
                 '<span class="text-primary">' .$shiftLabel . '</span>',
+                '<span class="text-primary">' . e($worker->status ?? '-') . '</span>',
 
                 '<span>' . $worker->added_by . '</span>',
                 '<span>' . $add_data . '</span>',
@@ -98,7 +129,7 @@ public function add_worker(Request $request)
         $worker->location_id = $request->input('location_id');
 
         $worker->shift = $request->input('shift');
-
+        $worker->status = $request->input('status', 'available');
     $worker->worker_image = $worker_image;
     $worker->notes = $request->input('notes');
 
@@ -127,6 +158,7 @@ public function edit_worker(Request $request)
                 'location_id' => $worker->location_id,
 
         'shift' => $worker->shift,
+        'status' => $worker->status,
         'phone' => $worker->phone,
         'worker_image' => $worker_image,
         'notes' => $worker->notes,
@@ -166,6 +198,7 @@ public function update_worker(Request $request)
         $worker->location_id = $request->input('location_id');
 
     $worker->shift = $request->input('shift');
+    $worker->status = $request->input('status', $worker->status);
     $worker->worker_image = $worker_image;
     $worker->notes = $request->input('notes');
 
@@ -176,7 +209,7 @@ public function update_worker(Request $request)
     $worker->save();
 
     $updatedData = $worker->only([
-        'worker_name',  'phone', 'worker_image',
+        'worker_name',  'phone', 'worker_image', 'status',
         'notes',  'user_id', 'added_by'
     ]);
 
@@ -230,6 +263,9 @@ public function delete_worker(Request $request)
 
     return response()->json(['success' => 'worker deleted successfully']);
 }
+
+
+
 
 
 
@@ -308,32 +344,7 @@ public function workers_list(Request $request)
 }
 
 
-// public function generate(Request $request)
-// {
 
-//     $validated = $request->validate([
-//         'package_id'  => 'required|integer',
-//         'start_date'  => 'required|date',
-//         'shift_morning' => 'nullable|in:0,1',
-//         'shift_evening' => 'nullable|in:0,1',
-//         'duration_4'    => 'nullable|in:0,1',
-//         'duration_5'    => 'nullable|in:0,1',
-//     ]);
-
-
-
-//     $package = Package::findOrFail($validated['package_id']);
-
-//     $visits = $package->sessions;
-
-//     $visit_count = is_numeric($visits) ? (int)$visits : (is_countable($visits) ? count($visits) : 0);
-
-//     return response()->json([
-//         'status'       => 'success',
-//         'visit_count'  => $visit_count,
-//         'visits'       => is_numeric($visits) ? [] : $visits,
-//     ]);
-// }
 
  public function generate(Request $request)
     {
@@ -349,6 +360,8 @@ public function workers_list(Request $request)
 
         $package = Package::findOrFail($validated['package_id']);
         $worker = Worker::findOrFail($validated['worker_id']);
+
+
 
         $visits = $package->sessions;
         $visit_count = is_numeric($visits) ? (int)$visits : (is_countable($visits) ? count($visits) : 0);
@@ -392,6 +405,10 @@ public function workers_list(Request $request)
         $worker_availability = [];
 
         foreach ($visit_dates as $index => $date) {
+            // First check worker status - if worker is sick/emergency/other, mark as unavailable
+            $worker_status = $worker->status ?? 'available';
+            $is_worker_available = in_array($worker_status, ['available']);
+            
             // Check availability for the requested shift
             $is_booked_requested = Visit::where([
                 'worker_id' => $validated['worker_id'],
@@ -412,9 +429,11 @@ public function workers_list(Request $request)
                 'worker_id' => $validated['worker_id'],
                 'date' => $date,
                 'shift' => $shift,
-                'is_available' => !$is_booked_requested,
+                'is_available' => $is_worker_available && !$is_booked_requested,
+                'worker_status' => $worker_status,
+                'worker_available' => $is_worker_available,
                 'opposite_shift' => $opposite_shift,
-                'opposite_shift_available' => !$is_booked_opposite,
+                'opposite_shift_available' => $is_worker_available && !$is_booked_opposite,
                 'next_available_date' => null,
             ];
 
@@ -444,13 +463,27 @@ public function workers_list(Request $request)
 
                 $availability['next_available_date'] = $next_available_date;
 
+                // Create appropriate message based on unavailability reason
+                $message = "Worker is occupied on {$date} for the {$shift} shift";
+                if (!$is_worker_available) {
+                    $status_labels = [
+                        'sick' => 'sick',
+                        'emergency_leave' => 'on emergency leave',
+                        'other' => 'unavailable'
+                    ];
+                    $status_label = $status_labels[$worker_status] ?? 'unavailable';
+                    $message = "Worker is {$status_label} on {$date}";
+                }
+
                 $availability_issues[] = [
                     'visit_number' => $index + 1,
                     'date' => $date,
                     'shift' => $shift,
-                    'message' => "Worker is occupied on {$date} for the {$shift} shift",
+                    'message' => $message,
+                    'worker_status' => $worker_status,
+                    'worker_available' => $is_worker_available,
                     'opposite_shift' => $opposite_shift,
-                    'opposite_shift_available' => !$is_booked_opposite,
+                    'opposite_shift_available' => $is_worker_available && !$is_booked_opposite,
                     'next_available_date' => $next_available_date,
                 ];
             }
@@ -527,5 +560,181 @@ public function workers_list(Request $request)
 
         return response()->json($response);
     }
+    
+public function todayVisits(Request $request, $worker)
+{
+    $today = Carbon::today();
+
+    $visits = Visit::with(['booking.location', 'customer'])
+                   ->where('worker_id', $worker)
+                   ->where('visit_date', $today->toDateString())
+                   ->get();
+
+    return response()->json([
+        'data' => $visits->map(function ($row) {
+            $statusText = match ($row->status) {
+                1 => 'Pending',
+                2 => 'Completed',
+                3 => 'Cancelled',
+                default => 'N/A',
+            };
+
+            $durationText = $row->duration ? $row->duration . ' Hours' : 'N/A';
+
+            return [
+                'id' => $row->id,
+                'booking_no' => $row->booking ? $row->booking->booking_no : 'N/A',
+                'visit_date' => $row->visit_date ? \Carbon\Carbon::parse($row->visit_date)->format('d-m-Y') : 'N/A',
+                'customer' => $row->customer ? $row->customer->customer_name : 'N/A',
+                'location' => $row->booking && $row->booking->location 
+                                ? $row->booking->location->location_name 
+                                : 'N/A',
+                'shift_duration_status' => 
+                    '<span class="badge bg-info me-1">' . ($row->shift ?? 'N/A') . '</span>' .
+                    '<span class="badge bg-warning me-1">' . $durationText . '</span>' .
+                    '<span class="badge ' . 
+                        ($row->status == 1 ? 'bg-secondary' : ($row->status == 2 ? 'bg-success' : 'bg-danger')) . 
+                    '">' . $statusText . '</span>',
+              'action' => $row->status == 2
+    ? ''
+    : '<span class="badge bg-warning text-dark" style="cursor:pointer;" onclick="edit_worker_visit(' . $row->id . ')">Mark Completed</span>',
+
+
+            ];
+        })
+    ]);
+}
+
+
+
+ public function thisWeekVisits(Request $request, $worker)
+{
+
+  
+    $today = Carbon::today();
+    $endOfWeek = $today->copy()->addDays(6); // today + 6 days
+
+    $visits = Visit::with(['booking.location', 'customer'])
+                   ->where('worker_id', $worker)
+                   ->whereBetween('visit_date', [$today->toDateString(), $endOfWeek->toDateString()])
+                   ->get();
+
+    return response()->json([
+        'data' => $visits->map(function ($row) {
+            $statusText = match ((int) ($row->status ?? 0)) {
+                1 => 'Pending',
+                2 => 'Completed',
+                3 => 'Cancelled',
+                default => 'N/A',
+            };
+
+            $durationText = $row->duration ? $row->duration . ' Hours' : 'N/A';
+
+            return [
+                'id' => $row->id,
+                'booking_no' => $row->booking?->booking_no ?? 'N/A',
+                'visit_date' => $row->visit_date
+                    ? \Carbon\Carbon::parse($row->visit_date)->format('d-m-Y')
+                    : 'N/A',
+                'customer' => $row->customer?->customer_name ?? 'N/A',
+                'location' => $row->booking?->location?->location_name ?? 'N/A',
+                'shift_duration_status' =>
+                    '<span class="badge bg-info me-1">' . ($row->shift ?? 'N/A') . '</span>' .
+                    '<span class="badge bg-warning me-1">' . $durationText . '</span>' .
+                    '<span class="badge ' .
+                        ($row->status == 1
+                            ? 'bg-secondary'
+                            : ($row->status == 2
+                                ? 'bg-success'
+                                : 'bg-danger')) .
+                    '">' . $statusText . '</span>',
+            ];
+        })
+    ]);
+}
+
+public function allVisits($workerId)
+{
+    $sno = 0;
+
+    // fetch visits only for this worker
+    $visits = Visit::where('worker_id', $workerId)->get();
+
+    $json = []; // init array
+
+    if ($visits->count() > 0) {
+        foreach ($visits as $visit) {
+            $modal = '
+                <a href="javascript:void(0);" class="me-3 edit-staff" 
+                   data-bs-toggle="modal" data-bs-target="#add_visit_modal" 
+                   onclick=edit_visit("' . $visit->id . '")>
+                    <i class="fa fa-pencil fs-18 text-success"></i>
+                </a>
+                <a href="javascript:void(0);" class="me-3 " 
+                   data-bs-toggle="modal" data-bs-target="#add_condition_modal" 
+                   onclick=condition("' . $visit->id . '")>
+                    <i class="fa fa-book fs-18 text-success"></i>
+                </a>
+                <a href="javascript:void(0);" onclick=del("' . $visit->id . '")>
+                    <i class="fa fa-trash fs-18 text-danger"></i>
+                </a>';
+
+            $add_data   = Carbon::parse($visit->created_at)->format('d-m-Y (h:i a)');
+            $location   = optional($visit->booking->location)->location_name;
+            $booking_no = optional($visit->booking)->booking_no;
+            $customer   = optional($visit->customer)->customer_name;
+            $visit_date = Carbon::parse($visit->visit_date)->format('d-m-Y');
+            $worker     = optional($visit->worker)->worker_name;
+
+           if ($visit->status == 1) {
+    $statusBadge = '<span class="badge bg-secondary me-1">Pending</span>';
+} elseif ($visit->status == 2) {
+    $statusBadge = '<span class="badge bg-success me-1">Completed</span>';
+} elseif ($visit->status == 3) {
+    $statusBadge = '<span class="badge bg-danger me-1">Cancelled</span>';
+} else {
+    $statusBadge = '<span class="badge bg-dark me-1">N/A</span>';
+}
+
+// shift + duration badges
+$shiftBadge    = $visit->shift    ? '<span class="badge bg-info me-1">' . e($visit->shift) . '</span>' : '';
+$durationBadge = $visit->duration ? '<span class="badge bg-warning me-1">' . e($visit->duration) . ' Hours</span>' : '';
+
+// combine all into one column
+$shiftDurationStatus = $statusBadge . $shiftBadge . $durationBadge;
+
+            $sno++;
+            $json[] = [
+                '<span class="visit-info ps-0">' . $sno . '</span>',
+                '<span class="text-nowrap ms-2"> ' . $booking_no . '</span>',
+                '<span class="text-nowrap ms-2"> ' . $visit_date . '</span>',
+                '<span class="text-primary">' . $customer . '</span>',
+                '<span class="text-primary">' . $location . '</span>',
+                $shiftDurationStatus,
+     
+            ];
+        }
+    }
+
+    return response()->json([
+        'success' => true,
+        'aaData' => $json
+    ]);
+}
+
+
+public function completeVisit(Request $request)
+{
+    $visit = Visit::find($request->visit_id);
+
+    if (!$visit) {
+        return response()->json(['success' => false, 'message' => 'Visit not found.']);
+    }
+
+    $visit->status = 2; // completed
+    $visit->save();
+
+    return response()->json(['success' => true]);
+}
 
 }

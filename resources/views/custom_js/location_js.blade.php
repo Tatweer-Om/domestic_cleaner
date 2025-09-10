@@ -79,14 +79,12 @@
                 method : "POST",
                 data :   {id:id,_token: csrfToken},
                 success: function(fetch) {
-                                hidePreloader();
 
-                    after_submit();
                     if(fetch!=""){
 
                         $(".location_name").val(fetch.location_name);
                         $(".location_fare").val(fetch.location_fare);
-
+        $("input[name='driver_status'][value='" + fetch.location_available + "']").prop("checked", true);
                         $(".notes").val(fetch.notes);
                         $(".location_id").val(fetch.location_id);
                         $(".modal-title").html('<?php echo trans('messages.update_lang',[],session('locale')); ?>');

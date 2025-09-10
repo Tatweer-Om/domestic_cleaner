@@ -19,7 +19,7 @@ Version:        1.0.0
 	3.1 wpo-hero-area
 	3.2 partners
 	3.3 about-section
-	3.4 wpo-service-section 
+	3.4 wpo-service-section
 	3.5 wpo-choose-section
 	3.6 wpo-work-section
 	3.7 fanfuct-section
@@ -2903,7 +2903,7 @@ img {
   }
 }
 .wpo-site-header .navbar-header .navbar-brand {
-  display: block;
+  display: inline;
 }
 .wpo-site-header .navbar-header .navbar-brand img {
   max-width: 170px;
@@ -3294,7 +3294,8 @@ img {
 .static-hero,
 .static-hero-s2 {
   position: relative;
-  background: url(../images/slider/bg-img.jpg) center/cover no-repeat;
+  background: url(../images/slider/6.png) center/cover no-repeat;
+  padding: 50px;
   height: 759px;
   border-radius: 20px;
   z-index: 1;

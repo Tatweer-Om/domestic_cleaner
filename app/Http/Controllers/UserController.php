@@ -4,8 +4,12 @@ namespace App\Http\Controllers;
 
 use Carbon\Carbon;
 use App\Models\User;
+use App\Models\Visit;
+use App\Models\Booking;
 use App\Models\History;
+use App\Models\Package;
 use App\Models\Customer;
+use App\Models\Feedback;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -350,78 +354,159 @@ $user->permissions = is_array($request['permissions'])
     }
 
 
-  public function register(Request $request)
-{
-    // Validate (added phone because you reference it below)
-    $validated = $request->validate([
-        'user_name'     => ['required', 'string', 'max:255'],
-        'phone'    => ['required', 'string', 'max:30', 'unique:users,user_phone'],
-        'password' => ['required', 'string', 'min:4'],
-    ]);
+//   public function register(Request $request)
+// {
+//     // Validate (added phone because you reference it below)
+//     $validated = $request->validate([
+//         'user_name'     => ['required', 'string', 'max:255'],
+//         'phone'    => ['required', 'string', 'max:30', 'unique:users,user_phone'],
+//         'password' => ['required', 'string', 'min:4'],
+//     ]);
 
-    try {
-        [$user, $customer] = DB::transaction(function () use ($validated) {
-            // ---- USER ----
-            $user = new User();
-            $user->user_name   = $validated['user_name'];
-            $user->user_phone  = $validated['phone'];
-            $user->user_type   = 10;
-            $user->added_by    = $validated['user_name'];    // or auth()->id() if you prefer
-            $user->permissions = 500;
-            $user->password    = Hash::make($validated['password']);
-            $user->save();
+//     try {
+//         [$user, $customer] = DB::transaction(function () use ($validated) {
+//             // ---- USER ----
+//             $user = new User();
+//             $user->user_name   = $validated['user_name'];
+//             $user->user_phone  = $validated['phone'];
+//             $user->user_type   = 10;
+//             $user->added_by    = $validated['user_name'];    // or auth()->id() if you prefer
+//             $user->permissions = 500;
+//             $user->password    = Hash::make($validated['password']);
+//             $user->save();
 
-            // ---- CUSTOMER ----
-            $customer = new Customer();
-            $customer->user_id       = $user->id;
-            $customer->customer_name = $validated['user_name'];
-            $customer->phone_number  = $validated['phone'];
-            $customer->added_by      = $user->id;       // or keep your name if that’s your convention
-            $customer->save();
+//             // ---- CUSTOMER ----
+//             $customer = new Customer();
+//             $customer->user_id       = $user->id;
+//             $customer->customer_name = $validated['user_name'];
+//             $customer->phone_number  = $validated['phone'];
+//             $customer->added_by      = $user->id;       // or keep your name if that’s your convention
+//             $customer->save();
 
-            return [$user, $customer];
-        });
+//             return [$user, $customer];
+//         });
+
+//         return response()->json([
+//             'status'       => 'success',
+//             'message'      => 'Account created successfully.',
+//             'user_id'      => $user->id,
+//             'customer_id'  => $customer->id,
+//         ]);
+//     } catch (\Throwable $e) {
+//         report($e);
+//         return response()->json([
+//             'status'  => 'error',
+//             'message' => 'Could not create account. Please try again.',
+//         ], 500);
+//     }
+// }
+
+public function register(Request $request)
+    {
+        // Validate request, including the hidden form_index field
+        $validated = $request->validate([
+            'user_name'     => ['required', 'string', 'max:255'],
+            'phone'         => ['required', 'string', 'max:30', 'unique:users,user_phone'],
+            'password'      => ['required', 'string', 'min:4'],
+            'form_index'    => ['required', 'in:1,2'], // Ensure form_index is either 1 or 2
+        ]);
+
+        try {
+            [$user, $customer] = DB::transaction(function () use ($validated) {
+                // ---- USER ----
+                $user = new User();
+                $user->user_name   = $validated['user_name'];
+                $user->user_phone  = $validated['phone'];
+                $user->user_type   = 10;
+                $user->added_by    = $validated['user_name']; // or auth()->id() if preferred
+                $user->permissions = 500;
+                $user->password    = Hash::make($validated['password']);
+                $user->save();
+
+                // ---- CUSTOMER ----
+                $customer = new Customer();
+                $customer->user_id       = $user->id;
+                $customer->customer_name = $validated['user_name'];
+                $customer->phone_number  = $validated['phone'];
+                $customer->added_by      = $user->id; // or keep as name if that's your convention
+                $customer->save();
+
+                return [$user, $customer];
+            });
+
+            // Handle login for form_index = 2
+            if ($validated['form_index'] == '2') {
+                // Attempt to log the user in using the phone and password
+                if (Auth::attempt(['user_phone' => $validated['phone'], 'password' => $validated['password']])) {
+                    // Regenerate session to prevent session fixation
+                    $request->session()->regenerate();
+
+                    return response()->json([
+                        'status'       => 'success',
+                        'message'      => 'Account created and logged in successfully.',
+                        'user_id'      => $user->id,
+                        'customer_id'  => $customer->id,
+                        'logged_in'    => true,
+                    ]);
+                } else {
+                    // If login fails, still return success for account creation
+                    return response()->json([
+                        'status'       => 'success',
+                        'message'      => 'Account created but login failed. Please try logging in manually.',
+                        'user_id'      => $user->id,
+                        'customer_id'  => $customer->id,
+                        'logged_in'    => false,
+                    ], 200);
+                }
+            }
+
+            // Default response for form_index = 1
+            return response()->json([
+                'status'       => 'success',
+                'message'      => 'Account created successfully.',
+                'user_id'      => $user->id,
+                'customer_id'  => $customer->id,
+                'logged_in'    => false,
+            ]);
+        } catch (\Throwable $e) {
+            report($e);
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Could not create account. Please try again.',
+            ], 500);
+        }
+    }
+
+    public function loginAjax(Request $request)
+    {
+        // Validate request, including the hidden form_1 field
+        $data = $request->validate([
+            'identifier' => 'required|string',
+            'password'   => 'required|string',
+            'form_1'     => ['required', 'in:1,2'], // Ensure form_1 is either 1 or 2
+        ]);
+
+        $id = $data['identifier'];
+        $isPhone = preg_match('/^\+?\d+$/', $id);
+
+        $user = \App\Models\User::where($isPhone ? 'user_phone' : 'user_name', $id)->first();
+
+        if (!$user || !Hash::check($data['password'], $user->password)) {
+            return response()->json(['status' => 'error', 'message' => 'Invalid credentials'], 422);
+        }
+
+        // Perform login
+        Auth::login($user); // No remember flag
+        $request->session()->regenerate(); // Prevent session fixation
+
+        // Determine redirect URL based on form_1
+        $redirectUrl = $data['form_1'] == '1' ? '/' : 'checkout/booking_no';
 
         return response()->json([
             'status'       => 'success',
-            'message'      => 'Account created successfully.',
-            'user_id'      => $user->id,
-            'customer_id'  => $customer->id,
+            'redirect_url' => url($redirectUrl),
         ]);
-    } catch (\Throwable $e) {
-        report($e);
-        return response()->json([
-            'status'  => 'error',
-            'message' => 'Could not create account. Please try again.',
-        ], 500);
     }
-}
-
-    public function loginAjax(Request $request)
-{
-    $data = $request->validate([
-        'identifier' => 'required|string',
-        'password'   => 'required|string',
-    ]);
-
-    $id = $data['identifier'];
-    $isPhone = preg_match('/^\+?\d+$/', $id);
-
-    $user = \App\Models\User::where($isPhone ? 'user_phone' : 'user_name', $id)->first();
-
-    if (!$user || !Hash::check($data['password'], $user->password)) {
-        return response()->json(['status' => 'error', 'message' => 'Invalid credentials'], 422);
-    }
-
-    // 🔑 No remember flag:
-    Auth::login($user);                 // same as Auth::login($user, false)
-    $request->session()->regenerate();  // prevent session fixation
-
-    return response()->json([
-        'status'       => 'success',
-        'redirect_url' => url('/'),
-    ]);
-}
 
 
 public function logoutAjax(Request $request)
@@ -435,4 +520,180 @@ public function logoutAjax(Request $request)
         'redirect_url' => url('/')
     ]);
 }
+
+public function user_profile($id)
+{
+    $user = User::select('id', 'user_name', 'user_phone')->findOrFail($id);
+
+    $customerId = Customer::where('phone_number', $user->user_phone)->value('id');
+
+    $totalBookings = Booking::where('user_id', $id)->count();
+    $bookingCount  = $customerId ? Booking::where('customer_id', $customerId)->count() : 0;
+    $visitCount    = $customerId ? Visit::where('customer_id', $customerId)->count() : 0;
+
+    return view('web_pages.user_profile', compact(
+        'user',
+        'totalBookings',
+        'bookingCount',
+        'visitCount'
+    ));
+}
+
+
+public function user_bookings(Request $request)
+{
+    $userId = $request->get('user_id');
+
+    $user = User::select('id', 'user_name', 'user_phone')->findOrFail($userId);
+    $customerId = Customer::where('phone_number', $user->user_phone)->value('id');
+
+    $bookings = Booking::with([
+            // pull name + the two prices from Package
+            'package:id,package_name,package_price_4,package_price_5',
+            // pull location name too
+            'location:id,location_name',
+        ])
+        ->where('customer_id', $customerId)
+        ->get([
+            'id',
+            'booking_no',
+            'customer_id',
+            'package_id',
+            'location_id',
+            'status',
+            'start_date',
+            'visits_count',
+            'duration',      // adjust if your column is different
+        ]);
+
+    return response()->json([
+        'ok'       => true,
+        'bookings' => $bookings,
+        'user_id'  => $userId,
+    ]);
+}
+
+
+    // --- Visits ---
+ public function user_visits(Request $request)
+{
+    $userId = $request->get('user_id');
+
+    $user = User::select('id', 'user_name', 'user_phone')->findOrFail($userId);
+    $customerId = Customer::where('phone_number', $user->user_phone)->value('id');
+
+    $visits = Visit::with([
+            'booking:id,booking_no',
+            'worker:id,worker_name',
+        ])
+        ->where('customer_id', $customerId)
+        ->get([
+            'id',
+            'booking_id',
+            'customer_id',
+            'visit_date',
+            'status',      // 1=pending, 2=completed, 3=cancelled (assumption)
+            'worker_id',
+            'duration',
+            'shift',       // e.g., 'Morning' / 'Evening'
+        ]);
+
+    return response()->json([
+        'ok'     => true,
+        'type'   => 'visits',
+        'user_id'=> $userId,
+        'visits' => $visits,
+    ]);
+}
+
+
+    // --- Feedback ---
+ public function user_feedback(Request $request)
+{
+    $userId = $request->get('user_id');
+
+    $user = User::select('id', 'user_name', 'user_phone')->findOrFail($userId);
+    $customerId = Customer::where('phone_number', $user->user_phone)->value('id');
+
+    // Pull active (status=1) bookings with worker name
+    $bookings = Booking::with([
+            'worker:id,worker_name',
+        ])
+        ->where('customer_id', $customerId)
+        ->where('status', 1)
+        ->get([
+            'id',
+            'booking_no',
+            'worker_id',
+            'start_date',   // keep if you also want to show date
+        ]);
+
+    return response()->json([
+        'ok'       => true,
+        'type'     => 'feedback',
+        'user_id'  => $userId,
+        'bookings' => $bookings,
+    ]);
+}
+
+
+
+    public function update(Request $request, \App\Models\Visit $visit)
+{
+    $data = $request->validate([
+        'visit_date' => ['required','date'],
+        'duration'   => ['required','integer','min:1'],
+        'shift'      => ['required','in:Morning,Evening'], // adjust if you use codes (1/2)
+    ]);
+
+    // Save
+    $visit->visit_date = $data['visit_date'];
+    $visit->duration   = $data['duration'];
+    $visit->shift      = $data['shift'];
+    $visit->save();
+
+    return response()->json([
+        'ok'    => true,
+        'visit' => [
+            'id'         => $visit->id,
+            'visit_date' => $visit->visit_date,
+            'duration'   => $visit->duration,
+            'shift'      => $visit->shift,
+        ],
+        'message' => 'Visit updated',
+    ]);
+}
+
+
+public function store(Request $request)
+{
+    // Validate incoming request
+    $data = $request->validate([
+        'user_id'    => ['required','integer','exists:users,id'], // this is the profile user id
+        'worker_id'  => ['required','integer','exists:workers,id'],
+        'booking_id' => ['required','integer','exists:bookings,id'],
+        'rating'     => ['required','integer','between:1,5'],
+        'notes'      => ['nullable','string','max:2000'],
+    ]);
+
+    // Lookup the user
+    $user = User::select('id','user_name','user_phone')->findOrFail($data['user_id']);
+
+    // Map to the actual customer_id
+    $customerId = Customer::where('phone_number', $user->user_phone)->value('id');
+
+    // Replace user_id with customer_id for Feedback
+    unset($data['user_id']);
+    $data['customer_id'] = $customerId;
+
+    // Create feedback
+    $feedback = Feedback::create($data);
+
+    return response()->json([
+        'ok'      => true,
+        'message' => 'Feedback saved successfully.',
+        'feedback'=> $feedback,
+    ]);
+}
+
 }

@@ -200,6 +200,16 @@
          @include('custom_js.package_js')
          @elseif ($route_name == 'service')
          @include('custom_js.service_js')
+             @elseif ($route_name == 'all_bookings')
+         @include('custom_js.booking_js')
+         @elseif ($route_name == 'all_visits')
+         @include('custom_js.booking_js')
+               @elseif ($route_name == 'sms')
+         @include('custom_js.add_sms_js')
+		        @elseif ($route_name == 'worker_page')
+         @include('custom_js.worker_page_js')
+         	        @elseif ($route_name == 'driver_page')
+         @include('custom_js.driver_page_js')
     @endif
 
 </body>

@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('customer_id')->nullable();
             $table->string('added_by')->nullable();
             $table->string('updated_by')->nullable();
+            $table->string('status')->nullable();
             $table->string('user_id')->nullable();
 
             $table->timestamps();

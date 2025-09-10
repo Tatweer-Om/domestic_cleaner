@@ -1,6 +1,34 @@
 <script>
 
 
+document.addEventListener('DOMContentLoaded', function () {
+    const logoutBtn = document.getElementById('btnLogout');
+    if (!logoutBtn) return;
+
+    logoutBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+
+        fetch("{{ route('logout.ajax') }}", {
+            method: "POST",
+            headers: {
+                "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
+                "Accept": "application/json",
+                "X-Requested-With": "XMLHttpRequest",
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({})
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.ok) {
+                window.location.href = data.redirect_url || "{{ url('/') }}";
+            } else {
+                alert(data.error || "Logout failed");
+            }
+        })
+        .catch(() => alert("Network error while logging out"));
+    });
+});
 
 
 $('.datepicker').bootstrapMaterialDatePicker({

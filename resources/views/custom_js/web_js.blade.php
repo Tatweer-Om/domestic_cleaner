@@ -231,34 +231,34 @@ $(function () {
   });
 });
 
-document.addEventListener('DOMContentLoaded', function () {
-    const logoutBtn = document.getElementById('btnLogout');
-    if (!logoutBtn) return;
+// document.addEventListener('DOMContentLoaded', function () {
+//     const logoutBtn = document.getElementById('btnLogout');
+//     if (!logoutBtn) return;
 
-    logoutBtn.addEventListener('click', function (e) {
-        e.preventDefault();
+//     logoutBtn.addEventListener('click', function (e) {
+//         e.preventDefault();
 
-        fetch("{{ route('logout.ajax') }}", {
-            method: "POST",
-            headers: {
-                "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
-                "Accept": "application/json",
-                "X-Requested-With": "XMLHttpRequest",
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({})
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.ok) {
-                window.location.href = data.redirect_url || "{{ url('/') }}";
-            } else {
-                alert(data.error || "Logout failed");
-            }
-        })
-        .catch(() => alert("Network error while logging out"));
-    });
-});
+//         fetch("{{ route('logout.ajax') }}", {
+//             method: "POST",
+//             headers: {
+//                 "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
+//                 "Accept": "application/json",
+//                 "X-Requested-With": "XMLHttpRequest",
+//                 "Content-Type": "application/json"
+//             },
+//             body: JSON.stringify({})
+//         })
+//         .then(res => res.json())
+//         .then(data => {
+//             if (data.ok) {
+//                 window.location.href = data.redirect_url || "{{ url('/') }}";
+//             } else {
+//                 alert(data.error || "Logout failed");
+//             }
+//         })
+//         .catch(() => alert("Network error while logging out"));
+//     });
+// });
 
 
 
@@ -373,6 +373,7 @@ function updateSlider() {
         },
         success: async function (res) {
             // Replace inner content
+
             $slider.html(res);
 
             // Wait until images are ready
@@ -415,6 +416,27 @@ $(document).on('click', '.wpo-service-link', function (e) {
         show_notification('error', 'Please select a location first.');
         return false;
     }
+});
+
+function loadServices() {
+    $.ajax({
+        url: "{{ url('service_section') }}",   // Your Laravel route
+        type: "GET",
+        success: function (response) {
+            $("#service_show").html(response);
+        },
+        error: function (xhr, status, error) {
+            console.error("Error loading services:", error);
+            $("#service_show").html(
+                '<div class="col-12 text-center text-danger">Failed to load services. Please try again.</div>'
+            );
+        }
+    });
+}
+
+// Load services when the page is ready
+$(document).ready(function() {
+    loadServices();
 });
 
 </script>

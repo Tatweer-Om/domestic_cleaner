@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\SmsController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WebController;
 use App\Http\Controllers\HomeController;
@@ -43,6 +44,7 @@ Route::post('edit_worker', [WorkerController::class, 'edit_worker'])->name('edit
 Route::post('update_worker', [WorkerController::class, 'update_worker'])->name('update_worker');
 Route::post('delete_worker', [WorkerController::class, 'delete_worker'])->name('delete_worker');
 Route::get('worker_list', [WorkerController::class, 'workers_list'])->name('worker_list');
+Route::get('worker_page/{id}', [WorkerController::class, 'worker_page'])->name('worker_page');
 
 //locations
 Route::get('location', [LocationController::class, 'index'])->name('location');
@@ -54,6 +56,7 @@ Route::post('delete_location', [LocationController::class, 'delete_location'])->
 
 
 //locations
+Route::get('driver_page/{id}', [DriverController::class, 'driver_page'])->name('driver_page');
 Route::get('driver', [DriverController::class, 'index'])->name('driver');
 Route::post('add_driver', [DriverController::class, 'add_driver'])->name('add_driver');
 Route::get('show_driver', [DriverController::class, 'show_driver'])->name('show_driver');
@@ -70,12 +73,26 @@ Route::get('show_user', [UserController::class, 'show_user'])->name('show_user')
 Route::post('edit_user', [UserController::class, 'edit_user'])->name('edit_user');
 Route::post('update_user', [UserController::class, 'update_user'])->name('update_user');
 Route::post('delete_user', [UserController::class, 'delete_user'])->name('delete_user');
+Route::get('user_bookings', [UserController::class, 'user_bookings'])->name('user_bookings');
+Route::get('user_visits', [UserController::class, 'user_visits'])->name('user_visits');
+Route::get('user_feedback', [UserController::class, 'user_feedback'])->name('user_feedback');
+Route::post('visits/update/{visit}', [UserController::class, 'update'])
+     ->name('visits.update');
+Route::post('feedback/worker', [UserController::class, 'store'])->name('feedback.worker.store');
+
+
+Route::get('sms', [SmsController::class, 'index'])->name('sms');
+Route::post('get_sms_status', [SmsController::class, 'get_sms_status'])->name('get_sms_status');
+Route::match(['get', 'post'], 'add_status_sms', [SmsController::class, 'add_status_sms'])->name('add_status_sms');
+
+
 Route::post('/register-ajax', [UserController::class, 'register'])
     ->name('register.ajax');
-    Route::post('/login-ajax', [UserController::class, 'loginAjax'])
+   Route::match(['get', 'post'], '/login-ajax', [UserController::class, 'loginAjax'])
     ->name('login.ajax');
-Route::post('/logout-ajax', [UserController::class, 'logoutAjax'])->name('logout.ajax');
 
+Route::post('/logout-ajax', [UserController::class, 'logoutAjax'])->name('logout.ajax');
+Route::get('user_profile/{id}', [UserController::class, 'user_profile'])->name('user_profile');
 //aCCOUNT
 
 Route::get('account', [AccountController::class, 'index'])->name('account');
@@ -136,7 +153,12 @@ Route::get('/', [WebController::class, 'index'])->name('index');
 Route::get('worker_section', [WebController::class, 'worker_section'])->name('worker_section');
 Route::get('worker_profile/{id}', [WebController::class, 'worker_profile'])->name('worker_profile');
 Route::get('/worker-slides',  [WebController::class, 'worker_slides'])->name('worker.slides'); // AJAX
+Route::get('service_page',  [WebController::class, 'service_page'])->name('service_page'); // AJAX
+Route::get('service_section',  [WebController::class, 'service_section'])->name('service_section'); // AJAX
 
+Route::get('about',  [WebController::class, 'about'])->name('about'); // AJAX
+Route::get('contact',  [WebController::class, 'contact'])->name('contact'); // AJAX
+Route::get('policy',  [WebController::class, 'policy'])->name('policy'); // AJAX
 
 Route::get('service', [ServiceController::class, 'index'])->name('service');
 Route::post('add_service', [ServiceController::class, 'add_service'])->name('add_service');
@@ -153,4 +175,36 @@ Route::post('/check-availability', [WorkerController::class, 'checkAvailability'
 
 Route::post('save_booking', [BookingController::class, 'save_booking'])->name('save_booking');
 Route::get('checkout/{id}', [BookingController::class, 'checkout'])->name('checkout');
-Route::get('voucher_apply', [BookingController::class, 'voucher_apply'])->name('voucher_apply');
+Route::post('voucher_apply', [BookingController::class, 'voucher_apply'])->name('voucher_apply');
+Route::get('show_booking', [BookingController::class, 'show_booking'])->name('show_booking');
+Route::get('all_bookings', [BookingController::class, 'all_bookings'])->name('all_bookings');
+Route::post('cancel_booking', [BookingController::class, 'cancel_booking'])->name('cancel_booking');
+Route::post('condition', [BookingController::class, 'condition'])->name('condition');
+Route::post('edit_condition', [BookingController::class, 'edit_condition'])->name('edit_condition');
+
+//visitroutes
+Route::get('show_visit', [BookingController::class, 'show_visit'])->name('show_visit');
+Route::get('all_visits', [BookingController::class, 'all_visits'])->name('all_visits');
+Route::post('cancel_visits', [BookingController::class, 'cancel_visits'])->name('cancel_visits');
+Route::post('add_visit2', [BookingController::class, 'add_visit2'])->name('add_visit2');
+Route::post('edit_visit2', [BookingController::class, 'edit_visit2'])->name('edit_visit2');
+Route::post('update_visit2', [BookingController::class, 'update_visit2'])->name('update_visit2');
+Route::post('delete_visit', [BookingController::class, 'delete_visit'])->name('delete_visit');
+
+Route::get('/locale/{locale}', function (string $locale) {
+    $supported = ['en','ar'];
+    if (! in_array($locale, $supported, true)) $locale = 'en';
+    session(['locale' => $locale]);
+    app()->setLocale($locale);
+    return back();
+})->name('locale.switch');
+
+Route::get('workers/{worker}/visits', [WorkerController::class, 'visitsPage'])->name('worker.visits.page');
+Route::get('workers/{worker}/visits/today', [WorkerController::class, 'todayVisits'])->name('worker.visits.today');
+Route::get('workers/{worker}/visits/this_week', [WorkerController::class, 'thisWeekVisits'])->name('worker.visits.this_week');
+Route::get('workers/{worker}/visits/all', [WorkerController::class, 'allVisits'])->name('worker.visits.all');
+Route::post('worker/visits/complete', [WorkerController::class, 'completeVisit'])->name('worker.visits.complete');
+Route::get('drivers/{driver}/visits', [DriverController::class, 'visitsPage'])->name('driver.visits.page');
+Route::get('drivers/{driver}/visits/today', [DriverController::class, 'todayVisitsdriver'])->name('driver.visits.today');
+Route::get('drivers/{driver}/visits/this_week', [DriverController::class, 'thisWeekVisitsdriver'])->name('driver.visits.this_week');
+Route::get('drivers/{driver}/visits/all', [DriverController::class, 'allVisitsdriver'])->name('driver.visits.all');

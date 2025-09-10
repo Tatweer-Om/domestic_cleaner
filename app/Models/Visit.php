@@ -16,10 +16,25 @@ class Visit extends Model
         'added_by',
         'customer_id',
         'worker_id',
+        'status',
     ];
 
-    public function booking()
+    // public function booking()
+    // {
+    //     return $this->belongsTo(Booking::class);
+    // }
+
+    public function booking() { return $this->belongsTo(Booking::class, 'booking_id'); }
+public function worker()  { return $this->belongsTo(Worker::class,  'worker_id'); }
+
+public function customer()
     {
-        return $this->belongsTo(Booking::class);
+        return $this->belongsTo(Customer::class, 'customer_id');
     }
+
+
+protected $casts = [
+    'visit_date' => 'date',
+    'status' => 'integer',
+];
 }

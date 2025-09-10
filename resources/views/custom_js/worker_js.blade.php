@@ -18,7 +18,7 @@ $(function () {
     bFilter: true,
     pagingType: 'numbers',
     ordering: true,
-    order: [[6, 'desc']]
+    order: [[7, 'desc']]
   });
 
   // === Helpers ===
@@ -49,6 +49,9 @@ $(function () {
       if ($.fn.selectpicker) $(this).selectpicker('refresh');
     });
 
+    // Reset status radios (uncheck all)
+    $form.find('input[name="status"]').prop('checked', false);
+
     // Reset image
     $form.find('#imageUpload').val('');
     $form.find('#imagePreview').attr('src', PLACEHOLDER_IMG);
@@ -67,6 +70,20 @@ $(function () {
       const $form = $(this).find('form.add_worker');
       const id = $.trim($form.find('.worker_id').val());
       if (!id) resetAddWorkerModal($(this)); // only reset on "add" show
+    });
+
+  // Ensure clicking Add Worker button fully resets the form before show
+  $(document)
+    .off('click', '[data-bs-target="#add_worker_modal"]')
+    .on('click', '[data-bs-target="#add_worker_modal"]', function () {
+      const $modal = $('#add_worker_modal');
+      const $form = $modal.find('form.add_worker');
+      $form.find('.worker_id').val('');
+      resetAddWorkerModal($modal);
+      // Refresh selectpickers explicitly
+      if ($.fn.selectpicker) {
+        $form.find('select.worker_user_id, select.location_id').selectpicker('refresh');
+      }
     });
 
   // === Image: click to pick, preview, remove ===
@@ -121,6 +138,7 @@ $(function () {
       const phone = $.trim($form.find('.phone').val());
       const location_id = $.trim($form.find('select.location_id').val());
       const worker_user_id = $form.find('select.worker_user_id').val(); // null/"" when empty
+      const status = $form.find('input[name="status"]:checked').val();
 
       // Basic validations
       if (!name) {
@@ -139,9 +157,14 @@ $(function () {
         show_notification('error', '<?php echo trans('messages.add_worker_user_id_lang',[],session('locale')); ?>');
         return;
       }
+      if (!status) {
+        show_notification('error', 'Please select a worker status.');
+        return;
+      }
 
       // Build payload (FormData picks up file + all inputs including name="location_id")
       const formData = new FormData($form[0]);
+      formData.set('status', status);
       // If your Blade form already has @csrf, _token is included automatically.
 
       // Optional: debug what’s being sent (remove in prod)
@@ -233,6 +256,12 @@ function edit(id) {
                 $('.shift').selectpicker('refresh');
                     $(".location_id").val(fetch.location_id).trigger('change');
                 $('.location_id').selectpicker('refresh');
+                // Set status radio
+                if (fetch.status) {
+                  $('input[name="status"][value="' + fetch.status + '"]').prop('checked', true);
+                } else {
+                  $('input[name="status"]').prop('checked', false);
+                }
                 $('#checked_html').html(fetch.checked_html);
                 $(".modal-title").html('<?php echo trans('messages.update_lang',[],session('locale')); ?>');
             }

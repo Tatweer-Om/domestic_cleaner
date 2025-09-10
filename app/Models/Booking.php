@@ -18,6 +18,7 @@ class Booking extends Model
         'user_name',
         'added_by',
         'customer_id',
+        'booking_no',
         'visits_count',
         'visits',
     ];
@@ -26,4 +27,18 @@ class Booking extends Model
     {
         return $this->hasMany(Visit::class);
     }
+
+    public function package()
+{
+    return $this->belongsTo(Package::class, 'package_id');
+}
+
+public function location()
+{
+    return $this->belongsTo(Location::class, 'location_id');}
+
+public function worker()
+{
+    return $this->belongsTo(Worker::class, 'worker_id');
+}
 }

@@ -76,11 +76,12 @@ if ($locale == 'ar') {
         <div class="nav-header">
 
 
-            <a href="{{ url('/') }}" class="brand-logo">
-                <svg width="200" height="150" xmlns="http://www.w3.org/2000/svg">
-                    <image href="{{ asset('images/logo/logo.png') }}" width="150" height="150" />
-                </svg>
-            </a>
+         <a href="{{ url('/') }}" class="brand-logo d-flex align-items-center">
+    <img src="{{ asset('images/logo/logo.png') }}" 
+         alt="Logo" 
+         class="img-fluid"
+         style="max-height: 60px; height: auto; width: auto;">
+</a>
 
 
             <div class="nav-control">
@@ -230,6 +231,35 @@ if ($locale == 'ar') {
                             <li><a href="{{ url('workers/schedule') }}">Worker Shifts</a></li>
                         </ul>
                     </li>
+                    <li>
+                        <a href="javascript:void(0);" class="ai-icon has-arrow" aria-expanded="false">
+                            <i class="fas fa-calendar-alt text-danger"></i>
+                            <span class="nav-text">Bookings & Visits</span>
+                        </a>
+                        <ul aria-expanded="false">
+                            <li><a href="{{ url('all_bookings') }}">All Bookings</a></li>
+                            <li><a href="{{ url('all_visits') }}">All Visits</a></li>
+                        </ul>
+                    </li>
+                        <li>
+    <a href="javascript:void(0);" class="ai-icon has-arrow" aria-expanded="false">
+        <i class="flaticon-381-user-1"
+           style="font-size:18px;
+                  background: linear-gradient(45deg, #ff6b6b, #feca57, #48dbfb, #1dd1a1);
+                  -webkit-background-clip: text;
+                  -webkit-text-fill-color: transparent;">
+        </i>
+        <span class="nav-text">{{ trans('messages.users', [], session('locale')) }}</span>
+    </a>
+    <ul aria-expanded="false">
+        <li>
+            <a href="{{ url('user') }}">
+                {{ trans('messages.add_user', [], session('locale')) }}
+            </a>
+        </li>
+    </ul>
+</li>
+
                 <li>
                     <a href="javascript:void(0);" class="ai-icon has-arrow" aria-expanded="false">
                         <i class="bi bi-box-seam text-success"></i>

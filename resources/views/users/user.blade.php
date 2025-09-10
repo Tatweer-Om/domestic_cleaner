@@ -203,10 +203,11 @@
                                             </option>
                                             <option value="2">{{ trans('messages.user', [], session('locale')) }}
                                             </option>
-                                            <option value="3">{{ trans('messages.doctor', [], session('locale')) }}
+                                                <option value="3">{{ trans('messages.driver', [], session('locale')) }}
                                             </option>
-                                            <option value="4">{{ trans('messages.employee', [], session('locale')) }}
+                                                <option value="3">{{ trans('messages.worker', [], session('locale')) }}
                                             </option>
+
                                         </select>
                                     </div>
                                 </div>

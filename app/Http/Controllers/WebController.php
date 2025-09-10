@@ -16,16 +16,72 @@ class WebController extends Controller
     }
 
 
+     public function service_page()
+    {
+        return view('web_pages.service_page');
+    }
+
+       public function about()
+    {
+        return view('web_pages.about');
+    }
+
+          public function contact()
+    {
+        return view('web_pages.contact');
+    }
+
+            public function policy()
+    {
+        return view('web_pages.policy');
+    }
+
+ public function service_section(Request $request)
+{
+    $services = Service::select('id', 'service_name', 'service_image')->get();
+
+    $html = '';
+
+    foreach ($services as $service) {
+        $html .= '
+        <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+            <div class="card h-100 shadow-sm border-0 text-center">
+                <div class="card-img-top" style="height:180px; overflow:hidden;">
+                    <img src="' . asset("images/service_images/" . $service->service_image) . '"
+                         alt="' . e($service->service_name) . '"
+                         class="img-fluid w-100" style="object-fit:cover; height:100%;">
+                </div>
+                <div class="card-body p-3">
+                    <h6 class="card-title mb-2" style="font-size: 1rem; font-weight:600; color:#333;">
+                        ' . e($service->service_name) . '
+                    </h6>
+                    <a href="' . url("service-single/" . $service->id) . '"
+                       class="btn btn-sm btn-success mt-2"
+                       style="border-radius:20px; padding:5px 15px;">
+                        View Service
+                    </a>
+                </div>
+            </div>
+        </div>
+        ';
+    }
+
+    return response($html);
+}
+
 
 
 public function worker_section(Request $request)
 {
     $locations  = Location::select('id', 'location_name')->orderBy('location_name')->get();
     $locationId = $request->query('location_id');
+
+
     $slidesHtml = $this->buildWorkerSlidesHtml($locationId);
 
+
     // Build options
-    $optionsHtml = '<option value="">All locations</option>';
+$optionsHtml = '<option value="">' . trans('messages.all_locations', [], session('locale')) . '</option>';
     foreach ($locations as $loc) {
         $id   = (int) $loc->id;
         $name = e($loc->location_name);
@@ -40,24 +96,24 @@ public function worker_section(Request $request)
       <div class="wpo-service-wrap box-style section-padding">
         <div class="container">
           <div class="row align-items-center g-3 mb-3">
-            <div class="col-lg-6">
+            <div class="col-lg-12">
               <div class="wpo-section-title">
                 <span>
                   <i><img src="' . asset('assets/images/cleaning-icon.svg') . '" alt=""></i>
                   Workers
                 </span>
-                <h2 class="poort-text poort-in-right">Where Cleanliness meets Care Services</h2>
+                <h2 class="poort-text poort-in-right"> ' . trans('messages.choose_location_worker', [], session('locale')) . '</h2>
               </div>
             </div>
 
-            <div class="col-lg-6">
+            <div class="col-lg-12">
               <div class="d-flex justify-content-lg-end">
-                <div class="location-picker-wrap" style="min-width:320px">
+                <div class="location-picker-wrap" style="min-width:100%">
                   <label class="form-label small text-muted mb-1 d-flex align-items-center gap-2">
                     <span aria-hidden="true" style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:#f0f2f5;">🔎</span>
                     <span>Filter by location</span>
                     <small class="ms-auto text-muted">
-                      <span id="locCount" class="badge rounded-pill bg-light text-dark border">All</span>
+                      <span id="locCount" class="badge rounded-pill bg-light text-dark border">' . trans('messages.all', [], session('locale')) . '</span>
                     </small>
                   </label>
 
@@ -66,13 +122,13 @@ public function worker_section(Request $request)
                       id="filter_location"
                       class="form-select selectpicker"
                       data-live-search="true"
-                      data-live-search-placeholder="Type location..."
+                      data-live-search-placeholder="' . trans('messages.type_location', [], session('locale')) . '..."
                       data-size="8"
                       data-dropup-auto="false"
                       data-width="100%"
                       data-style="btn btn-light border rounded-3 shadow-sm px-3 py-2"
                       title="All locations"
-                      aria-label="Filter workers by location"
+                      aria-label="' . trans('messages.filter_workers_by_location', [], session('locale')) . '"
                     >' . $optionsHtml . '</select>
 
 
@@ -99,8 +155,10 @@ public function worker_section(Request $request)
       </div>
     </section>';
 
-    return response($html);
+return response($html);
 }
+
+
 
 
     public function worker_slides(Request $request)
@@ -120,8 +178,10 @@ public function worker_section(Request $request)
             ->get();
 
         if ($workers->isEmpty()) {
-            return '<div class="alert alert-info mb-0">No workers found for the selected location.</div>';
+            return '<div class="alert alert-info mb-0">' . trans('messages.no_worker_found', [], session('locale')) . '</div>';
         }
+
+
 
         $slides = '';
         foreach ($workers as $worker) {
@@ -157,9 +217,12 @@ public function worker_section(Request $request)
     {
 
         $worker = Worker::where('id', $id)->first();
+        $location= Location::where('id', $worker->location_id)->first();
+        $location_name= $location->location_name;
+        $delivery= $location->driver_availabe;
         $packages = Package::select('package_name', 'id')->get();
         $locations = Location::select('location_name', 'id')->get();
-        return view('web_pages.worker_profile', compact('worker', 'packages', 'locations'));
+        return view('web_pages.worker_profile', compact('worker', 'packages', 'location_name', 'delivery', 'locations'));
     }
 
 

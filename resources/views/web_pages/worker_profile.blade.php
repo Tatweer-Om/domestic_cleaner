@@ -707,6 +707,137 @@
         }
 
         /* keep your existing booking styles */
+        
+        /* Beautiful Datepicker Styles */
+        .flatpickr-calendar {
+            background: #fff;
+            border: 1px solid #e1e5e9;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            font-family: inherit;
+        }
+        
+        .flatpickr-months {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            border-radius: 12px 12px 0 0;
+            padding: 12px;
+        }
+        
+        .flatpickr-month {
+            color: white;
+        }
+        
+        .flatpickr-prev-month, .flatpickr-next-month {
+            color: white !important;
+        }
+        
+        .flatpickr-prev-month:hover, .flatpickr-next-month:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+        }
+        
+        .flatpickr-weekdays {
+            background: #f8fafc;
+            border-bottom: 1px solid #e1e5e9;
+        }
+        
+        .flatpickr-weekday {
+            color: #64748b;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        
+        .flatpickr-days {
+            padding: 8px;
+        }
+        
+        .flatpickr-day {
+            border-radius: 8px;
+            margin: 1px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .flatpickr-day:hover {
+            background: #e2e8f0;
+            border-color: #e2e8f0;
+        }
+        
+        .flatpickr-day.selected {
+            background: #22c55e;
+            border-color: #22c55e;
+            color: white;
+        }
+        
+        .flatpickr-day.today {
+            background: #fef3c7;
+            border-color: #f59e0b;
+            color: #92400e;
+        }
+        
+        .flatpickr-day.today.selected {
+            background: #22c55e;
+            border-color: #22c55e;
+            color: white;
+        }
+        
+        /* Friday styling - crossed out and disabled */
+        .flatpickr-day.friday {
+            background: #fee2e2;
+            color: #dc2626;
+            text-decoration: line-through;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        
+        .flatpickr-day.friday:hover {
+            background: #fee2e2;
+            border-color: #fee2e2;
+        }
+        
+        .flatpickr-day.friday.selected {
+            background: #fee2e2;
+            border-color: #fee2e2;
+            color: #dc2626;
+        }
+        
+        /* Mini date input styling */
+        .mini-date {
+            border: 1px solid #dbe7dc;
+            border-radius: 8px;
+            background: #f6fff8;
+            color: #0f5132;
+            font-size: 0.8rem;
+            padding: 6px 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .mini-date:hover {
+            border-color: #22c55e;
+            background: #f0fdf4;
+        }
+        
+        .mini-date:focus {
+            outline: none;
+            border-color: #22c55e;
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+        }
+        
+        /* Date input wrapper */
+        .date-input-wrapper {
+            position: relative;
+        }
+        
+        .date-input-wrapper::after {
+            content: "📅";
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            font-size: 14px;
+        }
     </style>
 
 
@@ -731,12 +862,34 @@
                         <p class="lead text-white-50 mb-4">
                             Because clean feels better ✨
                         </p>
+<div class="d-flex flex-wrap justify-content-center justify-content-lg-start gap-2">
+    {{-- Location name chip --}}
+    <span class="chip bg-light text-dark fw-semibold px-3 py-1 rounded-pill shadow-sm">
+        <i class="ti-location-pin me-1 text-primary"></i>
+        {{ $location_name ?? 'No location' }}
+    </span>
 
-                        <div class="d-flex flex-wrap justify-content-center justify-content-lg-start gap-2">
-                            <span class="chip">Verified</span>
-                            <span class="chip">Trusted</span>
-                            <span class="chip">On-time</span>
-                        </div>
+    {{-- Delivery status chip --}}
+    @if($delivery == 1)
+        <span class="chip bg-success text-white fw-semibold px-3 py-1 rounded-pill shadow-sm">
+            <i class="ti-truck me-1"></i> Delivery Available
+        </span>
+    @elseif($delivery == 2)
+        <span class="chip bg-danger text-white fw-semibold px-3 py-1 rounded-pill shadow-sm">
+            <i class="ti-truck me-1"></i> Delivery Unavailable
+        </span>
+    @else
+        <span class="chip bg-secondary text-white fw-semibold px-3 py-1 rounded-pill shadow-sm">
+            <i class="ti-truck me-1"></i> Delivery Unknown
+        </span>
+    @endif
+
+    {{-- Example static chip --}}
+    <span class="chip bg-info text-white fw-semibold px-3 py-1 rounded-pill shadow-sm">
+        <i class="ti-time me-1"></i> On-time
+    </span>
+</div>
+
                     </div>
                 </div>
 
@@ -813,27 +966,7 @@
                                             value="{{ $worker->id ?? '' }}" hidden>
                                         <div class="invalid-feedback">Please select a package.</div>
                                     </div>
-                                     {{-- <div class="col-12 col-md-3">
-                                        <label class="form-label small fw-semibold text-secondary">Locations</label>
-                                        <div class="input-icon-wrap">
-                                            <span class="icon">
-                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                                                    <path d="M3 7l9 5 9-5M3 7l9-5 9 5M3 7v10l9 5 9-5V7"
-                                                        stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
-                                                </svg>
-                                            </span>
-                                            <select class="form-select form-select-sm ps-5" id="locationSelect" required>
-                                                <option value="">Select a location</option>
-                                                @foreach ($locations as $location)
-                                                    <option value="{{ $location->id }}"
-                                                        data-name="{{ $location->location_name }}">
-                                                        {{ $location->location_name }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                        </div>
 
-                                    </div> --}}
 
 
                                     <!-- Start date -->
@@ -847,8 +980,8 @@
                                                         stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
                                                 </svg>
                                             </span>
-                                            <input type="date" class="form-control form-control-sm ps-5" id="startDate"
-                                                required>
+                                            <input type="text" class="form-control form-control-sm ps-5" id="startDate"
+                                                placeholder="Select start date" readonly required>
                                         </div>
                                         <div class="invalid-feedback">Please choose a start date.</div>
                                     </div>
@@ -858,12 +991,12 @@
                                         <label
                                             class="form-label small fw-semibold text-secondary d-block mb-1">Shifts</label>
                                         <div class="d-flex align-items-center gap-2 flex-nowrap">
-                                            <input type="checkbox" class="btn-check" id="shiftMorning" autocomplete="off">
+                                            <input type="radio" class="btn-check" id="shiftMorning" name="shift" value="morning" autocomplete="off">
                                             <label class="btn btn-outline-secondary btn-sm pill" for="shiftMorning">
                                                 Morning <small class="text-muted">(08 am – 01 pm)</small>
                                             </label>
 
-                                            <input type="checkbox" class="btn-check" id="shiftEvening" autocomplete="off">
+                                            <input type="radio" class="btn-check" id="shiftEvening" name="shift" value="evening" autocomplete="off">
                                             <label class="btn btn-outline-secondary btn-sm pill" for="shiftEvening">
                                                 Evening <small class="text-muted">(04 pm – 09 pm)</small>
                                             </label>
@@ -951,6 +1084,11 @@
                                                         </span>
                                                         <input type="number" name="phone" id="phone"
                                                             class="form-control form-control-sm ps-5">
+
+                                             <input type="hidden" hidden name="form_index" id="form_index" value="2">
+                                             <input type="hidden" name="worker_id2" class="worker_id2" id="worker_id2"
+                                            value="{{ $worker->id ?? '' }}" hidden>
+
                                                     </div>
                                                 </div>
 
@@ -1017,6 +1155,8 @@
                                                         <input type="text" name="phone_name"
                                                             class="form-control form-control-sm ps-5 phone_name"
                                                             id="phone_name">
+                                                             <input type="hidden" name="form_2" value="2"
+                                                             hidden>
                                                     </div>
                                                 </div>
 
@@ -1111,190 +1251,14 @@
 
 
 
-    <!-- end page-title -->
-    <!--start of service-single-page -->
-    {{-- <section class="service-single-page section-padding">
-
-        <div class="container">
-
-            <div class="row">
-                <div class="col-lg-8 col-12 order-lg-2">
-                    <div class="service-single-wrap">
-                        <div class="title-image wow LefttoRight">
-                            <img src="assets/images/service-single/img-1.html" alt="">
-                        </div>
-                        <h2>Residential Cleaning</h2>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Placeat qui ducimus
-                            illum modi?
-                            perspiciatis
-                            accusamus soluta perferendis, ad illum, nesciunt, reiciendis iusto et cupidit
-                            Repudiandae
-                            provident to
-                            consectetur, sapiente, libero iure necessitatibus corporis nulla voluptate,
-                            quisquam aut
-                            perspiciatis?
-                            Fugiat labore aspernatur eius, perspiciatis ut molestiae, delectus rem.</p>
-                        <h3>Sed ut perspiciatis unde omnis iste natus et</h3>
-                        <p>Need something changed or is there something not quite working the way you
-                            envisaged? Is your van a
-                            little old and tired and need refreshing? Lorem Ipsum is simply dummy text of
-                            the printing and typesetting
-                            industry. Lorem Ipsum has been the industry’s standard dummy text ever since the
-                            1500s, when an
-                            unknown printer took a galley of type and scrambled it to make a type specimen
-                            book. It has survived not
-                            only five centuries, but also the leap into electronic typesetting, remaining
-                            essentially unchanged.</p>
-                        <div class="video-wrap">
-                            <div class="video-img">
-                                <img src="assets/images/service-single/video.html" alt="">
-                                <div class="video-holder">
-                                    <a href="https://www.youtube.com/embed/1Bsgv6DnTiI" class="video-btn"
-                                        data-type="iframe"><i class="flaticon-play"></i></a>
-                                </div>
-                            </div>
-                            <div class="video-content">
-                                <h2>Why Marketing Important ?</h2>
-                                <p>Lorem ipsum dolor sit amet, consectetur adipisici
-                                    sed do eiusmod tempor incididunt ut labore et </p>
-                                <ul>
-                                    <li>Research beyond the business plan</li>
-                                    <li>Marketing options and rates</li>
-                                    <li>The ability to turnaround consulting</li>
-                                </ul>
-
-                            </div>
-                        </div>
-                        <p>There are many variations of passages of lorem ipsum is simply free text
-                            available in the
-                            market, but the
-                            majority time you put aside to be in our office. Lorem ipsum dolor sit amet,
-                            consectetLorem ipsum dolor sit
-                            amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore
-                            et dolore
-                            magna aliqua.
-                            Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor
-                            incididunt ut labore et
-                            dolore magna aliqua.</p>
-                        <h3 class="quate">Business is the activity of making one's living or making money by
-                            produ
-                            The NDIS
-                            Cing or buying and selling products akes a lifetime</h3>
-
-                        <div class="image-gallery">
-                            <h2>Eligibility checklist :</h2>
-                            <ul>
-                                <li><img src="assets/images/image-gallery/1.html" alt=""></li>
-                                <li><img src="assets/images/image-gallery/2.html" alt=""></li>
-                                <li><img src="assets/images/image-gallery/3.html" alt=""></li>
-                                <li><img src="assets/images/image-gallery/4.html" alt=""></li>
-                            </ul>
-                        </div>
-                        <div class="accordion">
-                            <div class="accordion-item">
-                                <button class="accordion-header">How to learn digital marketing?</button>
-                                <div class="accordion-content">
-                                    <p>Ne summo dictas pertinacia nam. Illum cetero vocent ei vim, case
-                                        regione
-                                        signifer
-                                        umque vim te. Ex mea quem munere lobortis. Duis aute irure dolor in
-                                        reprehenderit
-                                        in voluptate velit esse cillum.</p>
-                                </div>
-                            </div>
-                            <div class="accordion-item active">
-                                <button class="accordion-header">Can I use the demos made by
-                                    Ewebot?</button>
-                                <div class="accordion-content">
-                                    <p>Ne summo dictas pertinacia nam. Illum cetero vocent ei vim, case
-                                        regione
-                                        signifer
-                                        umque vim te. Ex mea quem munere lobortis. Duis aute irure dolor in
-                                        reprehenderit
-                                        in voluptate velit esse cillum.</p>
-                                </div>
-                            </div>
-                            <div class="accordion-item">
-                                <button class="accordion-header">Why didn’t you showcase my
-                                    submission?</button>
-                                <div class="accordion-content">
-                                    <p>Ne summo dictas pertinacia nam. Illum cetero vocent ei vim, case
-                                        regione
-                                        signifer
-                                        umque vim te. Ex mea quem munere lobortis. Duis aute irure dolor in
-                                        reprehenderit
-                                        in voluptate velit esse cillum.</p>
-                                </div>
-                            </div>
-                            <div class="accordion-item">
-                                <button class="accordion-header">Why didn’t you showcase my
-                                    submission?</button>
-                                <div class="accordion-content">
-                                    <p>Ne summo dictas pertinacia nam. Illum cetero vocent ei vim, case
-                                        regione
-                                        signifer
-                                        umque vim te. Ex mea quem munere lobortis. Duis aute irure dolor in
-                                        reprehenderit
-                                        in voluptate velit esse cillum.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-12 order-lg-1">
-                    <div class="service-sidebar">
-                        <div class="service-catagory">
-                            <ul>
-                                <li>
-                                    <a href="service-single.html" class="">
-                                        Residential Cleaning
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="service-single.html" class="">
-                                        Commercial Cleaning
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="service-single.html" class="active">
-                                        Deep Cleaning
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="service-single.html" class="">
-                                        Office Cleaning
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="service-single.html" class="">
-                                        Home Cleaning
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="service-single.html" class="">
-                                        Carpet Cleaning
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="service-info">
-                            <div class="icon">
-                                <i class="flaticon-phone-call"></i>
-                            </div>
-                            <h2>Looking for
-                                Cleaning service
-                                Provider?</h2>
-                            <span>Call anytime</span>
-                            <a href="tel:+871382023" class="num">
-                                <span>+(2) 871 382 023</span>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section> --}}
 
 
+
+    <!-- Flatpickr CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    
+    <!-- Flatpickr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    
     @include('layouts.web_footer')
 @endsection
