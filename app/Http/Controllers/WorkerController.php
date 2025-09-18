@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Carbon\Carbon;
+use App\Models\User;
 use App\Models\Visit;
 use App\Models\Worker;
 use App\Models\History;
@@ -10,6 +11,7 @@ use App\Models\Package;
 use App\Models\Location;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 
 class WorkerController extends Controller
@@ -17,8 +19,21 @@ class WorkerController extends Controller
     public function index()
 {
 
+    
+            if (!Auth::check()) {
+        return redirect()->route('login_page')->with('error', 'Please login first');
+    }
+
+
+    $permissions = explode(',', Auth::user()->permissions ?? '');
+
+
+    if (!in_array('4', $permissions)) {
+        return redirect()->route('login_error')->with('error', 'Permission denied');
+    }
     $locations= Location::select('id', 'location_name')->get();
-    return view('workers.workers', compact('locations'));
+    $users= User::where('user_type', 4)->get();
+    return view('workers.workers', compact('locations', 'users'));
 }
 
 
@@ -302,8 +317,8 @@ public function workers_list(Request $request)
         ? asset('images/worker_images/'.$w->worker_image)
         : asset('assets/images/blog/img-'.( ($index % 3)+1 ).'.jpg'); // fallback rotation
 
-    $name = e($w->worker_name ?? 'Unnamed');
-    $spec = e( 'Cleaning');
+    $name = e($w->worker_name ?? trans('messages.unnamed', [], session('locale')));
+    $spec = e(trans('messages.cleaning', [], session('locale')));
 
     $delay = number_format($index * 0.1, 1); // 0.0s, 0.1s, 0.2s...
 
@@ -379,7 +394,7 @@ public function workers_list(Request $request)
         if (!$shift) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Please select a shift (morning or evening).',
+                'message' => trans('messages.please_select_shift_morning_evening_msg', [], session('locale')),
                 'visit_count' => $visit_count,
                 'visits' => is_numeric($visits) ? [] : $visits,
             ], 422);
@@ -408,7 +423,7 @@ public function workers_list(Request $request)
             // First check worker status - if worker is sick/emergency/other, mark as unavailable
             $worker_status = $worker->status ?? 'available';
             $is_worker_available = in_array($worker_status, ['available']);
-            
+
             // Check availability for the requested shift
             $is_booked_requested = Visit::where([
                 'worker_id' => $validated['worker_id'],
@@ -560,7 +575,7 @@ public function workers_list(Request $request)
 
         return response()->json($response);
     }
-    
+
 public function todayVisits(Request $request, $worker)
 {
     $today = Carbon::today();
@@ -586,18 +601,18 @@ public function todayVisits(Request $request, $worker)
                 'booking_no' => $row->booking ? $row->booking->booking_no : 'N/A',
                 'visit_date' => $row->visit_date ? \Carbon\Carbon::parse($row->visit_date)->format('d-m-Y') : 'N/A',
                 'customer' => $row->customer ? $row->customer->customer_name : 'N/A',
-                'location' => $row->booking && $row->booking->location 
-                                ? $row->booking->location->location_name 
+                'location' => $row->booking && $row->booking->location
+                                ? $row->booking->location->location_name
                                 : 'N/A',
-                'shift_duration_status' => 
+                'shift_duration_status' =>
                     '<span class="badge bg-info me-1">' . ($row->shift ?? 'N/A') . '</span>' .
                     '<span class="badge bg-warning me-1">' . $durationText . '</span>' .
-                    '<span class="badge ' . 
-                        ($row->status == 1 ? 'bg-secondary' : ($row->status == 2 ? 'bg-success' : 'bg-danger')) . 
+                    '<span class="badge ' .
+                        ($row->status == 1 ? 'bg-secondary' : ($row->status == 2 ? 'bg-success' : 'bg-danger')) .
                     '">' . $statusText . '</span>',
-              'action' => $row->status == 2
-    ? ''
-    : '<span class="badge bg-warning text-dark" style="cursor:pointer;" onclick="edit_worker_visit(' . $row->id . ')">Mark Completed</span>',
+           'action' => $row->status == 2
+    ? '<span class="badge bg-success text-light">Done</span>'
+    : '<span class="badge bg-warning text-dark" style="cursor:pointer;" onclick="edit_driver_visit(' . $row->id . ')">Mark Completed</span>',
 
 
             ];
@@ -610,7 +625,7 @@ public function todayVisits(Request $request, $worker)
  public function thisWeekVisits(Request $request, $worker)
 {
 
-  
+
     $today = Carbon::today();
     $endOfWeek = $today->copy()->addDays(6); // today + 6 days
 
@@ -665,13 +680,13 @@ public function allVisits($workerId)
     if ($visits->count() > 0) {
         foreach ($visits as $visit) {
             $modal = '
-                <a href="javascript:void(0);" class="me-3 edit-staff" 
-                   data-bs-toggle="modal" data-bs-target="#add_visit_modal" 
+                <a href="javascript:void(0);" class="me-3 edit-staff"
+                   data-bs-toggle="modal" data-bs-target="#add_visit_modal"
                    onclick=edit_visit("' . $visit->id . '")>
                     <i class="fa fa-pencil fs-18 text-success"></i>
                 </a>
-                <a href="javascript:void(0);" class="me-3 " 
-                   data-bs-toggle="modal" data-bs-target="#add_condition_modal" 
+                <a href="javascript:void(0);" class="me-3 "
+                   data-bs-toggle="modal" data-bs-target="#add_condition_modal"
                    onclick=condition("' . $visit->id . '")>
                     <i class="fa fa-book fs-18 text-success"></i>
                 </a>
@@ -711,7 +726,7 @@ $shiftDurationStatus = $statusBadge . $shiftBadge . $durationBadge;
                 '<span class="text-primary">' . $customer . '</span>',
                 '<span class="text-primary">' . $location . '</span>',
                 $shiftDurationStatus,
-     
+
             ];
         }
     }

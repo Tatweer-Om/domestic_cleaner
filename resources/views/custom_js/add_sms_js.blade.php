@@ -83,6 +83,22 @@ $(".driver_no").click(function () {
     $(".sms_area").val((index, value) => value + '{driver_no}');
 });
 
+$(".driver_name").click(function () {
+    $(".sms_area").val((index, value) => value + '{driver_name}');
+});
+
+$(".customer_name").click(function () {
+    $(".sms_area").val((index, value) => value + '{customer_name}');
+});
+
+$(".shift").click(function () {
+    $(".sms_area").val((index, value) => value + '{shift}');
+});
+
+$(".duration").click(function () {
+    $(".sms_area").val((index, value) => value + '{duration}');
+});
+
 
 
 

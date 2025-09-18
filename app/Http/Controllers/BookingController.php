@@ -20,99 +20,98 @@ class BookingController extends Controller
 {
 
 
-  public function save_booking(Request $request)
-{
-    $data = $request->all();
+    public function save_booking(Request $request)
+    {
+        $data = $request->all();
 
-    $worker = Worker::findOrFail($data['worker_id']);
-    $location_id = $worker->location_id;
+        $worker = Worker::findOrFail($data['worker_id']);
+        $location_id = $worker->location_id;
 
-    if (is_null($location_id)) {
-        return response()->json(['error' => 'Worker is not assigned to any location.'], 422);
-    }
+        if (is_null($location_id)) {
+            return response()->json(['error' => trans('messages.worker_not_assigned_location', [], session('locale'))], 422);
+        }
 
-    if (!isset($data['visits']) || !is_array($data['visits']) || empty($data['visits'])) {
-        return response()->json(['error' => 'At least one visit is required.'], 422);
-    }
+        if (!isset($data['visits']) || !is_array($data['visits']) || empty($data['visits'])) {
+            return response()->json(['error' => trans('messages.at_least_one_visit_required', [], session('locale'))], 422);
+        }
 
 
-    $user = Auth::user();
-    $user_id = Auth::id(); // null if guest
-    $user_name = $user ? $user->user_name : null; // null if guest
+        $user = Auth::user();
+        $user_id = Auth::id(); // null if guest
+        $user_name = $user ? $user->user_name : null; // null if guest
 
-    dd($user_name);
-    $customer = $user_id ? Customer::where('user_id', $user_id)->first() : null;
-    $customer_id = $customer ? $customer->id : null;
+        $customer = $user_id ? Customer::where('user_id', $user_id)->first() : null;
+        $customer_id = $customer ? $customer->id : null;
 
-    try {
-        $booking = DB::transaction(function () use ($data, $user_id, $user_name, $customer_id, $location_id) {
-            $year = date('Y');
+        try {
+            $booking = DB::transaction(function () use ($data, $user_id, $user_name, $customer_id, $location_id) {
+                $year = date('Y');
 
-            // Get the last booking for this year whose booking_no matches B{year}-{seq}
-            $lastBooking = Booking::whereYear('created_at', $year)
-                ->where('booking_no', 'like', "B{$year}-%")
-                ->orderByDesc('id') // fallback ordering
-                ->first();
+                // Get the last booking for this year whose booking_no matches B{year}-{seq}
+                $lastBooking = Booking::whereYear('created_at', $year)
+                    ->where('booking_no', 'like', "B{$year}-%")
+                    ->orderByDesc('id') // fallback ordering
+                    ->first();
 
-            $lastSeq = 0;
-            if ($lastBooking && preg_match('/^B' . $year . '-(\d+)$/', $lastBooking->booking_no, $m)) {
-                $lastSeq = (int) $m[1];
-            }
+                $lastSeq = 0;
+                if ($lastBooking && preg_match('/^B' . $year . '-(\d+)$/', $lastBooking->booking_no, $m)) {
+                    $lastSeq = (int) $m[1];
+                }
 
-            $nextSeq = $lastSeq + 1;
-            $bookingNo = "B{$year}-{$nextSeq}";
+                $nextSeq = $lastSeq + 1;
+                $bookingNo = "B{$year}-{$nextSeq}";
 
-            $booking = Booking::create([
-                'booking_no'     => $bookingNo,      // ✅ use booking_no consistently
-                'user_id'        => $user_id,
-                'worker_id'      => $data['worker_id'],
-                'package_id'     => $data['package_id'],
-                'location_id'    => $location_id,
-                'start_date'     => $data['start_date'],
-                'duration'       => $data['duration'],
-                'visits'         => json_encode($data['visits']),
-                'visits_count'   => count($data['visits']),
-                'status'         => 1,
-                'added_by'       => $user_name,
-                'customer_id'    => $customer_id,
-            ]);
-
-          $counter = 1; // keep track of visit number
-
-            foreach ($data['visits'] as $visit) {
-                Visit::create([
-                    'booking_id'   => $booking->id,
-                    'visit_date'   => $visit['date'],
-                    'shift'        => $visit['shift'],
-                    'duration'     => $visit['duration'],
-                    'visit_name'   => $booking->booking_no . '-v' . $counter, // 🔹 auto-generated
-                    'worker_id'    => $booking->worker_id,
-                    'location_id'  => $booking->location_id,
-                    'user_id'      => $user_id,
-                    'status'       => 1,
-                    'added_by'     => $user_name,
-                    'customer_id'  => $customer_id,
+                $booking = Booking::create([
+                    'booking_no'     => $bookingNo,      // ✅ use booking_no consistently
+                    'user_id'        => $user_id,
+                    'worker_id'      => $data['worker_id'],
+                    'package_id'     => $data['package_id'],
+                    'location_id'    => $location_id,
+                    'start_date'     => $data['start_date'],
+                    'duration'       => $data['duration'],
+                    'visits'         => json_encode($data['visits']),
+                    'visits_count'   => count($data['visits']),
+                    'status'         => 1,
+                    'added_by'       => $user_name,
+                    'customer_id'    => $customer_id,
                 ]);
 
-                $counter++; // increment for next visit
-            }
+                $counter = 1; // keep track of visit number
 
-            return $booking;
-        });
+                foreach ($data['visits'] as $visit) {
+                    Visit::create([
+                        'booking_id'   => $booking->id,
+                        'visit_date'   => $visit['date'],
+                        'shift'        => $visit['shift'],
+                        'duration'     => $visit['duration'],
+                        'visit_name'   => $booking->booking_no . '-v' . $counter, // 🔹 auto-generated
+                        'worker_id'    => $booking->worker_id,
+                        'location_id'  => $location_id,
+                        'user_id'      => $user_id,
+                        'status'       => 1,
+                        'added_by'     => $user_name,
+                        'customer_id'  => $customer_id,
+                    ]);
 
-        return response()->json([
-            'ok'          => true,
-            'booking_id'  => $booking->id,
-            'booking_no'  => $booking->booking_no,  // ✅ return the correct field
-            'message'     => 'Booking saved successfully.',
-            'redirect'    => $user_id
-        ? url("checkout/{$booking->booking_no}")   // if user is logged in
-        : '#',
-        ]);
-    } catch (\Exception $e) {
-        return response()->json(['error' => 'Failed to save booking: ' . $e->getMessage()], 500);
+                    $counter++; // increment for next visit
+                }
+
+                return $booking;
+            });
+
+            return response()->json([
+                'ok'          => true,
+                'booking_id'  => $booking->id,
+                'booking_no'  => $booking->booking_no,  // ✅ return the correct field
+                'message'     => trans('messages.booking_saved_successfully', [], session('locale')),
+                'redirect'    => $user_id
+                    ? url("checkout/{$booking->booking_no}")   // if user is logged in
+                    : '#',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => trans('messages.failed_to_save_booking_error', [], session('locale')) . $e->getMessage()], 500);
+        }
     }
-}
 
 
 
@@ -121,103 +120,283 @@ class BookingController extends Controller
     {
         // Find the booking for the given worker_id
         $booking = Booking::where('booking_no', $id)->first();
+        if($booking->payment_status==0)
+        {
 
-        // Check if booking exists
-        if (!$booking) {
-            return redirect()->back()->with('error', 'No booking found for this worker.');
-        }
+            $user = Auth::user();
+            $user_id = Auth::id(); // null if guest
+            $user_name = $user ? $user->user_name : null; // null if guest
 
-        // Find the package associated with the booking
-        $package = Package::where('id', $booking->package_id)->first();
+            $customer = $user_id ? Customer::where('user_id', $user_id)->first() : null;
+            $customer_id = $customer ? $customer->id : null;
 
-        // Check if package exists
-        if (!$package) {
-            return redirect()->back()->with('error', 'Package not found for this booking.');
-        }
+            $booking->customer_id = $customer_id;
+            $booking->user_id = $user_id;
+            $booking->added_by = $user_name;
+            $booking->save();
+            $visits = Visit::where('booking_id', $booking->id)->get();
+            foreach ($visits as $visit) {
+                $visit->customer_id = $booking->customer_id;
+                $visit->driver_status = 1;
+                $visit->location_id = $booking->location_id;
+                $visit->user_id = $user_id;
+                $visit->added_by = $user_name;
+                $visit->save();
+            }
 
-        // Determine package price based on duration
-        $package_price = $booking->duration == 4 ? $package->package_price_4 : ($booking->duration == 5 ? $package->package_price_5 : 0);
 
-        // Validate duration
-        if ($package_price === 0) {
-            return redirect()->back()->with('error', 'Invalid booking duration.');
-        }
+            // Check if booking exists
+            if (!$booking) {
+                return redirect()->back()->with('error', trans('messages.no_booking_found_worker', [], session('locale')));
+            }
 
-        // Fetch worker details
-        $worker = Worker::findOrFail($booking->worker_id);
+            // Find the package associated with the booking
+            $package = Package::where('id', $booking->package_id)->first();
 
-        // Fetch visits directly from visits table for worker_id
-        $visits = [];
-        $visit_records = Visit::where('booking_id', $booking->id)->get();
-        if ($visit_records->isNotEmpty()) {
-            foreach ($visit_records as $visit) {
-                $shift = $visit->shift ?? 'unknown';
-                $shift_display = $shift === 'morning' ? 'Morning (8:00 AM - 1:00 PM)' : ($shift === 'evening' ? 'Evening (4:00 PM - 9:00 PM)' : $shift);
-                $visits[] = [
-                    'visit_date' => $visit->visit_date ?? 'Unknown',
-                    'shift' => $shift_display,
+            // Check if package exists
+            if (!$package) {
+                return redirect()->back()->with('error', trans('messages.package_not_found_booking', [], session('locale')));
+            }
+
+            // Determine package price based on duration
+            $package_price = $booking->duration == 4 ? $package->package_price_4 : ($booking->duration == 5 ? $package->package_price_5 : 0);
+
+            // Validate duration
+            if ($package_price === 0) {
+                return redirect()->back()->with('error', 'Invalid booking duration.');
+            }
+
+            // Fetch worker details
+            $worker = Worker::findOrFail($booking->worker_id);
+
+            // Fetch visits directly from visits table for worker_id
+            $visits = [];
+            $visit_records = Visit::where('booking_id', $booking->id)->get();
+            if ($visit_records->isNotEmpty()) {
+                foreach ($visit_records as $visit) {
+                    $shift = $visit->shift ?? 'unknown';
+                    $shift_display = $shift === 'morning' ? 'Morning (8:00 AM - 1:00 PM)' : ($shift === 'evening' ? 'Evening (4:00 PM - 9:00 PM)' : $shift);
+                    $visits[] = [
+                        'visit_date' => $visit->visit_date ?? trans('messages.unknown_visit_date', [], session('locale')),
+                        'shift' => $shift_display,
+                    ];
+                }
+            }
+
+            // Fallback if no visits
+            if (empty($visits)) {
+                $visits = [
+                    ['visit_date' => '2025-08-25', 'shift' => 'Morning (8:00 AM - 1:00 PM)'],
+                    ['visit_date' => '2025-08-26', 'shift' => 'Evening (4:00 PM - 9:00 PM)'],
+                    ['visit_date' => '2025-08-27', 'shift' => 'Morning (8:00 AM - 1:00 PM)'],
                 ];
             }
-        }
 
-        // Fallback if no visits
-        if (empty($visits)) {
-            $visits = [
-                ['visit_date' => '2025-08-25', 'shift' => 'Morning (8:00 AM - 1:00 PM)'],
-                ['visit_date' => '2025-08-26', 'shift' => 'Evening (4:00 PM - 9:00 PM)'],
-                ['visit_date' => '2025-08-27', 'shift' => 'Morning (8:00 AM - 1:00 PM)'],
+            // Prepare booking details for the view
+            $booking_details = [
+                'package' => $package->package_name,
+                'worker' => $worker->worker_name,
+                'location' => $booking->location_id ? \App\Models\Location::find($booking->location_id)->location_name ?? 'Muscat, Oman' : 'Muscat, Oman',
+                'visits' => $visits,
+                'subtotal' => $package_price,
+                'discount' => $booking->discount ?? 0,
+                'total_amount' => $package_price - ($booking->discount ?? 0),
+                'booking_no' =>$id
             ];
+
+            return view('web_pages.payment', [
+                'worker_id' => $id,
+                'booking_details' => $booking_details,
+            ]);
         }
-
-        // Prepare booking details for the view
-        $booking_details = [
-            'package' => $package->package_name,
-            'worker' => $worker->worker_name,
-            'location' => $booking->location_id ? \App\Models\Location::find($booking->location_id)->location_name ?? 'Muscat, Oman' : 'Muscat, Oman',
-            'visits' => $visits,
-            'subtotal' => $package_price,
-            'discount' => $booking->discount ?? 0,
-            'total_amount' => $package_price - ($booking->discount ?? 0),
-        ];
-
-        return view('web_pages.payment', [
-            'worker_id' => $id,
-            'booking_details' => $booking_details,
-        ]);
+        else{
+            return redirect()->route('index');
+        }
     }
 
     public function voucher_apply(Request $request)
     {
 
-        dd($request->all());
+  
 
         // Validate request
         // dd($voucherCode = $request->input('code'));
 
-        $code  = strtoupper(trim($data['code']));
-        $total = (float) $data['total_amount'];
+        $code  = strtoupper(trim($request->input('voucher_code'))); 
 
         // Find voucher by code (case-insensitive)
         $voucher = Voucher::whereRaw('UPPER(voucher_name) = ?', [$code])->first();
 
         if (!$voucher) {
             return response()->json([
-                'success' => false,
+                'status' => 2,
                 'message' => __('messages.invalid_voucher', [], session('locale')) ?? 'Invalid voucher code.',
             ], 422);
         }
 
-        $voucherAmount = (float) ($voucher->voucher_amount ?? 0);
+        $voucherAmount = ($voucher->voucher_amount ?? 3);
 
         // Safety: never discount below 0, and never more than total
-        $voucherAmount = max(0, min($voucherAmount, $total));
+         
 
         return response()->json([
-            'success'        => true,
+            'status'        => 1,
             'voucher_amount' => $voucherAmount,
             'message'        => __('messages.voucher_applied', [], session('locale')) ?? 'Voucher applied.',
         ]);
     }
+
+
+    // payment funtctions
+    public function add_payment(Request $request)
+    {
+         
+
+        $booking_data = Booking::where('booking_no', $request['booking_no'])->first();
+        $booking_no = $request['booking_no'];
+        $total_amount = $request['total_amount']; 
+        $voucher_amount = $request['total_voucher']; 
+        $discount_amount = $request['discount_amount'];  
+        $payment_method = $request['payment_method']; 
+        $voucher_code  = strtoupper(trim($request->input('voucher_code')));  
+
+        // Find voucher by code (case-insensitive)
+        $voucher_data = Voucher::whereRaw('UPPER(voucher_name) = ?', [$voucher_code])->first();
+        // Find voucher by code (case-insensitive) 
+        $voucher_id=0;
+         
+        if($voucher_data)
+        {
+            $voucher_id = $voucher_data['id'];
+        }
+        
+        $booking_data->voucher_id = $voucher_id;      
+        $booking_data->total_amount = $total_amount;      
+        $booking_data->discount_amount = $discount_amount;      
+        $booking_data->voucher_amount = $voucher_amount;            
+        $booking_data->payment_method = $payment_method;            
+        $booking_data->expiration_time = date('Y-m-d H:i:s', strtotime($booking_data->created_at . ' +15 minutes'));
+    	$booking_data->save();
+        $order_id = $booking_no;
+        session(['order_id' => $order_id]);
+        $msg=2;
+        if($request['payment_method']==1)
+        {
+            $result=$this->amwal($order_id);
+            $msg=1;
+            return response()->json(array($msg,$result[0],$result[1])); 
+        }
+        
+        // return back()->with('success', 'You have been registered successfully.');
+    }
+
+    public function amwal($id)
+    {
+        $order_data = Booking::where('booking_no', $id)->first();
+        $merchantId         = "173128";
+        $terminalId         = "590230";
+        $currencyId         = "512"; // only 512 is supported
+        $languageType       = "en";  // or "ar"
+        $paymentViewType    = "2";   // 1 = Popup, 2 = Fullscreen
+        $merchantReference  = session('order_id'); // e.g., order no or tracking no
+        // $amount             = $order_data->price; // Amount to be paid
+        $amount             = number_format($order_data->total_amount,3, '.', ''); // Amount to be paid
+        $requestDateTime    = gmdate("Y-m-d\TH:i:s\Z"); // ISO format (UTC)
+        $sessionToken       = "";  // if not using recurring payments, empty string
+            
+        // Build the string for secure hash calculation
+        // Note: The parameters must be sorted alphabetically by key
+        $params = [
+            'Amount'            => number_format($order_data->total_amount,3, '.', ''),
+            'CurrencyId'        => $currencyId,
+            'MerchantId'        => $merchantId,
+            'MerchantReference' => $merchantReference,
+            'RequestDateTime'   => $requestDateTime,
+            'SessionToken'      => $sessionToken,
+            'TerminalId'        => $terminalId,
+        ];
+
+
+        // Merchant secure key provided by AMWAL (in hex format)
+        $hexKey = "67B3BD2B59344BD2F12DCFBCABDE9BFA0E2D71D6E918A1A80592C69F00BC3238";
+        $inputText='Amount='.$amount.'&CurrencyId='.$currencyId.'&MerchantId='.$merchantId.'&MerchantReference='.$merchantReference.'&RequestDateTime='.$requestDateTime.'&SessionToken=&TerminalId='.$terminalId.'';
+        // Generate secure hash
+        $secureHash = $this->encryptWithSHA256($inputText, $hexKey);
+        
+        // Build configuration array for Smartbox.js
+        $paymentConfig = [
+            'MID'               => $merchantId,
+            'TID'               => $terminalId,
+            'CurrencyId'        => $currencyId,
+            'AmountTrxn'        => $amount,
+            'MerchantReference' => $merchantReference,
+            'LanguageId'        => $languageType,
+            'RequestDateTime'   => $requestDateTime,
+            'SessionToken'      => $sessionToken,
+            'SecureHash'        => strtoupper($secureHash), // ensure uppercase as required
+            'PaymentViewType'   => $paymentViewType,
+        ];
+        $order_time = $this->get_order(session('order_id'));
+        return array($paymentConfig,$order_time);
+    }
+
+    private function get_order($order_id) {
+        // $order_data =   Booking::where('id', $order_id)->first();
+        // return $order_data->created_at;
+        return date('Y-m-d H:i:s');
+    }
+	
+	private function encryptWithSHA256($input, $hexKey) {
+        // Convert hex key to binary
+        $binaryKey = hex2bin($hexKey);
+        // Generate HMAC-SHA256 hash
+        $hash = hash_hmac('sha256', $input, $binaryKey);
+        return $hash;
+    }
+
+    public function PaymentError()
+	{
+	    $msg="Something Went wrong! Please try Again.";
+        return view ('web_pages.payment_error',compact('msg'));
+		
+	}
+    public function PaymentCompletew(Request $request)
+	{ 
+	    $hostTransactionId = isset($request['hostTransactionId']) ? urldecode($request['hostTransactionId']) : null;
+        $transactionId = isset($request['transactionId']) ? urldecode($request['transactionId']) : null;
+        $responseCode = isset($request['responseCode']) ? urldecode($request['responseCode']) : null;
+        session(['hostTransactionId' => $hostTransactionId]);
+        session(['transactionId' => $transactionId]);
+        session(['responseCode' => $responseCode]);  
+        return redirect()->route('PaymentSuccessAmwalw');
+	}
+    public function PaymentSuccessAmwalw()
+	{
+		$responseCode = session('responseCode');
+		$hostTransactionId = session('hostTransactionId');
+		$transactionId = session('transactionId'); 
+		$order_id = session('order_id'); 
+       
+        if(isset($responseCode) && $responseCode === "00"){
+    	    
+            $order_data =   Booking::where('booking_no', $order_id)->first();
+            $order_data->payment_status = 1;
+            $order_data->transactionId = $transactionId;
+            $order_data->hostTransactionId = $hostTransactionId; 
+            $order_data->save();
+ 
+            
+            session()->forget('order_id');
+            session()->forget('responseCode');
+            session()->forget('hostTransactionId');
+            session()->forget('transactionId'); 
+            return view ('web_pages.payment_success');
+        }
+	    else
+        {
+            return redirect()->route('PaymentError'); 
+        }
+	}
 
 
     public function show_booking()
@@ -293,6 +472,19 @@ class BookingController extends Controller
 
     public function all_bookings()
     {
+
+         if (!Auth::check()) {
+        return redirect()->route('login_page')->with('error', 'Please login first');
+    }
+
+
+    $permissions = explode(',', Auth::user()->permissions ?? '');
+
+
+    if (!in_array('6', $permissions)) {
+        return redirect()->route('login_error')->with('error', 'Permission denied');
+    }
+
         return view('bookings.admin_bookings');
     }
 
@@ -388,6 +580,19 @@ class BookingController extends Controller
 
     public function all_visits()
     {
+
+         if (!Auth::check()) {
+        return redirect()->route('login_page')->with('error', 'Please login first');
+    }
+
+
+    $permissions = explode(',', Auth::user()->permissions ?? '');
+
+
+    if (!in_array('6', $permissions)) {
+        return redirect()->route('login_error')->with('error', 'Permission denied');
+    }
+
         $workers = Worker::select('id', 'worker_name')->get();
         $bookings = Booking::select('id', 'booking_no',)->where('status', [1, 4])->get();
         return view('bookings.admin_visits', compact('workers', 'bookings'));
@@ -423,7 +628,7 @@ class BookingController extends Controller
     }
 
 
-     public function edit_visit2(Request $request)
+    public function edit_visit2(Request $request)
     {
 
 
@@ -454,7 +659,7 @@ class BookingController extends Controller
         $visit_id  = $request->visit_id;
         $booking_id  = $request->booking_id;
 
-        $visit= Visit::where('id', $visit_id)->first();
+        $visit = Visit::where('id', $visit_id)->first();
 
 
         $booking = Booking::where('id',  $booking_id)->first();
@@ -479,60 +684,65 @@ class BookingController extends Controller
         ]);
     }
 
-    public function delete_visit(Request $request) {
+    public function delete_visit(Request $request)
+    {
 
 
-    // $user_id = Auth::id();
-    // $user = User::where('id', $user_id)->first();
-    // $user_name = $user->user_name;
-    $visit_id = $request->input('id');
-    $visit = Visit::where('id', $visit_id)->first();
+        // $user_id = Auth::id();
+        // $user = User::where('id', $user_id)->first();
+        // $user_name = $user->user_name;
+        $visit_id = $request->input('id');
+        $visit = Visit::where('id', $visit_id)->first();
 
-    if (!$visit) {
-        return response()->json([trans('messages.error_lang', [], session('locale')) => trans('messages.visit_not_found', [], session('locale'))], 404);
+        if (!$visit) {
+            return response()->json([trans('messages.error_lang', [], session('locale')) => trans('messages.visit_not_found', [], session('locale'))], 404);
+        }
+
+        $previousData = $visit->only([
+            'visit_date',
+            'worker_id',
+            'booking_id',
+            'shift',
+            'duration',
+            'added_by',
+            'customer_id',
+            'created_at'
+        ]);
+
+        // $currentUser = Auth::user();
+        // $username = $currentUser->user_name;
+        $visit_id = $visit->id;
+
+        $history = new History();
+        $history->user_id = 1;
+        $history->table_name = 'visits';
+        $history->function = 'delete';
+        $history->function_status = 2;
+        $history->record_id = $visit->id;
+        $history->branch_id = 1;
+
+        $history->previous_data = json_encode($previousData);
+
+        $history->added_by = 'system';
+        $history->save();
+        $visit->delete();
+
+        return response()->json([
+            trans('messages.success_lang', [], session('locale')) => trans('messages.user_deleted_lang', [], session('locale'))
+        ]);
     }
 
-    $previousData = $visit->only([
-        'visit_date', 'worker_id', 'booking_id', 'shift', 'duration', 'added_by', 'customer_id', 'created_at'
-    ]);
+    public function edit_condition(Request $request)
+    {
+        $id = $request->input('id');  // 👈 you'll get it here
+        $worker_id = Visit::where('id', $id)->select('worker_id');
+        $worker = Worker::where('id', $worker_id)->select('id', 'condition_type');
 
-    // $currentUser = Auth::user();
-    // $username = $currentUser->user_name;
-    $visit_id = $visit->id;
-
-    $history = new History();
-    $history->user_id = 1;
-    $history->table_name = 'visits';
-    $history->function = 'delete';
-    $history->function_status = 2;
-    $history->record_id = $visit->id;
-    $history->branch_id =1;
-
-    $history->previous_data = json_encode($previousData);
-
-    $history->added_by = 'system';
-    $history->save();
-    $visit->delete();
-
-    return response()->json([
-        trans('messages.success_lang', [], session('locale')) => trans('messages.user_deleted_lang', [], session('locale'))
-    ]);
-}
-
-public function edit_condition(Request $request)
-{
-    $id = $request->input('id');  // 👈 you'll get it here
-    $worker_id= Visit::where('id', $id)->select('worker_id');
-    $worker= Worker::where('id', $worker_id)->select('id', 'condition_type');
-
-         $data = [
+        $data = [
 
             'condition_type' => $worker->condition_type,
         ];
 
         return response()->json($data);
-
-
-}
-
+    }
 }

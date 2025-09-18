@@ -5,7 +5,7 @@
                 <div class="wraper">
                     <h2 class="scroll-text-animation">
                         <span>New Creative Ideas</span> <br> send me an e-mail – <span class="color">
-                             info@example.com</span>
+                             info@example.com</span>
                     </h2>
                     <div class="booking-btn wow zoomIn " data-wow-duration="1000ms"><a
                             class="btn-wrapper btn-move" href="appoinment.html"><small><i><img
@@ -17,41 +17,40 @@
         <div class="container">
             <div class="footer">
                 <div class="item widget-newsletter fade_bottom">
-                    <h2 class="title">Contact Us</h2>
+                    <h2 class="title">{{ trans('messages.footer_contact_us', [], session('locale')) }}</h2>
                     <div class="newsletter">
                         <form class="form-fild">
-                            <input class="fild" type="email" placeholder="Get News & Updates">
+                            <input class="fild" type="email" placeholder="{{ trans('messages.footer_newsletter_placeholder', [], session('locale')) }}">
                             <button type="submit">
                                 <img src="assets/images/air-plane.svg" alt="">
                             </button>
                             <div class="terms">
                                 <input type="checkbox" id="checkbox" class="checkbox-input">
                                 <label for="checkbox" class="checkbox-label">
-                                    <span class="custom-checkbox"></span>I agree to all your terms
-                                    and policies</label>
+                                    <span class="custom-checkbox"></span>{{ trans('messages.footer_terms_agreement', [], session('locale')) }}</label>
                             </div>
                         </form>
                     </div>
 
                 </div>
                 <div class="item fade_bottom">
-                    <h2 class="title">Quick Link</h2>
+                    <h2 class="title">{{ trans('messages.footer_quick_links', [], session('locale')) }}</h2>
                     <ul>
-                        <li><a href="about.html">About Company</a></li>
-                        <li><a href="appoinment.html">Appoinment</a></li>
-                        <li><a href="service.html">Our Services</a></li>
-                        <li><a href="blog.html">Our Blogs</a></li>
-                        <li><a href="contact.html">Contact Us</a></li>
+                        <li><a href="about.html">{{ trans('messages.footer_about_company', [], session('locale')) }}</a></li>
+                        <li><a href="appoinment.html">{{ trans('messages.footer_appointment', [], session('locale')) }}</a></li>
+                        <li><a href="service.html">{{ trans('messages.footer_our_services', [], session('locale')) }}</a></li>
+                        <li><a href="blog.html">{{ trans('messages.footer_our_blogs', [], session('locale')) }}</a></li>
+                        <li><a href="contact.html">{{ trans('messages.footer_contact_us', [], session('locale')) }}</a></li>
                     </ul>
                 </div>
                 <div class="item fade_bottom">
-                    <h2 class="title">Contact info</h2>
+                    <h2 class="title">{{ trans('messages.footer_contact_info', [], session('locale')) }}</h2>
                     <ul>
-                        <li>Germany —</li>
-                        <li>785 15h Street,</li>
-                        <li>Office 478 Berlin, De 81566</li>
+                        <li>{{ trans('messages.footer_location_country', [], session('locale')) }}</li>
+                        <li>{{ trans('messages.footer_address_line1', [], session('locale')) }}</li>
+                        <li>{{ trans('messages.footer_address_line2', [], session('locale')) }}</li>
                         <li>contact@cleanar.com</li>
-                        <li>+1300 877 503</li>
+                        <li>+96872537389</li>
                     </ul>
                 </div>
 
@@ -101,6 +100,14 @@
 <script src="{{ asset('assets/js/script.js') }}"></script>
     <script src="{{ asset('vendor/toastr/js/toastr.min.js')}}"></script>
     <script src="{{ asset('js/plugins-init/toastr-init.js')}}"></script>
+    <script src="https://test.amwalpg.com:7443/js/SmartBox.js?v=1.1"></script>
+
+<script src="https://unpkg.com/@mapbox/leaflet-pip@latest/leaflet-pip.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+<script src="https://unpkg.com/leaflet-control-search/dist/leaflet-search.min.js"></script>
+<script src="https://unpkg.com/leaflet-geosearch@3.8.0/dist/geosearch.umd.js"></script>
+<script src="https://unpkg.com/@mapbox/leaflet-pip@1.1.0/leaflet-pip.js"></script>
 
 
 @include('custom_js.custom_js')
@@ -120,6 +127,8 @@
          @include('custom_js.user_profile_js')
           @elseif ($route_name == 'service_page')
          @include('custom_js.web_js')
+          @elseif ($route_name == 'checkout')
+         @include('custom_js.booking_js')
 
 
     @endif

@@ -1,4 +1,61 @@
 <script>
+// Helper function to format date from ISO to readable format
+function formatVisitDate(dateString) {
+  if (!dateString) return '—';
+  
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    });
+  } catch (e) {
+    return dateString;
+  }
+}
+
+// Helper function to format date for input field (YYYY-MM-DD)
+function formatDateForInput(dateString) {
+  if (!dateString) return '';
+  
+  try {
+    const date = new Date(dateString);
+    return date.toISOString().split('T')[0];
+  } catch (e) {
+    return '';
+  }
+}
+
+// Helper function to calculate time range based on shift and duration
+function calculateTimeRange(shift, duration) {
+  if (!shift || !duration) return '—';
+  
+  const dur = parseInt(duration);
+  if (![4, 5].includes(dur)) return `${dur}h`;
+  
+  let startTime, endTime;
+  
+  if (shift.toLowerCase() === 'morning') {
+    startTime = '8:00 AM';
+    if (dur === 4) {
+      endTime = '12:00 PM';
+    } else if (dur === 5) {
+      endTime = '1:00 PM';
+    }
+  } else if (shift.toLowerCase() === 'evening') {
+    if (dur === 4) {
+      startTime = '4:00 PM';
+      endTime = '8:00 PM';
+    } else if (dur === 5) {
+      startTime = '3:00 PM';
+      endTime = '8:00 PM';
+    }
+  }
+  
+  return startTime && endTime ? `${startTime} - ${endTime}` : `${dur}h`;
+}
+
 $(document).ready(function () {
   // Get user_id from hidden div
   const userId = $('#user-profile').data('user-id');
@@ -83,10 +140,19 @@ $(document).ready(function () {
           else if (v.status == 2) { statusText = 'Completed'; statusClass = 'chip-status completed'; }
           else if (v.status == 3) { statusText = 'Cancelled'; statusClass = 'chip-status cancelled'; }
 
+          // Format date properly
+          const formattedDate = formatVisitDate(v.visit_date);
+          
+          // Calculate time range based on shift and duration
+          const timeRange = calculateTimeRange(v.shift, v.duration);
+          
           const dur = v.duration ? `${v.duration}h` : '—';
 
           html += `
-  <div class="sleek-item" data-visit-id="${v.id}">
+  <div class="sleek-item" data-visit-id="${v.id}" 
+       data-original-date="${v.visit_date}" 
+       data-original-duration="${v.duration}" 
+       data-original-shift="${v.shift}">
     <div class="sleek-line">
       <div class="sleek-main">
         <div class="sleek-title">
@@ -97,10 +163,10 @@ $(document).ready(function () {
         <!-- VIEW MODE -->
         <div class="sleek-sub view-mode">
           <i class="far fa-calendar me-1"></i>
-          <span class="view-date">${v.visit_date ?? ''}</span> •
+          <span class="view-date">${formattedDate}</span> •
 
           <i class="far fa-clock me-1 ms-2"></i>
-          <span class="view-duration">${v.duration ?? '—'}</span>h •
+          <span class="view-time-range">${timeRange}</span> •
 
           <i class="fas fa-user-tie me-1 ms-2"></i>
           ${v.worker?.worker_name ?? '—'} •
@@ -115,7 +181,7 @@ $(document).ready(function () {
             <div class="col-auto">
               <label class="small text-muted me-1">Date</label>
               <input type="date" class="form-control form-control-sm edit-date"
-                     value="${v.visit_date ?? ''}">
+                     value="${formatDateForInput(v.visit_date)}">
             </div>
             <div class="col-auto">
               <label class="small text-muted me-1">Duration (h)</label>
@@ -288,14 +354,17 @@ $(document).on('click', '.btn-edit', function () {
 // Cancel
 $(document).on('click', '.btn-cancel', function () {
   const $item = $(this).closest('.sleek-item');
-  // Optionally reset inputs back to view values
-  const date = $item.find('.view-date').text().trim();
-  const duration = ($item.find('.view-duration').text().trim() || '').replace('h', '');
-  const shift = $item.find('.view-shift').text().trim();
+  // Reset inputs back to original values from data attributes
+  const visitId = $item.data('visit-id');
+  
+  // Get original values from the visit data (we'll store them as data attributes)
+  const originalDate = $item.data('original-date');
+  const originalDuration = $item.data('original-duration');
+  const originalShift = $item.data('original-shift');
 
-  $item.find('.edit-date').val(date);
-  $item.find('.edit-duration').val(duration);
-  $item.find('.edit-shift').val(shift);
+  $item.find('.edit-date').val(formatDateForInput(originalDate));
+  $item.find('.edit-duration').val(originalDuration);
+  $item.find('.edit-shift').val(originalShift);
 
   exitEdit($item);
 });
@@ -334,10 +403,18 @@ if (!(payload.duration == 4 || payload.duration == 5)) {
         return;
       }
 
-      // Update view values
-      $item.find('.view-date').text(res.visit.visit_date);
-      $item.find('.view-duration').text(res.visit.duration);
+      // Update view values with proper formatting
+      const updatedDate = formatVisitDate(res.visit.visit_date);
+      const updatedTimeRange = calculateTimeRange(res.visit.shift, res.visit.duration);
+      
+      $item.find('.view-date').text(updatedDate);
+      $item.find('.view-time-range').text(updatedTimeRange);
       $item.find('.view-shift').text(res.visit.shift);
+      
+      // Update data attributes with new values
+      $item.data('original-date', res.visit.visit_date);
+      $item.data('original-duration', res.visit.duration);
+      $item.data('original-shift', res.visit.shift);
 
       exitEdit($item);
 

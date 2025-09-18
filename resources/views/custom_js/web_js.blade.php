@@ -37,7 +37,7 @@ $(function () {
   })
   .fail(function () {
     $('#servicesContainer').html(
-      '<div class="alert alert-danger m-0">Failed to load services. Please try again.</div>'
+'<div class="alert alert-danger m-0"><?php echo trans('messages.failed_to_load_services', [], session('locale')); ?></div>'
     );
   });
 });
@@ -87,17 +87,17 @@ $(function () {
   function setMode(next) {
     mode = next;
     if (mode === 'signup') {
-      $header.text('CREATE AN ACCOUNT');
-      $submit.text('Create Account');
-      $toggleLink.text('Have an account? Sign in');
+      $header.text("<?php echo trans('messages.create_an_account', [], session('locale')); ?>");
+      $submit.text("<?php echo trans('messages.create_account', [], session('locale')); ?>");
+      $toggleLink.text("<?php echo trans('messages.have_account_sign_in', [], session('locale')); ?>");
       $phoneBlk.show();
-      $user.attr('placeholder', 'Enter username');
+      $user.attr('placeholder', "<?php echo trans('messages.enter_username', [], session('locale')); ?>");
     } else {
-      $header.text('SIGN IN TO MANAGE BOOKINGS');
-      $submit.text('Sign In');
-      $toggleLink.text('Create an account');
+      $header.text("<?php echo trans('messages.sign_in_to_manage_bookings', [], session('locale')); ?>");
+      $submit.text("<?php echo trans('messages.sign_in', [], session('locale')); ?>");
+      $toggleLink.text("<?php echo trans('messages.create_account', [], session('locale')); ?>");
       $phoneBlk.hide();
-      $user.attr('placeholder', 'Enter username or phone');
+      $user.attr('placeholder', "<?php echo trans('messages.enter_username_or_phone', [], session('locale')); ?>");
     }
     $user.trigger('focus');
   }
@@ -107,11 +107,14 @@ $(function () {
     e.preventDefault();
     setMode(mode === 'login' ? 'signup' : 'login');
   });
-
   function setSubmitting(busy) {
     $submit.prop('disabled', busy);
     $submit.data('orig', $submit.data('orig') || $submit.text());
-    $submit.text(busy ? 'Please wait…' : $submit.data('orig'));
+    $submit.text(
+      busy 
+        ? "<?php echo trans('messages.please_wait', [], session('locale')); ?>" 
+        : $submit.data('orig')
+    );
   }
 
   // Main submit handler (adapted from your register AJAX)
@@ -121,25 +124,37 @@ $(function () {
     const identifierOrUsername = ($user.val() || '').trim();
     const password             = ($pass.val() || '').trim();
     const phoneVal             = (($phone?.val() || '') + '').trim();
+     const form_1     = $form.find('input[name="form_1"]').val() || '1'; // fallback to 1
 
-    showPreloader();
-    before_submit();
+
     setSubmitting(true);
 
     if (mode === 'signup') {
       // Client-side checks
-      if (!identifierOrUsername) {
-        show_notification('error', 'Please enter a username');
-        done(); return;
-      }
-      if (!phoneVal) {
-        show_notification('error', 'Please enter mobile number');
-        done(); return;
-      }
-      if (!password) {
-        show_notification('error', 'Please enter password');
-        done(); return;
-      }
+   if (!identifierOrUsername) {
+        show_notification(
+            'error',
+            "<?php echo trans('messages.please_enter_username', [], session('locale')); ?>"
+        );
+        done();
+        return;
+    }
+    if (!phoneVal) {
+        show_notification(
+            'error',
+            "<?php echo trans('messages.please_enter_mobile_number', [], session('locale')); ?>"
+        );
+        done();
+        return;
+    }
+    if (!password) {
+        show_notification(
+            'error',
+            "<?php echo trans('messages.please_enter_password', [], session('locale')); ?>"
+        );
+        done();
+        return;
+    }
 
       // Build FormData from this form (your original pattern)
       const fd = new FormData(this);
@@ -147,6 +162,7 @@ $(function () {
       fd.set('user_name', identifierOrUsername);
       fd.set('phone', phoneVal);
       fd.set('password', password);
+      fd.append('form_1', form_1);
 
       $.ajax({
         url: REGISTER_URL,
@@ -157,7 +173,7 @@ $(function () {
         success: function (res) {
           if (res.status === 'success') {
             show_notification('success', res.message || 'Registered!');
-            // Switch to login mode, keep username for convenience
+            location.reload();
             setMode('login');
             // If you still have tabs, you can also trigger the login tab:
             // $('#tabLogin').trigger('click');
@@ -183,20 +199,32 @@ $(function () {
     }
 
     // mode === 'login'
-    if (!identifierOrUsername) {
-      show_notification('error', 'Enter username or phone');
-      done(); return;
+   if (!identifierOrUsername) {
+      show_notification(
+        'error', 
+        "<?php echo trans('messages.enter_username_or_phone', [], session('locale')); ?>"
+      );
+      done(); 
+      return;
     }
     if (!password) {
-      show_notification('error', 'Enter password');
-      done(); return;
+      show_notification(
+        'error', 
+        "<?php echo trans('messages.enter_password_field', [], session('locale')); ?>"
+      );
+      done(); 
+      return;
     }
 
     // Send as simple form fields; backend reads identifier+password
     $.ajax({
       url: LOGIN_URL,
       method: 'POST',
-      data: { identifier: identifierOrUsername, password: password },
+        data: {
+    identifier: identifierOrUsername,
+    password: password,
+    form_1: form_1  // ✅ add this
+  },
       success: function (res) {
         if (res.status === 'success' || res.ok === true) {
           show_notification('success', res.message || 'Signed in!');
@@ -231,59 +259,11 @@ $(function () {
   });
 });
 
-// document.addEventListener('DOMContentLoaded', function () {
-//     const logoutBtn = document.getElementById('btnLogout');
-//     if (!logoutBtn) return;
-
-//     logoutBtn.addEventListener('click', function (e) {
-//         e.preventDefault();
-
-//         fetch("{{ route('logout.ajax') }}", {
-//             method: "POST",
-//             headers: {
-//                 "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
-//                 "Accept": "application/json",
-//                 "X-Requested-With": "XMLHttpRequest",
-//                 "Content-Type": "application/json"
-//             },
-//             body: JSON.stringify({})
-//         })
-//         .then(res => res.json())
-//         .then(data => {
-//             if (data.ok) {
-//                 window.location.href = data.redirect_url || "{{ url('/') }}";
-//             } else {
-//                 alert(data.error || "Logout failed");
-//             }
-//         })
-//         .catch(() => alert("Network error while logging out"));
-//     });
-// });
 
 
 
-function initServiceSlider_Slick() {
-  var $el = $('#workers_slider');
-  var slideCount = $el.find('.slide').length;
-  var slidesToShow = Math.min(slideCount, 4); // Use the minimum of slide count or 4
 
-  if ($el.hasClass('slick-initialized')) {
-    $el.slick('unslick');
-  }
 
-  $el.slick({
-    slidesToShow: slidesToShow || 1, // Fallback to 1 if no slides
-    slidesToScroll: 1,
-    infinite: slideCount > 1, // Only loop if more than 1 slide
-    arrows: true,
-    dots: true, // You have dots in the screenshot, so change to true if intended
-    responsive: [
-      { breakpoint: 1200, settings: { slidesToShow: Math.min(slideCount, 3) || 1 } },
-      { breakpoint: 992, settings: { slidesToShow: Math.min(slideCount, 2) || 1 } },
-      { breakpoint: 576, settings: { slidesToShow: 1 } }
-    ]
-  });
-}
 jQuery(function ($) {
     // Initialize Bootstrap Select picker for location dropdown
     if ($.fn.selectpicker) {
@@ -291,39 +271,7 @@ jQuery(function ($) {
     }
 
     // Initialize Slick Slider for workers slider
-  function initServiceSlider_Slick() {
-  const $slider = $("#workers_slider");
-  const totalSlides = $slider.find(".wpo-service-slide-item").length;
-
-  if ($slider.length && totalSlides > 0) {
-    console.log("Initializing Slick Slider...");
-    $slider.slick({
-      slidesToShow: 4,
-      slidesToScroll: 1,
-      infinite: totalSlides > 4,          // 👈 loop only if enough slides
-      arrows: true,
-      dots: true,
-      adaptiveHeight: false,               // 👈 keeps the track height stable
-      swipeToSlide: true,
-      waitForAnimate: false,
-      edgeFriction: 0.15,
-      responsive: [
-        { breakpoint: 1200, settings: { slidesToShow: 3, infinite: totalSlides > 3 } },
-        { breakpoint: 992,  settings: { slidesToShow: 2, infinite: totalSlides > 2 } },
-        { breakpoint: 768,  settings: { slidesToShow: 1, infinite: totalSlides > 1 } }
-      ]
-    }).on('init', function(event, slick) {
-      console.log("Slick Slider initialized with " + slick.slideCount + " slides");
-    });
-
-    // After images load, force Slick to recalc widths so no empty gap
-    $slider.find('img').on('load', function () {
-      $slider.slick('setPosition');
-    });
-  } else {
-    console.log("No slide items found, skipping Slick initialization.");
-  }
-}
+ 
 
 
     // Initialize slider on page load
@@ -413,10 +361,18 @@ $(document).on('click', '.wpo-service-link', function (e) {
     const locationId = $('#filter_location').val();
     if (!locationId) {
         e.preventDefault();
-        show_notification('error', 'Please select a location first.');
+        show_notification(
+            'error',
+            "<?php echo trans('messages.please_select_location_first', [], session('locale')); ?>"
+        );
+
+        // 👇 scroll to top smoothly
+        $('html, body').animate({ scrollTop: 0 }, 'slow');
+
         return false;
     }
 });
+
 
 function loadServices() {
     $.ajax({
@@ -439,5 +395,452 @@ $(document).ready(function() {
     loadServices();
 });
 
+
+     const map = L.map('map').setView([21.5, 55.9], 7);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+        
+        let isEnglish = true;
+        let currentLang = 'en';
+        const suggestionsDiv = document.getElementById('suggestions');
+        
+        function toggleLanguage() {
+            isEnglish = !isEnglish;
+            currentLang = isEnglish ? 'en' : 'ar';
+            document.querySelector('.lang-toggle').textContent = isEnglish ? 'Switch to Arabic' : 'Switch to English';
+            document.getElementById('search').placeholder = isEnglish ? 'Enter location in Oman' : 'أدخل الموقع في عمان';
+            suggestionsDiv.style.display = 'none'; // Hide suggestions when language changes
+        }
+        
+        // Debounce function to limit API calls
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+        
+        // Search with dropdown suggestions
+        const fetchSuggestions = debounce(async function(query) {
+            if (!query) {
+                suggestionsDiv.style.display = 'none';
+                return;
+            }
+            
+            try {
+                const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=OM&limit=5&accept-language=${currentLang}`);
+                const data = await response.json();
+                
+                suggestionsDiv.innerHTML = '';
+                if (data && data.length > 0) {
+                    data.forEach(item => {
+               console.log(item.lon)
+               console.log(item.lat)
+                        const div = document.createElement('div');
+                        div.className = 'suggestion-item';
+                        div.textContent = item.display_name;
+                    div.onclick = () => {
+                    document.getElementById('search').value = item.display_name;
+                    suggestionsDiv.style.display = 'none';
+                    map.setView([parseFloat(item.lat), parseFloat(item.lon)], 12);
+
+                    L.marker([parseFloat(item.lat), parseFloat(item.lon)]).addTo(map)
+                        .bindPopup(item.display_name)
+                        .openPopup();
+
+                     document.getElementById('status').textContent = `Found: ${item.display_name}`;
+
+    // Round to 2 decimals
+    const lat = parseFloat(item.lat).toFixed(2);
+    const lon = parseFloat(item.lon).toFixed(2);
+
+    const googleLink = `https://www.google.com/maps?q=${lat},${lon}`;
+    const osmLink = `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=12/${lat}/${lon}`;
+
+    sendLocationToBackend(item.display_name, lat, lon, googleLink, osmLink);
+};
+                        suggestionsDiv.appendChild(div);
+                    });
+                    suggestionsDiv.style.display = 'block';
+                } else {
+                    suggestionsDiv.style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Error fetching suggestions:', error);
+            }
+        }, 300);
+        
+        async function searchLocation() {
+            const query = document.getElementById('search').value.trim();
+            if (!query) {
+                document.getElementById('status').textContent = 'Please enter a location.';
+                suggestionsDiv.style.display = 'none';
+                return;
+            }
+            
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = 'Searching...';
+            
+            try {
+                const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=OM&limit=1&accept-language=${currentLang}`);
+                const data = await response.json();
+                
+                if (data && data.length > 0) {
+                    const lat = parseFloat(data[0].lat);
+                    const lon = parseFloat(data[0].lon);
+                    map.setView([lat, lon], 12);
+                    L.marker([lat, lon]).addTo(map)
+                        .bindPopup(data[0].display_name)
+                        .openPopup();
+                    statusDiv.textContent = `Found: ${data[0].display_name}`;
+                } else {
+                    statusDiv.textContent = 'Location not found in Oman.';
+                }
+                suggestionsDiv.style.display = 'none';
+            } catch (error) {
+                statusDiv.textContent = 'Search error. Please try again.';
+                console.error(error);
+            }
+        }
+        
+        // function getCurrentLocation() {
+        //     if (!navigator.geolocation) {
+        //         document.getElementById('status').textContent = 'Geolocation not supported.';
+        //         return;
+        //     }
+            
+        //     document.getElementById('status').textContent = 'Getting location...';
+            
+        //     navigator.geolocation.getCurrentPosition(
+        //         (position) => {
+        //             const lat = position.coords.latitude;
+        //             const lon = position.coords.longitude;
+        //             map.setView([lat, lon], 12);
+        //             L.marker([lat, lon]).addTo(map)
+        //                 .bindPopup('Your Current Location')
+        //                 .openPopup();
+        //             document.getElementById('status').textContent = 'Location shown on map.';
+        //         },
+        //         (error) => {
+        //             let msg = 'Error getting location: ';
+        //             switch(error.code) {
+        //                 case error.PERMISSION_DENIED:
+        //                     msg += 'Permission denied.';
+        //                     break;
+        //                 case error.POSITION_UNAVAILABLE:
+        //                     msg += 'Position unavailable.';
+        //                     break;
+        //                 case error.TIMEOUT:
+        //                     msg += 'Timeout.';
+        //                     break;
+        //                 default:
+        //                     msg += 'Unknown error.';
+        //             }
+        //             document.getElementById('status').textContent = msg;
+        //         },
+        //         { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+        //     );
+        // }
+        
+        // Ensure this is at the top of your JavaScript file
+let locationData = null;
+
+function getCurrentLocation() {
+    if (!navigator.geolocation) {
+        document.getElementById('status').textContent = 'Geolocation not supported.';
+        return;
+    }
+    
+    document.getElementById('status').textContent = 'Getting location...';
+    
+    navigator.geolocation.getCurrentPosition(
+        async (position) => {
+            const lat = parseFloat(position.coords.latitude).toFixed(2);
+            const lon = parseFloat(position.coords.longitude).toFixed(2);
+            let address = 'Current Location';
+            
+            // Reverse geocode to get address
+            try {
+                const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1&accept-language=${currentLang}&countrycodes=OM`);
+                const data = await response.json();
+                address = data.display_name || 'Current Location';
+            } catch (error) {
+                console.error('Error reverse geocoding:', error);
+                document.getElementById('status').textContent = 'Error getting address, showing coordinates.';
+            }
+
+            // Populate search input
+            document.getElementById('search').value = address;
+
+            // Generate links
+            const googleLink = `https://www.google.com/maps?q=${lat},${lon}`;
+            const osmLink = `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=12/${lat}/${lon}`;
+
+            // Store in locationData
+            locationData = {
+                address,
+                lat,
+                lon,
+                googleLink,
+                osmLink
+            };
+
+            // Update map
+            map.setView([lat, lon], 12);
+            L.marker([lat, lon]).addTo(map)
+                .bindPopup(address)
+                .openPopup();
+
+            // Update status
+            document.getElementById('status').textContent = `Current location: ${address} (Click Confirm to save)`;
+
+            // Enable confirm button
+            const confirmButton = document.getElementById('confirm_location');
+            if (confirmButton) confirmButton.disabled = false;
+
+            // Optional: Trigger suggestions
+            fetchSuggestions(address);
+        },
+        (error) => {
+            let msg = 'Error getting location: ';
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    msg += 'Permission denied.';
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    msg += 'Position unavailable.';
+                    break;
+                case error.TIMEOUT:
+                    msg += 'Timeout.';
+                    break;
+                default:
+                    msg += 'Unknown error.';
+            }
+            document.getElementById('status').textContent = msg;
+            // Ensure locationData is not accessed here
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+    );
+}
+        
+        // Input event listener for suggestions
+        document.getElementById('search').addEventListener('input', function(e) {
+            fetchSuggestions(e.target.value);
+        });
+        
+        // Enter key for search
+        document.getElementById('search').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchLocation();
+            }
+        });
+        
+        // Hide suggestions when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!document.getElementById('search-container').contains(e.target)) {
+                suggestionsDiv.style.display = 'none';
+            }
+        });
+
+
+// let locationData = null;
+
+
+function sendLocationToBackend(address, lat, lon, googleLink = null, osmLink = null) {
+
+  locationData = { address, lat, lon, googleLink, osmLink };
+    fetch('/save_location', { // Changed from /save-location to /api/store
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify({
+            address: address,
+            latitude: lat,
+            longitude: lon,
+            google_link: googleLink,
+            osm_link: osmLink
+        })
+    })
+    .then(res => {
+        if (!res.ok) {
+            throw new Error(`HTTP error! Status: ${res.status}`);
+        }
+        return res.json();
+    })
+.then(data => {
+    if (data.status === 'inside') {
+        show_notification('success', `✅ Location found: ${data.location}`);
+        
+        // Fetch worker slides for the location_id
+     fetch(`/worker-slides?location_id=${data.location_id}`)
+    .then(res => res.text())
+    .then(slides => {
+        const slider = document.getElementById('workers_slider');
+
+        // Destroy old slick if already initialized
+        if ($('.service-slider').hasClass('slick-initialized')) {
+            $('.service-slider').slick('unslick');
+        }
+
+        // Inject fresh HTML
+        slider.innerHTML = slides;
+
+        // Re-init slick after new content is in DOM
+        if ($('.service-slider').length && typeof $.fn.slick !== 'undefined') {
+            $('.service-slider').slick({
+                arrows: true,
+                slidesToShow: 3,
+                slidesToScroll: 1,
+                dots: true,
+                responsive: [
+                    { breakpoint: 1200, settings: { slidesToShow: 3 } },
+                    { breakpoint: 992,  settings: { slidesToShow: 2 } },
+                    { breakpoint: 576,  settings: { slidesToShow: 1 } }
+                ]
+            });
+        }
+
+        document.getElementById('locCount').textContent = data.location;
+
+        let filterSelect = document.getElementById('filter_location');
+        if (filterSelect) {
+            filterSelect.value = data.location_id;  
+            filterSelect.dispatchEvent(new Event('change'));
+            filterSelect.style.display = 'none';
+        }
+    })
+    .catch(err => console.error("Error fetching slides:", err));
+
+        console.log("Saved:", data);
+       
+    } else {
+        show_notification('error', '❌ Location not found in defined regions.');
+
+        // Fetch all worker slides
+        fetch('/worker-slides')
+            .then(res => res.text())
+            .then(slides => {
+             
+                document.getElementById('workers_slider').innerHTML = slides;
+
+                document.getElementById('locCount').textContent = 'All Locations';
+
+                let filterSelect = document.getElementById('filter_location');
+                if (filterSelect) {
+                    filterSelect.value = ""; 
+                    filterSelect.style.display = 'block';
+                }
+            })
+            .catch(err => console.error("Error fetching slides:", err));
+        console.warn("Outside:", data);
+    }
+})
+
+    .catch(err => {
+        show_notification('error', '⚠️ Error saving location. Please try again.');
+        console.error("Error:", err);
+    });
+} 
+function handleConfirmLocation() {
+    if (locationData) {
+        // Call confirm_map with stored location data
+        confirm_map(
+            locationData.address,
+            locationData.lat,
+            locationData.lon,
+            locationData.googleLink,
+            locationData.osmLink
+        );
+    } else {
+        show_notification('error', '⚠️ No location data available.');
+        console.error("No location data available.");
+    }
+}
+
+function confirm_map(address, lat, lon, googleLink, osmLink) {
+    console.log("Confirming Location Data:", { address, lat, lon, googleLink, osmLink });
+
+    fetch('/confirm_map', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify({
+            address: address,
+            latitude: lat,
+            longitude: lon,
+            google_link: googleLink,
+            osm_link: osmLink
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        console.log("Backend Response:", data);
+
+        if (data.status === 'inside') {
+            show_notification('success', `✅ Location confirmed: ${address}`);
+        } else if (data.status === 'outside') {
+            show_notification('error', `❌ Location not found in defined regions.`);
+        } else {
+            show_notification('error', `⚠️ Unexpected response from server.`);
+        }
+    })
+    .catch(err => {
+        console.error("Error sending data to backend:", err);
+        show_notification('error', '⚠️ Error saving location. Please try again.');
+    });
+}
+
+// Add event listener for the confirm_location button
+document.getElementById('confirm_location').addEventListener('click', handleConfirmLocation);
+
+
+ function initServiceSlider_Slick() {
+  const $slider = $("#workers_slider");
+  const totalSlides = $slider.find(".wpo-service-slide-item").length;
+
+  if ($slider.length && totalSlides > 0) {
+    if ($slider.hasClass('slick-initialized')) {
+            $slider.slick('unslick');
+        }
+    console.log("Initializing Slick Slider...");
+    $slider.slick({
+      slidesToShow: 4,
+      slidesToScroll: 1,
+      infinite: totalSlides > 4,          // 👈 loop only if enough slides
+      arrows: true,
+      dots: true,
+      adaptiveHeight: false,               // 👈 keeps the track height stable
+      swipeToSlide: true,
+      waitForAnimate: false,
+      edgeFriction: 0.15,
+      responsive: [
+        { breakpoint: 1200, settings: { slidesToShow: 3, infinite: totalSlides > 3 } },
+        { breakpoint: 992,  settings: { slidesToShow: 2, infinite: totalSlides > 2 } },
+        { breakpoint: 768,  settings: { slidesToShow: 1, infinite: totalSlides > 1 } }
+      ]
+    }).on('init', function(event, slick) {
+      console.log("{{ trans('messages.slick_slider_initialized', [], session('locale')) }} " + slick.slideCount + " {{ trans('messages.slides', [], session('locale')) }}");
+    });
+
+    // After images load, force Slick to recalc widths so no empty gap
+    $slider.find('img').on('load', function () {
+      $slider.slick('setPosition');
+    });
+  } else {
+    console.log("{{ trans('messages.no_slide_items_found', [], session('locale')) }}");
+  }
+}
 </script>
 

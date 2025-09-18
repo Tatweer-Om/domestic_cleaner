@@ -22,17 +22,18 @@ class ExpenseController extends Controller
     {
 
 
-    //         if (!Auth::check()) {
-    //     return redirect()->route('login_page')->with('error', 'Please login first');
-    // }
+    
+            if (!Auth::check()) {
+        return redirect()->route('login_page')->with('error', 'Please login first');
+    }
 
 
-    // $permissions = explode(',', Auth::user()->permissions ?? '');
+    $permissions = explode(',', Auth::user()->permissions ?? '');
 
 
-    // if (!in_array('11', $permissions)) {
-    //     return redirect()->route('login_error')->with('error', 'Permission denied');
-    // }
+    if (!in_array('8', $permissions)) {
+        return redirect()->route('login_error')->with('error', 'Permission denied');
+    }
 
 
         $view_account = Account::get();

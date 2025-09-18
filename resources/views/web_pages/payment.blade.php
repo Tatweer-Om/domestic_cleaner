@@ -392,6 +392,8 @@
 
             <!-- Booking Summary -->
             <h4 class="mb-4 text-dark">{{ trans('messages.booking_summary', [], session('locale')) }}</h4>
+            <h6 class="mb-4 text-dark" id="timer"></h6>
+            <input type="hidden" class="booking_no" value="{{ $booking_details['booking_no'] }}">
             <table class="table payment-details-table">
                 <tbody>
                     <tr>
@@ -422,7 +424,7 @@
                           <div id="voucher-entry" class="input-group input-group-sm mt-2 d-none js-voucher-entry">
                                 <input type="text" class="form-control" id="voucher-code"
                                        placeholder="{{ trans('messages.enter_voucher', [], session('locale')) ?? 'Enter voucher code' }}">
-                                <button class="btn btn-outline-primary" type="submit" id="apply-voucher-btn">
+                                <button class="btn btn-outline-primary" type="button" id="apply-voucher-btn">
                                     Apply
                                 </button>
                             </div>
@@ -432,14 +434,17 @@
                         </td>
                     </tr>
                     <tr>
+                        <input type="hidden" class="total_discount" value="{{ number_format($booking_details['discount'] ?? 0, 3) }}">
                         <th scope="row">{{ trans('messages.discount', [], session('locale')) }}</th>
                         <td>OMR <span id="base-discount-amount">{{ number_format($booking_details['discount'] ?? 0, 2) }}</span></td>
                     </tr>
                     <tr id="voucher-discount-row" class="d-none">
+                        <input type="hidden" class="total_voucher" value="0.000">
                         <th scope="row">{{ trans('messages.voucher_discount', [], session('locale')) ?? 'Voucher Discount' }}</th>
                         <td>OMR <span id="voucher-discount-amount">0.00</span></td>
                     </tr>
                     <tr class="total-row">
+                        <input type="hidden" class="total_amount" value="{{ number_format($booking_details['total_amount'] ?? 0, 3) }}">
                         <th scope="row">{{ trans('messages.total_amount', [], session('locale')) }}</th>
                         <td>OMR <span id="total-amount">{{ number_format($booking_details['total_amount'] ?? 0, 2) }}</span></td>
                     </tr>
@@ -454,13 +459,13 @@
                         <div class="d-flex align-items-center">
                             <img src="{{ asset('images/card/Apple-Pay-logo.png') }}" alt="{{ trans('messages.oman_net_alt', [], session('locale')) }}" class="me-2">
                             <div>
-                                <h5>OmanNET</h5>
+                                <h5>Amwal</h5>
                                 <small>{{ trans('messages.pay_with_apple', [], session('locale')) }}</small>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-6 col-md-3">
+                {{-- <div class="col-6 col-md-3">
                     <div class="payment-method-card card h-100" data-method="Visa">
                         <div class="d-flex align-items-center">
                             <img src="{{ asset('images/card/Visa-Logo.png') }}" alt="{{ trans('messages.visa_alt', [], session('locale')) }}" class="me-2">
@@ -492,7 +497,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> --}}
             </div>
 
             <!-- Pay Now Button -->
@@ -512,6 +517,33 @@
     </div>
 </div>
 
+
+<div class="modal fade bd-example-modal-lg theme-modal" 
+    id="expire-order-modal" 
+    tabindex="-1" 
+    role="dialog" 
+    aria-hidden="true" 
+    data-backdrop="static" 
+    data-keyboard="false">
+    <div class="modal-dialog modal-xs modal-dialog-centered" role="document">
+        <div class="modal-content quick-view-modal">
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12 rtl-text">
+                        <h3 class="mt-2 text-center">انتهى الوقت</h3>
+                        <hr>
+                        <div style="padding:10px;height:100px;">
+                            <h3 class="text-danger text-center">
+                                تم الوصول إلى حد وقت الدفع.<br>
+                                تم إلغاء طلبك.
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
 (function () {

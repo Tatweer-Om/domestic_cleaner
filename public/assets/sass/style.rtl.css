@@ -85,7 +85,7 @@ html {
 }
 
 body {
-  font-family: "Nunito";
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
   color: #032532;
   background-color: #fff;
   font-size: 15px;
@@ -116,7 +116,7 @@ h4,
 h5,
 h6 {
   color: #0E152B;
-  font-family: "Parkinsans";
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
   font-weight: 500;
 }
 
@@ -589,7 +589,7 @@ img {
   -webkit-backface-visibility: hidden;
   z-index: 1;
   position: relative;
-  font-family: "Nunito";
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
   font-size: 16px;
   border-radius: 11px;
   box-shadow: 2px -2px 4px 0px rgba(0, 0, 0, 0.12) inset;
@@ -849,7 +849,7 @@ img {
 }
 .breadcumb-area .breadcumb-wrap h2 {
   color: #000;
-  font-family: "Nunito";
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
   font-size: 20px;
   font-style: normal;
   font-weight: 600;
@@ -1205,7 +1205,7 @@ img {
   margin-bottom: 30px;
 }
 .blog-sidebar .about-widget a {
-  font-family: "Parkinsans";
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
   font-size: 14px;
   color: #0E152B;
   text-decoration: underline;
@@ -1415,7 +1415,7 @@ img {
 }
 .blog-sidebar .contact-widget span {
   color: #fff;
-  font-family: "Parkinsans";
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
   font-size: 18px;
   font-weight: 600;
   line-height: 160%;
@@ -1667,7 +1667,7 @@ img {
   margin-bottom: 40px;
 }
 .service-info span {
-  font-family: "Parkinsans";
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
   font-size: 15px;
   font-style: normal;
   font-weight: 400;
@@ -1682,7 +1682,7 @@ img {
   background: #42C652;
   color: #FFF;
   text-align: center;
-  font-family: "Parkinsans";
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
   font-size: 16px;
   font-weight: 700;
   line-height: 32px;
@@ -3058,7 +3058,7 @@ img {
 .header-s2 .topbar .pryment-selector select,
 .header-s3 .topbar .pryment-selector select {
   color: #fff;
-  font-family: "Parkinsans";
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
 }
 .header-s2 .topbar .pryment-selector::after,
 .header-s3 .topbar .pryment-selector::after {
@@ -3069,7 +3069,7 @@ img {
 .header-s2 .topbar .language-selector,
 .header-s3 .topbar .language-selector {
   color: #fff;
-  font-family: "Parkinsans";
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
 }
 .header-s2 .topbar .language-selector .custom-options div,
 .header-s3 .topbar .language-selector .custom-options div {
@@ -3162,7 +3162,7 @@ img {
 .header-s3 .wpo-site-header .header-right .close-form .theme-btn,
 .header-s3 .wpo-site-header .header-right .close-form .view-cart-btn {
   text-transform: capitalize;
-  font-family: "Parkinsans";
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
   font-size: 16px;
 }
 @media (max-width: 1199px) {
@@ -4538,7 +4538,7 @@ img {
 .partners-section h2 {
   text-align: center;
   color: #0E152B;
-  font-family: "Nunito";
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
   font-size: 16px;
   font-style: normal;
   font-weight: 600;
@@ -4697,7 +4697,7 @@ img {
 }
 .about-section .about-wrap .about-left-side .about-left-client-box h2 span {
   font-weight: 500;
-  font-family: "Parkinsans";
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
 }
 .about-section .about-wrap .about-left-side .about-left-client-box p {
   margin-bottom: 0;
@@ -4755,7 +4755,7 @@ img {
 }
 .about-section .about-wrap .about-right-side .about-right-img .content-box span {
   font-size: 22px;
-  font-family: "Parkinsans";
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
 }
 @media (max-width: 991px) {
   .about-section .about-wrap .about-right-side .about-right-img .content-box {
@@ -5140,7 +5140,7 @@ img {
 }
 .wpo-choose-section .wpo-choose-left-side .wpo-choose-left-box h2 span {
   font-weight: 500;
-  font-family: "Parkinsans";
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
 }
 .wpo-choose-section .wpo-choose-left-side .wpo-choose-left-box p {
   margin-bottom: 0;
@@ -5169,7 +5169,7 @@ img {
   box-shadow: 0px 4px 7px 0px rgba(0, 0, 0, 0.02);
   display: inline-block;
   font-size: 16px;
-  font-family: "Parkinsans";
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
   font-style: normal;
   font-weight: 500;
   line-height: 30px;
@@ -5247,7 +5247,7 @@ img {
   position: relative;
 }
 .wpo-work-section .wpo-work-item .wpo-work-text span {
-  font-family: "Parkinsans";
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
   font-size: 22px;
   font-style: normal;
   font-weight: 500;
@@ -5537,7 +5537,7 @@ img {
   border-radius: 6px;
   background: #3CA200;
   padding: 5px 25px;
-  font-family: "Parkinsans";
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
   font-size: 24px;
   font-style: normal;
   font-weight: 400;
@@ -5612,7 +5612,7 @@ img {
   right: var(--position);
   transform: translate(50%, -50%);
   pointer-events: none;
-  font-family: "Parkinsans";
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
   font-size: 18px;
   font-style: normal;
   font-weight: 400;
@@ -5656,7 +5656,7 @@ img {
   box-shadow: 0px 4px 7px 0px rgba(0, 0, 0, 0.02);
   display: inline-block;
   font-size: 16px;
-  font-family: "Parkinsans";
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
   font-style: normal;
   font-weight: 500;
   line-height: 30px;
@@ -5913,7 +5913,7 @@ img {
   padding-right: 0;
   padding-left: 0;
   color: #0E152B;
-  font-family: "Parkinsans";
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
   font-size: 24px;
   font-style: normal;
   font-weight: 500;
@@ -6015,7 +6015,7 @@ img {
   width: auto;
 }
 .wpo-testimonials-section .wpo-testimonial-wrap p {
-  font-family: "Parkinsans";
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
   font-size: 24px;
   font-style: normal;
   font-weight: 400;
@@ -6090,7 +6090,7 @@ img {
   font-style: normal;
   font-weight: 400;
   line-height: 24px;
-  font-family: "Parkinsans";
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
 }
 .wpo-testimonials-section .wpo-testimonial-wrap .wpo-testimonial-info .rating {
   position: absolute;
@@ -6696,7 +6696,7 @@ img {
 }
 .wpo-blog-section .wpo-blog-item .wpo-blog-content h2 {
   font-size: 22px;
-  font-family: "Parkinsans";
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
   font-size: 22px;
   font-style: normal;
   font-weight: 500;
@@ -6939,7 +6939,7 @@ img {
   box-shadow: 0px 4px 7px 0px rgba(0, 0, 0, 0.02);
   display: inline-block;
   font-size: 16px;
-  font-family: "Parkinsans";
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
   font-style: normal;
   font-weight: 500;
   line-height: 30px;
@@ -7533,7 +7533,7 @@ img {
   transition: all 0.3s ease-in-out;
   width: 100%;
   color: #222;
-  font-family: "Parkinsans";
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
   font-size: 20px;
   font-weight: 500;
   background: transparent;
@@ -8217,7 +8217,7 @@ img {
   color: #001635;
   margin-bottom: 15px;
   list-style: none;
-  font-family: "Parkinsans";
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
 }
 @media (max-width: 575px) {
   .team-info-text ul li {
@@ -8234,7 +8234,7 @@ img {
   display: inline-block;
   position: relative;
   padding-right: 5px;
-  font-family: "Nunito";
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
 }
 .team-info-text ul li:last-child {
   margin-bottom: 0;
@@ -8340,7 +8340,7 @@ img {
   font-size: 18px;
   line-height: 23px;
   color: #525252;
-  font-family: "Nunito";
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
 }
 @media (max-width: 767px) {
   .skills-area .wpo-skill-progress .wpo-progress-single h5 {
@@ -8542,7 +8542,7 @@ img {
   margin-top: 20px;
 }
 .shop-section .add-to-cart a {
-  font-family: "Nunito";
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
   font-size: 15px;
   font-size: 0.8333333333rem;
   font-weight: 600;
@@ -8845,7 +8845,7 @@ img {
   margin-bottom: 0;
 }
 .shop-single-section .product-info .nav-tabs {
-  font-family: "Parkinsans";
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
   border: 0;
 }
 @media (max-width: 767px) {
@@ -8869,7 +8869,7 @@ img {
   margin: 0;
   display: block;
   padding: 12px 20px 11px;
-  font-family: "Nunito";
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
   position: relative;
 }
 @media (max-width: 767px) {
@@ -9787,7 +9787,7 @@ img {
   line-height: 1.2em;
   font-weight: 500;
   margin: -0.27em 0 0.7em;
-  font-family: "Parkinsans";
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
 }
 @media (max-width: 991px) {
   .blog-pg-section .post h3 {
@@ -9988,7 +9988,7 @@ img {
   line-height: 1.2em;
   font-weight: 500;
   margin: -0.27em 0 0.7em;
-  font-family: "Parkinsans";
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
 }
 @media (max-width: 991px) {
   .blog-single-section .post h3 {
@@ -10049,7 +10049,7 @@ img {
   border: 0;
   position: relative;
   color: #16171A;
-  font-family: "Parkinsans";
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
   font-size: 24px;
   font-weight: 500;
   line-height: 43px;
@@ -10202,7 +10202,7 @@ img {
 }
 .blog-single-section .tag-share .tag > span,
 .blog-single-section .tag-share-s2 .tag > span {
-  font-family: "Parkinsans";
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
   display: inline-block;
   padding-left: 15px;
   text-transform: capitalize;
@@ -10227,7 +10227,7 @@ img {
   text-transform: uppercase;
   color: #838383;
   text-align: center;
-  font-family: "Parkinsans";
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
   font-size: 14px;
   font-weight: 500;
   line-height: 30px;
@@ -10468,7 +10468,7 @@ img {
   font-weight: normal;
   text-transform: none;
   display: block;
-  font-family: "Nunito";
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
 }
 @media (max-width: 767px) {
   .blog-single-section .comments-area .comments-meta h4 span {

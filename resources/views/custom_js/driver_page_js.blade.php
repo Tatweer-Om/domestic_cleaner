@@ -2,7 +2,7 @@
 $(document).ready(function() {
 
     // 🔹 Reusable function to render both table rows and mobile cards
-    function renderVisits(response, tbodySelector, cardsSelector, hasAction = false, emptyMessage = "No data") {
+    function renderVisits(response, tbodySelector, cardsSelector, hasAction = false, emptyMessage = "{{ trans('messages.no_data', [], session('locale')) }}") {
         var tbody = $(tbodySelector);
         var cardsContainer = $(cardsSelector);
         tbody.empty();
@@ -52,7 +52,7 @@ $(document).ready(function() {
             method: 'GET',
             dataType: 'json',
             success: function(response) {
-                renderVisits(response, '#today_driver_body', '#today_driver_cards', true, "No visits today");
+                renderVisits(response, '#today_driver_body', '#today_driver_cards', true, "{{ trans('messages.no_visits_today', [], session('locale')) }}");
             },
             error: function(xhr) {
                 console.error('Error loading Today\'s Visits:', xhr.responseText);
@@ -69,7 +69,7 @@ $(document).ready(function() {
             method: 'GET',
             dataType: 'json',
             success: function(response) {
-                renderVisits(response, '#this-week-drivers-body', '#this_week_driver_cards', false, "No visits this week");
+                renderVisits(response, '#this-week-drivers-body', '#this_week_driver_cards', false, "{{ trans('messages.no_visits_this_week', [], session('locale')) }}");
             },
             error: function(xhr) {
                 console.error('Error loading This Week Visits:', xhr.responseText);
@@ -83,21 +83,33 @@ $(document).ready(function() {
     var alldriversTable = $('#all_driver_visits').DataTable({
         processing: true,
         serverSide: false,
-        responsive: true, // 📱 auto adjust for small screens
+        responsive: false, // Disable responsive to prevent column hiding
+        scrollX: false, // Disable horizontal scrolling
+        autoWidth: false, // Disable automatic column width calculation
         ajax: {
             url: '{{ route("driver.visits.all", $driver->id) }}',
             dataSrc: 'aaData'
         },
         columns: [
-            { data: 0 },  // S.No
-            { data: 1 },  // Booking No
-            { data: 2 },  // Visit Date
-            { data: 3 },  // Customer
-            { data: 4 },  // Location
-            { data: 5 }   // Shift / Duration / Status
+            { data: 0, width: "8%", className: "text-center" },   // S.No
+            { data: 1, width: "15%", className: "text-center" },  // Booking No
+            { data: 2, width: "15%", className: "text-center" },  // Visit Date
+            { data: 3, width: "20%", className: "text-left" },    // Customer
+            { data: 4, width: "22%", className: "text-left" },    // Location
+            { data: 5, width: "20%", className: "text-center" }   // Shift / Duration / Status
         ],
         language: {
             url: '{{ asset("vendor/datatables/lang/" . $locale . ".json") }}'
+        },
+        dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
+             '<"row"<"col-sm-12"tr>>' +
+             '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+        pageLength: 10,
+        lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
+        order: [[2, 'desc']], // Order by visit date descending
+        drawCallback: function(settings) {
+            // Ensure proper styling after draw
+            $(this.api().table().node()).addClass('table-fixed');
         }
     });
 
@@ -114,9 +126,63 @@ $(document).ready(function() {
             loadThisWeekVisits();
         } else if (target === '#all-visits') {
             alldriversTable.ajax.reload(null, false);
+            // Adjust table columns and redraw
+            setTimeout(function() {
+                alldriversTable.columns.adjust().responsive.recalc();
+                alldriversTable.draw();
+            }, 100);
         }
     });
 });
 
-
+function edit_driver_visit(visitId) {
+    Swal.fire({
+        title: '{{ trans('messages.mark_visit_completed', [], session('locale')) }}',
+        text: "{{ trans('messages.update_status_completed', [], session('locale')) }}",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: '{{ trans('messages.confirm', [], session('locale')) }}',
+        cancelButtonText: '{{ trans('messages.cancel', [], session('locale')) }}',
+        reverseButtons: true,
+        customClass: {
+            popup: 'swal-small-popup',
+            title: 'swal-small-title',
+            confirmButton: 'btn btn-success px-3 me-2',
+            cancelButton: 'btn btn-secondary px-3'
+        },
+        buttonsStyling: false
+    })
+    .then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: '{{ route("driver.visits.complete") }}',
+                type: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    visit_id: visitId
+                },
+                success: function(response) {
+                    if (response.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Updated!',
+                            text: '{{ trans('messages.visit_marked_completed', [], session('locale')) }}',
+                            timer: 1500,
+                            showConfirmButton: false,
+                            didClose: () => {
+                                // 🔹 reload the whole page
+                                location.reload();
+                            }
+                        });
+                    } else {
+                        Swal.fire('{{ trans('messages.error_general', [], session('locale')) }}', response.message ?? '{{ trans('messages.could_not_update_status', [], session('locale')) }}', 'error');
+                    }
+                },
+                error: function(xhr) {
+                    Swal.fire('Error', 'Something went wrong. Try again.', 'error');
+                }
+            });
+        }
+    });
+}
 </script>

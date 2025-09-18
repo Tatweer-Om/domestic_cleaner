@@ -852,21 +852,21 @@
                         <div class="d-inline-flex align-items-center gap-2 mb-3">
                             <img src="{{ asset('assets/images/cleaning-icon.svg') }}" alt="" width="22"
                                 height="22">
-                            <span class="badge rounded-pill bg-white text-dark shadow-sm">Domestic Workers</span>
+                            <span class="badge rounded-pill bg-white text-dark shadow-sm">{{ trans('messages.domestic_workers', [], session('locale')) }}</span>
                         </div>
 
                         <h1 class="display-5 fw-bold text-white mb-3">
-                            {{ $worker->worker_name ?? 'Residential Cleaning' }}
+                            {{ $worker->worker_name ?? trans('messages.residential_cleaning', [], session('locale')) }}
                         </h1>
 
                         <p class="lead text-white-50 mb-4">
-                            Because clean feels better ✨
+                            {{ trans('messages.clean_feels_better_emoji', [], session('locale')) }}
                         </p>
 <div class="d-flex flex-wrap justify-content-center justify-content-lg-start gap-2">
     {{-- Location name chip --}}
     <span class="chip bg-light text-dark fw-semibold px-3 py-1 rounded-pill shadow-sm">
         <i class="ti-location-pin me-1 text-primary"></i>
-        {{ $location_name ?? 'No location' }}
+        {{ $location_name ?? trans('messages.no_location', [], session('locale')) }}
     </span>
 
     {{-- Delivery status chip --}}
@@ -903,7 +903,7 @@
                     @endphp
 
                     <div class="hero-photo-circle mx-auto position-relative">
-                        <img src="{{ $imgSrc }}" alt="{{ $worker->worker_name ?? 'Worker photo' }}"
+                        <img src="{{ $imgSrc }}" alt="{{ $worker->worker_name ?? trans('messages.worker_photo', [], session('locale')) }}"
                             class="img-fluid rounded-circle shadow-lg hero-photo-img"
                             onerror="this.onerror=null;this.src='{{ asset('assets/images/default-worker.png') }}';">
 
@@ -931,9 +931,9 @@
                         <div class="glass-head d-flex align-items-center justify-content-between">
                             <div class="d-flex align-items-center gap-2">
                                 <span class="dot"></span>
-                                <h5 class="mb-0 fw-bold">Book this Service</h5>
+                                <h5 class="mb-0 fw-bold">{{ trans('messages.book_this_service', [], session('locale')) }}</h5>
                             </div>
-                            <small class="text-muted">Choose package, date, shift & hours</small>
+                            <small class="text-muted">{{ trans('messages.choose_package_date_shift_hours', [], session('locale')) }}</small>
                         </div>
 
                         <div class="glass-body">
@@ -981,7 +981,7 @@
                                                 </svg>
                                             </span>
                                             <input type="text" class="form-control form-control-sm ps-5" id="startDate"
-                                                placeholder="Select start date" readonly required>
+                                                placeholder="{{ trans('messages.select_start_date', [], session('locale')) }}" readonly required>
                                         </div>
                                         <div class="invalid-feedback">Please choose a start date.</div>
                                     </div>

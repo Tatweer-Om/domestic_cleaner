@@ -154,21 +154,25 @@
 
 
                                 {{-- User Dropdown --}}
-                                <div class="col-lg-4 col-xl-4">
-                                    <div class="form-group">
-                                        <label class="col-form-label">
-                                            <i class="fa fa-user"></i>
-                                            {{ trans('messages.select_user', [], session('locale')) }}
-                                        </label>
-                                        <select class="form-control selectpicker worker_user_id" name="worker_user_id"
-                                            data-live-search="true">
-                                            <option value="">{{ trans('messages.choose', [], session('locale')) }}...
-                                            </option>
-                                            <option value="1">user1
-                                            </option>
-                                        </select>
-                                    </div>
-                                </div>
+                              <div class="col-lg-4 col-xl-4">
+    <div class="form-group">
+        <label class="col-form-label">
+            <i class="fa fa-user"></i>
+            {{ trans('messages.select_user', [], session('locale')) }}
+        </label>
+        <select class="form-control selectpicker worker_user_id" name="worker_user_id" data-live-search="true">
+            <option value="">{{ trans('messages.choose', [], session('locale')) }}...</option>
+
+            @foreach($users as $user)
+                <option value="{{ $user->id }}">
+                    {{ $user->user_name ?? $user->name ?? 'User '.$user->id }}
+                </option>
+            @endforeach
+
+        </select>
+    </div>
+</div>
+
 
                                 {{-- Shift Dropdown --}}
                                 <div class="col-lg-4 col-xl-4">
@@ -259,7 +263,7 @@
                                             </label>
                                             <img id="imagePreview"
                                                 src="{{ asset('images/dummy_images/cover-image-icon.png') }}"
-                                                alt="Preview" class="img-fluid rounded worker_image"
+                                                alt="{{ trans('messages.preview', [], session('locale')) }}" class="img-fluid rounded worker_image"
                                                 style="width: 100px; height: 100px; object-fit: cover; cursor: pointer;">
 
                                             <input type="file" id="imageUpload" name="worker_image" class="d-none"

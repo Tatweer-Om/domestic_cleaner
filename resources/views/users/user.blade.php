@@ -205,7 +205,7 @@
                                             </option>
                                                 <option value="3">{{ trans('messages.driver', [], session('locale')) }}
                                             </option>
-                                                <option value="3">{{ trans('messages.worker', [], session('locale')) }}
+                                                <option value="4">{{ trans('messages.worker', [], session('locale')) }}
                                             </option>
 
                                         </select>
@@ -275,6 +275,34 @@
                                                 'icon' => 'bi-graph-up-arrow',
                                                 'color' => 'text-primary',
                                             ],
+                                                [
+                                                'id' => 'expense',
+                                                'value' => 8,
+                                                'label' => 'expense',
+                                                'icon' => 'bi-graph-up-arrow',
+                                                'color' => 'text-primary',
+                                            ],
+                                              [
+                                                'id' => 'sms',
+                                                'value' => 9,
+                                                'label' => 'sms',
+                                                'icon' => 'bi-graph-up-arrow',
+                                                'color' => 'text-primary',
+                                            ],
+                                              [
+                                                'id' => 'account',
+                                                'value' => 10,
+                                                'label' => 'account',
+                                                'icon' => 'bi-graph-up-arrow',
+                                                'color' => 'text-primary',
+                                            ],
+                                              [
+                                                'id' => 'customer',
+                                                'value' => 11,
+                                                'label' => 'account',
+                                                'icon' => 'bi-graph-up-arrow',
+                                                'color' => 'text-primary',
+                                            ],
                                         ];
                                     @endphp
 
@@ -312,7 +340,7 @@
                                         <label
                                             class="col-form-label">{{ trans('messages.image', [], session('locale')) }}</label>
                                         <img id="imagePreview"
-                                            src="{{ asset('images/dummy_images/cover-image-icon.png') }}" alt="Preview"
+                                            src="{{ asset('images/dummy_images/cover-image-icon.png') }}" alt="{{ trans('messages.preview', [], session('locale')) }}"
                                             class="img-fluid rounded user_image"
                                             style="width: 100%; max-width: 100px; max-height: 100px; object-fit: cover; cursor: pointer;">
                                         <input type="file" id="imageUpload" name="user_image"

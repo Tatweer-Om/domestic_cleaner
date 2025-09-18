@@ -6,10 +6,12 @@ use Carbon\Carbon;
 use App\Models\Driver;
 use App\Models\History;
 use App\Models\Location;
+use App\Models\User;
+
 use App\Models\Booking;
-
+use App\Models\Customer;
 use App\Models\Visit;
-
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
@@ -18,8 +20,21 @@ class DriverController extends Controller
 {
     public function index()
     {
+
+        if (!Auth::check()) {
+        return redirect()->route('login_page')->with('error', 'Please login first');
+    }
+
+
+    $permissions = explode(',', Auth::user()->permissions ?? '');
+
+
+    if (!in_array('3', $permissions)) {
+        return redirect()->route('login_error')->with('error', 'Permission denied');
+    }
         $locations = Location::select('id', 'location_name')->get();
-        return view('drivers.drivers', compact('locations'));
+        $users= User::where('user_type', 3)->get();
+        return view('drivers.drivers', compact('locations', 'users'));
     }
 
     public function show_driver()
@@ -33,7 +48,7 @@ class DriverController extends Controller
 
 
 
-                $driver_name = '<a class="driver-info ps-0" href="driver_profile/' . $driver->id . '">' . $driver->driver_name . '</a>';
+                $driver_name = '<a class="driver-info ps-0" href="driver_page/' . $driver->id . '">' . $driver->driver_name . '</a>';
                 $modal = '<a href="javascript:void(0);" class="me-3 edit-driver" data-bs-toggle="modal" data-bs-target="#add_driver_modal" onclick="edit(' . $driver->id . ')">
                 <i class="fa fa-pencil fs-18 text-success"></i>
               </a>
@@ -255,21 +270,26 @@ class DriverController extends Controller
    public function driver_page($id)
 {
     $driver = Driver::where('id', $id)->first();
+    
+    if (!$driver) {
+        return redirect()->route('login_page')->with('error', 'Driver not found');
+    }
+    
     $location = Location::where('id', $driver->location_id)->first();
-    $location_name = $location->location_name;
+    $location_name = $location ? $location->location_name : 'No Location';
     $locations = Location::select('location_name', 'id')->get();
 
     // 🔹 Visit statistics
     $total_visits = Visit::where('driver_id', $id)->count();
-    $completed_visits = Visit::where('driver_id', $id)->where('status', 2)->count();
-    $pending_visits = Visit::where('driver_id', $id)->where('status', 1)->count();
-    $cancelled_visits = Visit::where('driver_id', $id)->where('status', 3)->count();
+    $completed_visits = Visit::where('driver_id', $id)->where('status', 2)->count() ?? 0;
+    $pending_visits = Visit::where('driver_id', $id)->where('status', 1)->count() ?? 0;
+    $cancelled_visits = Visit::where('driver_id', $id)->where('status', 3)->count() ?? 0;
 
     return view('drivers.driver_page', compact(
         'driver',
-        'packages',
+
         'location_name',
-        'delivery',
+
         'locations',
         'total_visits',
         'completed_visits',
@@ -278,7 +298,7 @@ class DriverController extends Controller
     ));
 }
 
-public function todayVisits(Request $request, $driverId)
+public function todayVisitsdriver(Request $request, $driverId)
 {
     $today = Carbon::today();
 
@@ -293,7 +313,7 @@ public function todayVisits(Request $request, $driverId)
 
     return response()->json([
         'data' => $visits->map(function ($row) {
-            $statusText = match ((int) $row->status) {
+            $statusText = match ((int) $row->driver_status) {
                 1 => 'Pending',
                 2 => 'Completed',
                 3 => 'Cancelled',
@@ -320,16 +340,17 @@ public function todayVisits(Request $request, $driverId)
                                 ? 'bg-success'
                                 : 'bg-danger')) .
                     '">' . $statusText . '</span>',
-                'action' => $row->status == 2
-                    ? ''
-                    : '<span class="badge bg-warning text-dark" style="cursor:pointer;" onclick="edit_driver_visit(' . $row->id . ')">Mark Completed</span>',
+               'action' => $row->driver_status == 2
+    ? '<span class="badge bg-success text-light">Done</span>'
+    : '<span class="badge bg-warning text-dark" style="cursor:pointer;" onclick="edit_driver_visit(' . $row->id . ')">Mark Completed</span>',
+
             ];
         })
     ]);
 }
 
 
-public function thisWeekVisits(Request $request, $driverId)
+public function thisWeekVisitsdriver(Request $request, $driverId)
 {
     $today = Carbon::today();
     $endOfWeek = $today->copy()->addDays(6);
@@ -345,7 +366,7 @@ public function thisWeekVisits(Request $request, $driverId)
 
     return response()->json([
         'data' => $visits->map(function ($row) {
-            $statusText = match ((int) ($row->status ?? 0)) {
+            $statusText = match ((int) ($row->driver_status ?? 0)) {
                 1 => 'Pending',
                 2 => 'Completed',
                 3 => 'Cancelled',
@@ -378,8 +399,10 @@ public function thisWeekVisits(Request $request, $driverId)
 }
 
 
-public function allVisits($driverId)
+public function allVisitsdriver($driverId)
 {
+
+
     $sno = 0;
 
     // fetch visits for this driver directly
@@ -391,7 +414,7 @@ public function allVisits($driverId)
 
     if ($visits->count() > 0) {
         foreach ($visits as $visit) {
-            $statusBadge = match ($visit->status) {
+            $statusBadge = match ($visit->driver_status) {
                 1 => '<span class="badge bg-secondary me-1">Pending</span>',
                 2 => '<span class="badge bg-success me-1">Completed</span>',
                 3 => '<span class="badge bg-danger me-1">Cancelled</span>',
@@ -419,6 +442,29 @@ public function allVisits($driverId)
         'success' => true,
         'aaData' => $json
     ]);
+}
+
+public function completeVisitdriver(Request $request)
+{
+
+    $visit = Visit::find($request->visit_id);
+
+        $user = Auth::user();
+        $user_id = Auth::id(); // null if guest
+        $user_name = $user ? $user->user_name : null; // null if guest
+
+        $driver = $user_id ? Driver::where('user_id', $user_id)->first() : null;
+        $driver_id = $driver ? $driver->id : null;
+
+    if (!$visit) {
+        return response()->json(['success' => false, 'message' => 'Visit not found.']);
+    }
+
+    $visit->driver_status = 2; // completed
+    $visit->driver_id = $driver_id; // completed
+    $visit->save();
+
+    return response()->json(['success' => true]);
 }
 
 }

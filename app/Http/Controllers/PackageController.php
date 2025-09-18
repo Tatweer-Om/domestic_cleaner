@@ -6,12 +6,26 @@ use Carbon\Carbon;
 use App\Models\History;
 use App\Models\Package;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
 
 class PackageController extends Controller
 {
      public function index()
     {
 
+        
+            if (!Auth::check()) {
+        return redirect()->route('login_page')->with('error', 'Please login first');
+    }
+
+
+    $permissions = explode(',', Auth::user()->permissions ?? '');
+
+
+    if (!in_array('6', $permissions)) {
+        return redirect()->route('login_error')->with('error', 'Permission denied');
+    }
         return view('packages.package');
     }
 

@@ -4,41 +4,86 @@
     @push('title')
         <title> {{ trans('messages.driver_profile_lang', [], session('locale')) }}</title>
     @endpush
-   @php $locale = session('locale'); @endphp
+    @php $locale = session('locale'); @endphp
 
-  <style>
-    /* Default smaller popup */
-.swal-small-popup {
-    width: 350px !important;
-    max-width: 90% !important;
-    border-radius: 12px;
-}
+    <style>
+        /* Default smaller popup */
+        .swal-small-popup {
+            width: 350px !important;
+            max-width: 90% !important;
+            border-radius: 12px;
+        }
 
-/* Smaller title for mobile */
-.swal-small-title {
-    font-size: 1.1rem !important;
-}
+        /* Smaller title for mobile */
+        .swal-small-title {
+            font-size: 1.1rem !important;
+        }
 
-/* Responsive fix */
-@media (max-width: 576px) {
-    .swal-small-popup {
-        width: 95% !important;
-        font-size: 14px !important;
-        padding: 1rem !important;
-    }
-    .swal-small-title {
-        font-size: 1rem !important;
-    }
-    .swal2-actions {
-        flex-direction: column !important;
-        gap: 0.5rem;
-    }
-    .swal2-actions .btn {
-        width: 100% !important;
-    }
-}
+        /* DataTable improved styling */
+        .dataTables_wrapper {
+            width: 100% !important;
+        }
+        
+        #all_driver_visits_wrapper {
+            width: 100% !important;
+        }
+        
+        #all_driver_visits {
+            width: 100% !important;
+            table-layout: fixed;
+        }
+        
+        .table-fixed {
+            table-layout: fixed !important;
+            width: 100% !important;
+        }
+        
+        .table-fixed th,
+        .table-fixed td {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        
+        /* Ensure table fits in col-lg-12 */
+        .table-responsive {
+            width: 100%;
+            overflow-x: visible;
+        }
+        
+        /* DataTable controls styling */
+        .dataTables_length,
+        .dataTables_filter {
+            margin-bottom: 1rem;
+        }
+        
+        .dataTables_info,
+        .dataTables_paginate {
+            margin-top: 1rem;
+        }
 
-     .tab-container {
+        /* Responsive fix */
+        @media (max-width: 576px) {
+            .swal-small-popup {
+                width: 95% !important;
+                font-size: 14px !important;
+                padding: 1rem !important;
+            }
+
+            .swal-small-title {
+                font-size: 1rem !important;
+            }
+
+            .swal2-actions {
+                flex-direction: column !important;
+                gap: 0.5rem;
+            }
+
+            .swal2-actions .btn {
+                width: 100% !important;
+            }
+        }
+
+        .tab-container {
             background: linear-gradient(135deg, #2563eb 0%, #22c55e 50%, #1e293b 100%);
             border-radius: 12px;
             padding: 0.5rem;
@@ -135,225 +180,238 @@
                 padding: 1rem;
             }
         }
-    /* Background & layout */
-    .bg-gradient-clean {
-        background: linear-gradient(135deg, #2563eb 0%, #22c55e 50%, #1e293b 100%);
-        padding: 3.5rem 1.25rem;
-    }
 
-    @media (min-width: 992px) {
+        /* Background & layout */
         .bg-gradient-clean {
-            padding: 5rem 2rem;
+            background: linear-gradient(135deg, #2563eb 0%, #22c55e 50%, #1e293b 100%);
+            padding: 3.5rem 1.25rem;
         }
-    }
 
-    /* Chips */
-    .chip {
-        background: rgba(255, 255, 255, 0.15);
-        color: #fff;
-        padding: .4rem .7rem;
-        border-radius: 999px;
-        font-size: .8rem;
-        border: 1px solid rgba(255, 255, 255, 0.25);
-        backdrop-filter: blur(5px);
-    }
+        @media (min-width: 992px) {
+            .bg-gradient-clean {
+                padding: 5rem 2rem;
+            }
+        }
 
-    /* Circle photo */
-    .hero-photo-circle {
-        width: 260px;
-        height: 260px;
-        border-radius: 50%;
-        padding: .5rem;
-        background: linear-gradient(180deg, rgba(255, 255, 255, .35), rgba(255, 255, 255, .05));
-        border: 2px solid rgba(255, 255, 255, .25);
-        backdrop-filter: blur(6px);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-    }
+        /* Chips */
+        .chip {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            padding: .4rem .7rem;
+            border-radius: 999px;
+            font-size: .8rem;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(5px);
+        }
 
-    .hero-photo-circle img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        border-radius: 50%;
-    }
+        /* Circle photo */
+        .hero-photo-circle {
+            width: 260px;
+            height: 260px;
+            border-radius: 50%;
+            padding: .5rem;
+            background: linear-gradient(180deg, rgba(255, 255, 255, .35), rgba(255, 255, 255, .05));
+            border: 2px solid rgba(255, 255, 255, .25);
+            backdrop-filter: blur(6px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
 
-    /* Floating badge */
-    .photo-badge {
-        position: absolute;
-        bottom: 10px;
-        right: -10px;
-        background: #fff;
-        color: #111827;
-        border-radius: 999px;
-        padding: .35rem .8rem;
-        font-size: .75rem;
-        display: inline-flex;
-        align-items: center;
-        gap: .4rem;
-        box-shadow: 0 3px 6px rgba(0, 0, 0, .15);
-    }
+        .hero-photo-circle img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
 
-    .photo-badge .dot {
-        width: .45rem;
-        height: .45rem;
-        border-radius: 50%;
-        background: #16a34a;
-    }
+        /* Floating badge */
+        .photo-badge {
+            position: absolute;
+            bottom: 10px;
+            right: -10px;
+            background: #fff;
+            color: #111827;
+            border-radius: 999px;
+            padding: .35rem .8rem;
+            font-size: .75rem;
+            display: inline-flex;
+            align-items: center;
+            gap: .4rem;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, .15);
+        }
 
-    /* Ambient blur shapes */
-    .hero-shape-1,
-    .hero-shape-2 {
-        position: absolute;
-        pointer-events: none;
-        filter: blur(40px);
-    }
+        .photo-badge .dot {
+            width: .45rem;
+            height: .45rem;
+            border-radius: 50%;
+            background: #16a34a;
+        }
 
-    .hero-shape-1 {
-        width: 380px;
-        height: 380px;
-        right: -120px;
-        top: -120px;
-        background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, .35), transparent 60%);
-    }
+        /* Ambient blur shapes */
+        .hero-shape-1,
+        .hero-shape-2 {
+            position: absolute;
+            pointer-events: none;
+            filter: blur(40px);
+        }
 
-    .hero-shape-2 {
-        width: 320px;
-        height: 320px;
-        left: -100px;
-        bottom: -120px;
-        background: radial-gradient(circle at 70% 70%, rgba(255, 255, 255, .2), transparent 60%);
-    }
+        .hero-shape-1 {
+            width: 380px;
+            height: 380px;
+            right: -120px;
+            top: -120px;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, .35), transparent 60%);
+        }
 
-    /* Hero section */
-    .service-hero {
-        background: radial-gradient(1200px 600px at 10% -10%, #2ec5ce33, transparent 60%),
-            radial-gradient(1200px 600px at 100% 10%, #845ef733, transparent 50%),
-            linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #334155 100%);
-        color: #fff;
-        padding: 0px 0 56px;
-        position: relative;
-    }
+        .hero-shape-2 {
+            width: 320px;
+            height: 320px;
+            left: -100px;
+            bottom: -120px;
+            background: radial-gradient(circle at 70% 70%, rgba(255, 255, 255, .2), transparent 60%);
+        }
 
-    .hero-copy .badge {
-        background: rgba(255, 255, 255, .85);
-        border: 1px solid #e9ecef;
-    }
+        /* Hero section */
+     /* Hero section */
+.service-hero {
+    background:
+        radial-gradient(1000px 500px at 10% -10%, rgba(16, 185, 129, 0.25), transparent 60%), /* emerald glow */
+        radial-gradient(1000px 500px at 100% 10%, rgba(251, 191, 36, 0.25), transparent 50%), /* amber glow */
+        linear-gradient(135deg, #047857 0%, #0d9488 50%, #14b8a6 100%); /* deep emerald → teal */
+    color: #fff;
+    padding: 0px 0 56px;
+    position: relative;
+}
 
-    /* Shadow and rounded utilities */
-    .shadow-sm {
-        box-shadow: 0 8px 24px rgba(16, 24, 40, .06);
-    }
-
-    .rounded-4 {
-        border-radius: 14px;
-    }
-</style>
-
-                    <div class="content-body">
-                        <div class="container-fluid">
-
-                    <div class="service-hero position-relative overflow-hidden bg-gradient-clean rounded-4">
-                        <div class="container position-relative">
-                            <div class="row align-items-center g-4">
-
-                                {{-- Copy --}}
-                                <div class="col-12 col-lg-7">
-                                    <div class="hero-copy text-center text-lg-start">
+/* Optional overlay for depth */
+.service-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom right, rgba(255, 255, 255, 0.05), rgba(0, 0, 0, 0.1));
+    border-radius: inherit;
+    pointer-events: none;
+}
 
 
-                                        <h1 class="display-5 fw-bold text-white mb-3">
-                                            {{ $driver->driver_name ?? 'Residential Cleaning' }}
-                                        </h1>
+        .hero-copy .badge {
+            background: rgba(255, 255, 255, .85);
+            border: 1px solid #e9ecef;
+        }
+
+        /* Shadow and rounded utilities */
+        .shadow-sm {
+            box-shadow: 0 8px 24px rgba(16, 24, 40, .06);
+        }
+
+        .rounded-4 {
+            border-radius: 14px;
+        }
+    </style>
+
+    <div class="content-body">
+        <div class="container-fluid">
+
+            <div class="service-hero position-relative overflow-hidden bg-gradient-clean rounded-4">
+                <div class="container position-relative">
+                    <div class="row align-items-center g-4">
+
+                        <div class="col-12 col-lg-7">
+                            <div class="hero-copy text-center text-lg-start">
 
 
+                                <h1 class="display-5 fw-bold text-white mb-3">
+                                    {{ $driver->driver_name ?? trans('messages.residential_cleaning', [], session('locale')) }}
+                                </h1>
 
+                                <div class="d-flex flex-wrap justify-content-center justify-content-lg-start gap-2">
+                                    {{-- Visit Stats --}}
+                                    <div class="mt-4">
+                                        <h5 class="fw-bold text-white mb-3">
+                                            <i class="ti-check-box me-2 text-warning"></i> Visits
+                                        </h5>
 
                                         <div class="d-flex flex-wrap justify-content-center justify-content-lg-start gap-2">
-                    {{-- Location name chip --}}
-                    {{-- <span class="chip bg-light text-dark fw-semibold px-3 py-1 rounded-pill shadow-sm">
-                        <i class="ti-location-pin me-1 text-primary"></i>
-                        {{ $location_name ?? 'No location' }}
-                    </span> --}}
+                                            {{-- Completed --}}
+                                            <span
+                                                class="chip bg-success text-white fw-semibold px-3 py-1 rounded-pill shadow-sm">
+                                                <i class="ti-check me-1"></i> Done: {{ $completed_visits ?? 0 }}
+                                            </span>
 
-                 {{-- Visit Stats --}}
-<div class="mt-4">
-    <h5 class="fw-bold text-white mb-3">
-        <i class="ti-check-box me-2 text-warning"></i> Visits
-    </h5>
+                                            {{-- Pending --}}
+                                            <span
+                                                class="chip bg-warning text-dark fw-semibold px-3 py-1 rounded-pill shadow-sm">
+                                                <i class="ti-time me-1"></i> Pending: {{ $pending_visits ?? 0 }}
+                                            </span>
 
-    <div class="d-flex flex-wrap justify-content-center justify-content-lg-start gap-2">
-        {{-- Completed --}}
-        <span class="chip bg-success text-white fw-semibold px-3 py-1 rounded-pill shadow-sm">
-            <i class="ti-check me-1"></i> Done: {{ $completed_visits ?? 0 }}
-        </span>
+                                            {{-- Cancelled --}}
+                                            <span
+                                                class="chip bg-danger text-white fw-semibold px-3 py-1 rounded-pill shadow-sm">
+                                                <i class="ti-close me-1"></i> Cancelled: {{ $cancelled_visits ?? 0 }}
+                                            </span>
 
-        {{-- Pending --}}
-        <span class="chip bg-warning text-dark fw-semibold px-3 py-1 rounded-pill shadow-sm">
-            <i class="ti-time me-1"></i> Pending: {{ $pending_visits ?? 0 }}
-        </span>
+                                            {{-- Total --}}
+                                            <span
+                                                class="chip bg-primary text-white fw-semibold px-3 py-1 rounded-pill shadow-sm">
+                                                <i class="ti-list me-1"></i> Total: {{ $total_visits ?? 0 }}
+                                            </span>
+                                        </div>
+                                    </div>
 
-        {{-- Cancelled --}}
-        <span class="chip bg-danger text-white fw-semibold px-3 py-1 rounded-pill shadow-sm">
-            <i class="ti-close me-1"></i> Cancelled: {{ $cancelled_visits ?? 0 }}
-        </span>
+                                </div>
 
-        {{-- Total --}}
-        <span class="chip bg-primary text-white fw-semibold px-3 py-1 rounded-pill shadow-sm">
-            <i class="ti-list me-1"></i> Total: {{ $total_visits ?? 0 }}
-        </span>
-    </div>
-</div>
+                            </div>
+                        </div>
 
-                </div>
+                        {{-- Circle Photo --}}
+                        <div class="col-12 col-lg-5 text-center">
+                            @php
+                                $fileName = $driver->driver_image ?? ($driver->image ?? null);
+                                $imgSrc = $fileName
+                                    ? asset('images/driver_images/' . $fileName)
+                                    : asset('assets/images/default-driver.png');
+                            @endphp
 
-                    </div>
-                </div>
+                            <div class="hero-photo-circle mx-auto position-relative">
+                                <img src="{{ $imgSrc }}" alt="{{ $driver->driver_name ?? 'driver photo' }}"
+                                    class="img-fluid rounded-circle shadow-lg hero-photo-img"
+                                    onerror="this.onerror=null;this.src='{{ asset('assets/images/default-driver.png') }}';">
 
-                {{-- Circle Photo --}}
-                <div class="col-12 col-lg-5 text-center">
-                    @php
-                        $fileName = $driver->driver_image ?? ($driver->image ?? null);
-                        $imgSrc = $fileName
-                            ? asset('images/driver_images/' . $fileName)
-                            : asset('assets/images/default-driver.png');
-                    @endphp
-
-                    <div class="hero-photo-circle mx-auto position-relative">
-                        <img src="{{ $imgSrc }}" alt="{{ $driver->driver_name ?? 'driver photo' }}"
-                            class="img-fluid rounded-circle shadow-lg hero-photo-img"
-                            onerror="this.onerror=null;this.src='{{ asset('assets/images/default-driver.png') }}';">
-
-                        {{-- Floating badge --}}
-                        <div class="photo-badge shadow-sm">
-                            <span class="dot"></span> Ready to work
+                                {{-- Floating badge --}}
+                                <div class="photo-badge shadow-sm">
+                                    <span class="dot"></span> Ready to work
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        {{-- Background shapes --}}
-        <div class="hero-shape-1"></div>
-        <div class="hero-shape-2"></div>
-    </div>
-<hr>
-     <div class="tab-container">
+                {{-- Background shapes --}}
+                <div class="hero-shape-1"></div>
+                <div class="hero-shape-2"></div>
+            </div>
+            <hr>
+            <div class="tab-container">
                 <ul class="nav nav-tabs" id="visitsTab" role="tablist">
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="today-visits-tab" data-bs-toggle="tab" data-bs-target="#today-visits" type="button" role="tab" aria-controls="today-visits" aria-selected="true">
+                        <button class="nav-link active" id="today-visits-tab" data-bs-toggle="tab"
+                            data-bs-target="#today-visits" type="button" role="tab" aria-controls="today-visits"
+                            aria-selected="true">
                             {{ trans('messages.today_visits', [], $locale) }}
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="this-week-visits-tab" data-bs-toggle="tab" data-bs-target="#this-week-visits" type="button" role="tab" aria-controls="this-week-visits" aria-selected="false">
+                        <button class="nav-link" id="this-week-visits-tab" data-bs-toggle="tab"
+                            data-bs-target="#this-week-visits" type="button" role="tab"
+                            aria-controls="this-week-visits" aria-selected="false">
                             {{ trans('messages.this_week_visits', [], $locale) }}
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="all-visits-tab" data-bs-toggle="tab" data-bs-target="#all-visits" type="button" role="tab" aria-controls="all-visits" aria-selected="false">
+                        <button class="nav-link" id="all-visits-tab" data-bs-toggle="tab" data-bs-target="#all-visits"
+                            type="button" role="tab" aria-controls="all-visits" aria-selected="false">
                             {{ trans('messages.all_visits', [], $locale) }}
                         </button>
                     </li>
@@ -364,66 +422,66 @@
             <div class="tab-content" id="visitsTabContent">
                 <!-- Today's Visits -->
                 <div class="tab-pane fade show active" id="today-visits" role="tabpanel">
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body p-3">
-                    <!-- ✅ Desktop table -->
-                    <div class="table-responsive d-none d-md-block">
-                        <table id="today_drivers" class="table table-striped mb-4 dataTablesCard fs-14">
-                            <thead class="bg-light">
-                                <tr>
-                                    <th>#</th>
-                                    <th>Booking No</th>
-                                    <th>Visit Date</th>
-                                    <th>Customer</th>
-                                    <th>Location</th>
-                                    <th>Shift / Duration / Status</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody id="today_driver_body"></tbody>
-                        </table>
-                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-body p-3">
+                                    <!-- ✅ Desktop table -->
+                                    <div class="table-responsive d-none d-md-block">
+                                        <table id="today_drivers" class="table table-striped mb-4 dataTablesCard fs-14">
+                                            <thead class="bg-light">
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th>Booking No</th>
+                                                    <th>Visit Date</th>
+                                                    <th>Customer</th>
+                                                    <th>Location</th>
+                                                    <th>Shift / Duration / Status</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="today_driver_body"></tbody>
+                                        </table>
+                                    </div>
 
-                    <!-- ✅ Mobile cards -->
-                    <div id="today_driver_cards" class="d-block d-md-none"></div>
+                                    <!-- ✅ Mobile cards -->
+                                    <div id="today_driver_cards" class="d-block d-md-none"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-    </div>
-</div>
 
                 <!-- This Week Visits -->
-            <div class="tab-pane fade" id="this-week-visits" role="tabpanel">
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body p-3">
-                    <!-- ✅ Desktop table -->
-                    <div class="table-responsive d-none d-md-block">
-                        <table id="this_week_drivers" class="table table-striped mb-4 dataTablesCard fs-14">
-                            <thead class="bg-light">
-                                <tr>
-                                    <th>#</th>
-                                    <th>Booking No</th>
-                                    <th>Visit Date</th>
-                                    <th>Customer</th>
-                                    <th>Location</th>
-                                    <th>Shift / Duration / Status</th>
-                                </tr>
-                            </thead>
-                            <tbody id="this-week-drivers-body"></tbody>
-                        </table>
-                    </div>
+                <div class="tab-pane fade" id="this-week-visits" role="tabpanel">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-body p-3">
+                                    <!-- ✅ Desktop table -->
+                                    <div class="table-responsive d-none d-md-block">
+                                        <table id="this_week_drivers" class="table table-striped mb-4 dataTablesCard fs-14">
+                                            <thead class="bg-light">
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th>Booking No</th>
+                                                    <th>Visit Date</th>
+                                                    <th>Customer</th>
+                                                    <th>Location</th>
+                                                    <th>Shift / Duration / Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="this-week-drivers-body"></tbody>
+                                        </table>
+                                    </div>
 
-                    <!-- ✅ Mobile cards -->
-                    <div id="this_week_driver_cards" class="d-block d-md-none"></div>
+                                    <!-- ✅ Mobile cards -->
+                                    <div id="this_week_driver_cards" class="d-block d-md-none"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-    </div>
-</div>
 
                 <!-- All Visits -->
                 <div class="tab-pane fade" id="all-visits" role="tabpanel" aria-labelledby="all-visits-tab">
@@ -431,28 +489,38 @@
                         <div class="col-12">
                             <div class="card">
                                 <div class="card-body p-3">
-                                    <div class="table-responsive">
+                                    <!-- ✅ Desktop table -->
+                                    <div class="table-responsive d-none d-md-block">
                                         <table id="all_driver_visits" class="table table-striped mb-4 dataTablesCard fs-14">
                                             <thead class="bg-light">
                                                 <tr>
-                                                    <th><i class="fas fa-list-ol me-1"></i>
+                                                    <th style="width: 8%"><i class="fas fa-list-ol me-1"></i>
                                                         {{ trans('messages.sr_no', [], $locale) }}</th>
-                                                    <th><i class="fas fa-receipt me-1"></i>
+                                                    <th style="width: 15%"><i class="fas fa-receipt me-1"></i>
                                                         {{ trans('messages.booking_no', [], $locale) }}</th>
-                                                    <th><i class="fas fa-calendar-check me-1"></i>
+                                                    <th style="width: 15%"><i class="fas fa-calendar-check me-1"></i>
                                                         {{ trans('messages.visit_date', [], $locale) }}</th>
-                                                    <th><i class="fas fa-user-tie me-1"></i>
+                                                    <th style="width: 20%"><i class="fas fa-user-tie me-1"></i>
                                                         {{ trans('messages.customer', [], $locale) }}</th>
-                                                    <th><i class="fas fa-map-marker-alt me-1"></i>
+                                                    <th style="width: 22%"><i class="fas fa-map-marker-alt me-1"></i>
                                                         {{ trans('messages.location', [], $locale) }}</th>
-                                                    <th><i class="fas fa-info-circle me-1"></i>
+                                                    <th style="width: 20%"><i class="fas fa-info-circle me-1"></i>
                                                         {{ trans('messages.shift-duration-status', [], $locale) }}</th>
-
                                                 </tr>
                                             </thead>
                                             <tbody>
                                             </tbody>
                                         </table>
+                                    </div>
+
+                                    <!-- ✅ Mobile cards -->
+                                    <div id="all_driver_cards" class="d-block d-md-none">
+                                        <div class="text-center p-3">
+                                            <div class="spinner-border text-primary" role="status">
+                                                <span class="visually-hidden">Loading...</span>
+                                            </div>
+                                            <p class="mt-2 text-muted">Loading visits...</p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -460,13 +528,13 @@
                     </div>
                 </div>
             </div>
+        </div>
     </div>
-      </div>
-      <hr>
+    <hr>
 
 
 
 
 
-      @include('layouts.footer')
+    @include('layouts.footer')
 @endsection

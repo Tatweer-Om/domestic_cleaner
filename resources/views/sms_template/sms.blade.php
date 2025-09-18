@@ -2,7 +2,7 @@
 
 @section('main')
     @push('title')
-        <title>SMS Panel</title>
+        <title>{{ trans('messages.sms_panel_title', [], session('locale')) }}</title>
     @endpush
 
     <div class="content-body">
@@ -20,8 +20,8 @@
                             <i class="fas fa-sms"></i>
                         </div>
                         <div>
-                            <h6 class="mb-0 fw-bold text-dark" style="letter-spacing: 0.5px;">SMS Panel</h6>
-                            <small class="text-muted">Add and configure SMS messages</small>
+                            <h6 class="mb-0 fw-bold text-dark" style="letter-spacing: 0.5px;">{{ trans('messages.sms_panel', [], session('locale')) }}</h6>
+                            <small class="text-muted">{{ trans('messages.sms_panel_subtitle', [], session('locale')) }}</small>
                         </div>
                     </div>
 
@@ -54,21 +54,23 @@
                                                 <option value="">{{ trans('messages.choose', [], session('locale')) }}
                                                 </option>
                                                 <option value="1">
-                                                    {{ trans('messages.booking', [], session('locale')) }}</option>
+                                                    {{ trans('messages.booking_message', [], session('locale')) }}</option>
                                                 <option value="2">
-                                                    {{ trans('messages.visit_done', [], session('locale')) }}</option>
+                                                    {{ trans('messages.visit_done_customer', [], session('locale')) }}</option>
                                                 <option value="3">
+                                                    {{ trans('messages.visit_done_worker', [], session('locale')) }}</option>
+                                                <option value="4">
                                                     {{ trans('messages.next_visit_message', [], session('locale')) }}
                                                 </option>
-                                                <option value="4">
+                                                <option value="5">
                                                     {{ trans('messages.extend_booking_message', [], session('locale')) }}
                                                 </option>
-                                                <option value="5">
+                                                <option value="6">
                                                     {{ trans('messages.cancel_booking_message', [], session('locale')) }}
                                                 </option>
-                                                <option value="6">
+                                                <option value="7">
                                                     {{ trans('messages.driver_message', [], session('locale')) }}</option>
-                                                <option value="6">
+                                                <option value="8">
                                                     {{ trans('messages.worker_message', [], session('locale')) }}</option>
                                             </select>
                                         </div>
@@ -123,6 +125,18 @@
                                             <p class="text-success driver_no" style="cursor: pointer;">
                                                 {{ trans('messages.driver_no', [], session('locale')) }}
                                             </p>
+                                            <p class="text-success driver_name" style="cursor: pointer;">
+                                                {{ trans('messages.driver_name', [], session('locale')) }}
+                                            </p>
+                                            <p class="text-success customer_name" style="cursor: pointer;">
+                                                {{ trans('messages.customer_name', [], session('locale')) }}
+                                            </p>
+                                            <p class="text-success shift" style="cursor: pointer;">
+                                                {{ trans('messages.shift', [], session('locale')) }}
+                                            </p>
+                                            <p class="text-success duration" style="cursor: pointer;">
+                                                {{ trans('messages.duration', [], session('locale')) }}
+                                            </p>
                                         </div>
 
 
@@ -134,7 +148,7 @@
                                             <label for="sms">
                                                 {{ trans('messages.sms_content', [], session('locale')) }}
                                             </label>
-                                            <textarea class="form-control sms_area" id="sms" name="sms" placeholder="Enter SMS content here..."
+                                            <textarea class="form-control sms_area" id="sms" name="sms" placeholder="{{ trans('messages.sms_content_placeholder', [], session('locale')) }}"
                                                 rows="12" required></textarea>
                                         </div>
                                     </div>
