@@ -200,19 +200,24 @@
                         </div>
 
                         {{-- User Dropdown --}}
-                        <div class="col-lg-4 col-xl-4">
-                            <div class="form-group">
-                                <label class="col-form-label">
-                                    <i class="fa fa-user"></i>
-                                    {{ trans('messages.select_user', [], session('locale')) }}
-                                </label>
-                                <select class="form-control selectpicker driver_user_id" name="driver_user_id"
-                                    data-live-search="true">
-                                    <option value="">{{ trans('messages.choose', [], session('locale')) }}...</option>
-                                    <option value="1">user1</option>
-                                </select>
-                            </div>
-                        </div>
+                                                 <div class="col-lg-4 col-xl-4">
+    <div class="form-group">
+        <label class="col-form-label">
+            <i class="fa fa-user"></i>
+            {{ trans('messages.select_user', [], session('locale')) }}
+        </label>
+        <select class="form-control selectpicker driver_user_id" name="driver_user_id" data-live-search="true">
+            <option value="">{{ trans('messages.choose', [], session('locale')) }}...</option>
+
+            @foreach($users as $user)
+                <option value="{{ $user->id }}">
+                    {{ $user->user_name ?? $user->name ?? 'User '.$user->id }}
+                </option>
+            @endforeach
+
+        </select>
+    </div>
+</div>
 
                         {{-- Shift Dropdown --}}
                         <div class="col-lg-4 col-xl-4">

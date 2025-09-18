@@ -40,7 +40,8 @@ if ($locale == 'ar') {
     <link
         href="{{ asset('vendor/bootstrap-datetimepicker-master/css/bootstrap-datetimepicker.min.css') }}"rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('vendor/toastr/css/toastr.min.css') }}">
-    <link href="{{ asset('vendor/bootstrap-datetimepicker-master/css/jquery-ui.css') }}"rel="stylesheet">
+    <!-- <link href="{{ asset('vendor/bootstrap-datetimepicker-master/css/jquery-ui.css') }}"rel="stylesheet"> -->
+     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
 
     <link href="{{ asset('vendor/sweetalert2/dist/sweetalert2.min.css') }}">
 
@@ -55,6 +56,7 @@ if ($locale == 'ar') {
     <link class="main-css" href="{{ asset('css/style-rtl.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
 
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
 
 
@@ -97,7 +99,7 @@ if ($locale == 'ar') {
                     <div class="collapse navbar-collapse justify-content-between">
                         <div class="header-left">
                             <div class="dashboard_bar">
-                                SCRUB
+                                {{ trans('messages.dashboard_title', [], session('locale')) }}
                             </div>
                         </div>
 
@@ -157,23 +159,24 @@ if ($locale == 'ar') {
                                 <a class="nav-link" href="javascript:;" role="button" data-bs-toggle="dropdown">
                                     <img src="{{ asset('images/logo/logo.png') }}" width="20" alt="image">
                                     <div class="header-info">
-                                        <span>Hello,<strong> Admin</strong></span>
+                                        <span>{{ trans('messages.admin_hello', [], session('locale')) }},<strong> {{ trans('messages.admin_title', [], session('locale')) }}</strong></span>
                                     </div>
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-end">
 
-                                    <a href="" class="dropdown-item ai-icon">
+                                  <a href="#" class="dropdown-item ai-icon btn-logout"
+                                        data-redirect="{{ url('/login_page') }}">
                                         <svg id="icon-logout" xmlns="http://www.w3.org/2000/svg" class="text-danger"
-                                            width="18" height="18" viewBox="0 0 24 24" fill="none"
-                                            stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                            stroke-linejoin="round">
+                                                width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                stroke-linejoin="round">
                                             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                                             <polyline points="16 17 21 12 16 7"></polyline>
-                                            <line x1="21" y1="12" x2="9" y2="12">
-                                            </line>
+                                            <line x1="21" y1="12" x2="9" y2="12"></line>
                                         </svg>
-                                        <span class="ms-2">Logout</span>
+                                        <span class="ms-2">{{ trans('messages.logout', [], session('locale')) }}</span>
                                     </a>
+
 
                                 </div>
                             </li>
@@ -193,7 +196,7 @@ if ($locale == 'ar') {
                     <li>
                         <a class="ai-icon" href="{{ url('/') }}" aria-expanded="false">
                             <i class="flaticon-381-home text-primary"></i>
-                            <span class="nav-text">Dashboard</span>
+                            <span class="nav-text">{{ trans('messages.dashboard', [], session('locale')) }}</span>
                         </a>
                     </li>
 
@@ -201,10 +204,10 @@ if ($locale == 'ar') {
                     <li>
                         <a href="javascript:void(0);" class="ai-icon has-arrow" aria-expanded="false">
                             <i class="fas fa-map-marker-alt text-warning"></i>
-                            <span class="nav-text">Locations</span>
+                            <span class="nav-text">{{ trans('messages.locations', [], session('locale')) }}</span>
                         </a>
                         <ul aria-expanded="false">
-                            <li><a href="{{ url('location') }}">All Locations</a></li>
+                            <li><a href="{{ url('location') }}">{{ trans('messages.all_locations', [], session('locale')) }}</a></li>
                         </ul>
                     </li>
 
@@ -212,11 +215,11 @@ if ($locale == 'ar') {
                     <li>
                         <a href="javascript:void(0);" class="ai-icon has-arrow" aria-expanded="false">
                             <i class="fas fa-car-side text-info"></i>
-                            <span class="nav-text">Drivers</span>
+                            <span class="nav-text">{{ trans('messages.drivers', [], session('locale')) }}</span>
                         </a>
                         <ul aria-expanded="false">
-                            <li><a href="{{ url('driver') }}">All Drivers</a></li>
-                            <li><a href="{{ url('drivers/schedule') }}">Driver Shifts</a></li>
+                            <li><a href="{{ url('driver') }}">{{ trans('messages.all_drivers', [], session('locale')) }}</a></li>
+                            <li><a href="{{ url('drivers/schedule') }}">{{ trans('messages.driver_shifts', [], session('locale')) }}</a></li>
                         </ul>
                     </li>
 
@@ -224,21 +227,21 @@ if ($locale == 'ar') {
                     <li>
                         <a href="javascript:void(0);" class="ai-icon has-arrow" aria-expanded="false">
                             <i class="fas fa-people-carry text-danger"></i>
-                            <span class="nav-text">Workers</span>
+                            <span class="nav-text">{{ trans('messages.workers', [], session('locale')) }}</span>
                         </a>
                         <ul aria-expanded="false">
-                            <li><a href="{{ url('worker') }}">All Workers</a></li>
-                            <li><a href="{{ url('workers/schedule') }}">Worker Shifts</a></li>
+                            <li><a href="{{ url('worker') }}">{{ trans('messages.all_workers', [], session('locale')) }}</a></li>
+                            <li><a href="{{ url('workers/schedule') }}">{{ trans('messages.worker_shifts', [], session('locale')) }}</a></li>
                         </ul>
                     </li>
                     <li>
                         <a href="javascript:void(0);" class="ai-icon has-arrow" aria-expanded="false">
                             <i class="fas fa-calendar-alt text-danger"></i>
-                            <span class="nav-text">Bookings & Visits</span>
+                            <span class="nav-text">{{ trans('messages.bookings_visits', [], session('locale')) }}</span>
                         </a>
                         <ul aria-expanded="false">
-                            <li><a href="{{ url('all_bookings') }}">All Bookings</a></li>
-                            <li><a href="{{ url('all_visits') }}">All Visits</a></li>
+                            <li><a href="{{ url('all_bookings') }}">{{ trans('messages.all_bookings', [], session('locale')) }}</a></li>
+                            <li><a href="{{ url('all_visits') }}">{{ trans('messages.all_visits', [], session('locale')) }}</a></li>
                         </ul>
                     </li>
                         <li>
@@ -276,12 +279,12 @@ if ($locale == 'ar') {
                     <li>
                         <a href="javascript:void(0);" class="ai-icon has-arrow" aria-expanded="false">
                             <i class="fas fa-money-bill-wave text-success"></i>
-                            <span class="nav-text">Expense</span>
+                            <span class="nav-text">{{ trans('messages.expense', [], session('locale')) }}</span>
                         </a>
                         <ul aria-expanded="false">
-                            <li><a href="{{ url('expense_category') }}">Expense Category</a></li>
+                            <li><a href="{{ url('expense_category') }}">{{ trans('messages.expense_category', [], session('locale')) }}</a></li>
                             {{-- <li><a href="{{ url('account') }}">Account</a></li> --}}
-                            <li><a href="{{ url('expense') }}">Expense</a></li>
+                            <li><a href="{{ url('expense') }}">{{ trans('messages.expense', [], session('locale')) }}</a></li>
                         </ul>
                     </li>
 

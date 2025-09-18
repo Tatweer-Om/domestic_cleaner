@@ -1,10 +1,11 @@
 <?php
 
-use App\Http\Controllers\SmsController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\SmsController;
 use App\Http\Controllers\WebController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserController;
+use App\Http\Middleware\EnsureGuestToken;
 use App\Http\Controllers\DriverController;
 use App\Http\Controllers\WorkerController;
 use App\Http\Controllers\AccountController;
@@ -15,6 +16,7 @@ use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\VoucherController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\ExpensecatController;
+use App\Http\Controllers\Website\CronjobController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -24,6 +26,7 @@ Route::get('/', function () {
 Route::get('home', [HomeController::class, 'index'])->name('home');
 Route::get('/switch-language/{locale}', [HomeController::class, 'switchLanguage'])->name('switch_language');
 Route::get('login_page', [HomeController::class, 'login_page'])->name('login_page');
+Route::get('login_error', [HomeController::class, 'login_error'])->name('login_error');
 
 
 //driverController
@@ -34,6 +37,9 @@ Route::get('show_driver', [DriverController::class, 'show_driver'])->name('show_
 Route::post('edit_driver', [DriverController::class, 'edit_driver'])->name('edit_driver');
 Route::post('update_driver', [DriverController::class, 'update_driver'])->name('update_driver');
 Route::post('delete_driver', [DriverController::class, 'delete_driver'])->name('delete_driver');
+
+Route::post('login', [UserController::class, 'login'])->name('login');
+Route::get('logout', [UserController::class, 'logout'])->name('logout');
 
 
 //Worker
@@ -93,6 +99,8 @@ Route::post('/register-ajax', [UserController::class, 'register'])
 
 Route::post('/logout-ajax', [UserController::class, 'logoutAjax'])->name('logout.ajax');
 Route::get('user_profile/{id}', [UserController::class, 'user_profile'])->name('user_profile');
+Route::get('debug/check-driver-worker', [UserController::class, 'checkDriverWorkerRecord'])->name('debug.check_driver_worker');
+Route::post('debug/test-csrf', [UserController::class, 'testCsrf'])->name('debug.test_csrf');
 //aCCOUNT
 
 Route::get('account', [AccountController::class, 'index'])->name('account');
@@ -147,6 +155,11 @@ Route::post('delete_voucher', [VoucherController::class, 'delete_voucher'])->nam
 Route::get('booking', [BookingController::class, 'index'])->name('booking');
 
 
+Route::get('PaymentError', [BookingController::class, 'PaymentError'])->name('PaymentError');
+Route::get('PaymentCompletew', [BookingController::class, 'PaymentCompletew'])->name('PaymentCompletew');
+Route::get('PaymentSuccessAmwalw', [BookingController::class, 'PaymentSuccessAmwalw'])->name('PaymentSuccessAmwalw');
+Route::post('add_payment', [BookingController::class, 'add_payment'])->name('add_payment');
+
 //website_routes
 
 Route::get('/', [WebController::class, 'index'])->name('index');
@@ -159,7 +172,11 @@ Route::get('service_section',  [WebController::class, 'service_section'])->name(
 Route::get('about',  [WebController::class, 'about'])->name('about'); // AJAX
 Route::get('contact',  [WebController::class, 'contact'])->name('contact'); // AJAX
 Route::get('policy',  [WebController::class, 'policy'])->name('policy'); // AJAX
-
+Route::match(['get', 'post'], '/save_location', [WebController::class, 'save_location'])
+    ->name('save_location');
+    Route::match(['get', 'post'], '/confirm_map', [WebController::class, 'confirm_map'])
+     ->middleware(EnsureGuestToken::class);
+    Route::get('/polygons/{id}', [WebController::class, 'getPolygon']);
 Route::get('service', [ServiceController::class, 'index'])->name('service');
 Route::post('add_service', [ServiceController::class, 'add_service'])->name('add_service');
 Route::get('show_service', [ServiceController::class, 'show_service'])->name('show_service');
@@ -208,3 +225,8 @@ Route::get('drivers/{driver}/visits', [DriverController::class, 'visitsPage'])->
 Route::get('drivers/{driver}/visits/today', [DriverController::class, 'todayVisitsdriver'])->name('driver.visits.today');
 Route::get('drivers/{driver}/visits/this_week', [DriverController::class, 'thisWeekVisitsdriver'])->name('driver.visits.this_week');
 Route::get('drivers/{driver}/visits/all', [DriverController::class, 'allVisitsdriver'])->name('driver.visits.all');
+Route::post('driver/visits/complete', [DriverController::class, 'completeVisitdriver'])->name('driver.visits.complete');
+
+
+// cronjobamwal
+Route::get('AmwalCancelSession', [CronjobController::class, 'AmwalCancelSession'])->name('AmwalCancelSession');

@@ -5,32 +5,37 @@ namespace App\Http\Controllers;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Visit;
+use App\Models\Driver;
+use App\Models\Worker;
 use App\Models\Booking;
 use App\Models\History;
 use App\Models\Package;
 use App\Models\Customer;
 use App\Models\Feedback;
+use App\Models\Googlelinks;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Cookie;
 
 class UserController extends Controller
 {
     public function index()
 {
-    // if (!Auth::check()) {
-    //     return redirect()->route('login_page')->with('error', 'Please login first');
-    // }
+    
+            if (!Auth::check()) {
+        return redirect()->route('login_page')->with('error', 'Please login first');
+    }
 
-    // $user = Auth::user();
 
-    // // Only allow user_type 1 and permission 7
-    // $permissions = explode(',', $user->permissions ?? '');
-    // if ($user->user_type != 1 || !in_array('7', $permissions)) {
-    //     return redirect()->route('login_error')->with('error', 'Permission denied');
-    // }
+    $permissions = explode(',', Auth::user()->permissions ?? '');
+
+
+    if (!in_array('5', $permissions)) {
+        return redirect()->route('login_error')->with('error', 'Permission denied');
+    }
 
 
     return view('users.user');
@@ -75,13 +80,13 @@ $user_name = '<a class="patient-info ps-0" href="user_profile/' . $value->id . '
                         $user_type = 'User';
                         break;
                     case 3:
-                        $user_type = 'Doctor';
+                        $user_type = trans('messages.doctor', [], session('locale'));
                         break;
                     case 4:
-                        $user_type = 'Employee';
+                        $user_type = trans('messages.employee', [], session('locale'));
                         break;
                     default:
-                        $user_type = 'Unknown';
+                        $user_type = trans('messages.unknown', [], session('locale'));
                         break;
                 }
 
@@ -138,7 +143,11 @@ $user_name = '<a class="patient-info ps-0" href="user_profile/' . $value->id . '
         $user->user_name = $request['user_name'];
         $user->user_email = $request['email'];
         $user->user_phone = $request['phone'];
-        $user->permissions = implode(',', $request['permissions']);
+$permissions = $request->input('permissions', []); // default empty array
+if (!is_array($permissions)) {
+    $permissions = [$permissions]; // convert string to array
+}
+$user->permissions = implode(',', $permissions);
         $user->password = Hash::make($request['password']);
         $user->user_image = $user_image;
         $user->user_type = $request['user_type'];
@@ -164,13 +173,18 @@ $user_name = '<a class="patient-info ps-0" href="user_profile/' . $value->id . '
 
         // Define checkbox info including icons and colors
     $checkboxValues = [
-    ['id' => 'dashboard', 'value' => 1, 'name' => 'Dashboard', 'icon' => 'bi-speedometer2', 'color' => 'text-success'],
-    ['id' => 'locations', 'value' => 2, 'name' => 'Locations', 'icon' => 'fas fa-map-marker-alt', 'color' => 'text-warning'],
-    ['id' => 'drivers', 'value' => 3, 'name' => 'Drivers', 'icon' => 'fas fa-car-side', 'color' => 'text-info'],
-    ['id' => 'workers', 'value' => 4, 'name' => 'Workers', 'icon' => 'fas fa-people-carry', 'color' => 'text-success'],
-    ['id' => 'users', 'value' => 5, 'name' => 'Users', 'icon' => 'bi-person-fill-gear', 'color' => 'text-secondary'],
-    ['id' => 'bookings', 'value' => 6, 'name' => 'Bookings', 'icon' => 'bi-calendar-check', 'color' => 'text-danger'],
-    ['id' => 'reports', 'value' => 7, 'name' => 'Reports', 'icon' => 'bi-graph-up-arrow', 'color' => 'text-primary'],
+    ['id' => 'dashboard', 'value' => 1, 'name' => 'messages.permissions_dashboard', 'icon' => 'bi-speedometer2', 'color' => 'text-success'],
+    ['id' => 'locations', 'value' => 2, 'name' => 'messages.permissions_locations', 'icon' => 'fas fa-map-marker-alt', 'color' => 'text-warning'],
+    ['id' => 'drivers', 'value' => 3, 'name' => 'messages.permissions_drivers', 'icon' => 'fas fa-car-side', 'color' => 'text-info'],
+    ['id' => 'workers', 'value' => 4, 'name' => 'messages.permissions_workers', 'icon' => 'fas fa-people-carry', 'color' => 'text-success'],
+    ['id' => 'users', 'value' => 5, 'name' => 'messages.permissions_users', 'icon' => 'bi-person-fill-gear', 'color' => 'text-secondary'],
+    ['id' => 'bookings', 'value' => 6, 'name' => 'messages.permissions_bookings', 'icon' => 'bi-calendar-check', 'color' => 'text-danger'],
+    ['id' => 'reports', 'value' => 7, 'name' => 'messages.permissions_reports', 'icon' => 'bi-graph-up-arrow', 'color' => 'text-primary'],
+        ['id' => 'expense', 'value' => 8, 'name' => 'messages.permissions_expense', 'icon' => 'bi-graph-up-arrow', 'color' => 'text-primary'],
+        ['id' => 'sms', 'value' => 9, 'name' => 'messages.permissions_sms', 'icon' => 'bi-graph-up-arrow', 'color' => 'text-primary'],
+        ['id' => 'account', 'value' => 10, 'name' => 'messages.permissions_account', 'icon' => 'bi-graph-up-arrow', 'color' => 'text-primary'],
+        ['id' => 'customer', 'value' => 11, 'name' => 'messages.permissions_customer', 'icon' => 'bi-graph-up-arrow', 'color' => 'text-primary'],
+
 ];
 
 
@@ -434,6 +448,17 @@ public function register(Request $request)
                 return [$user, $customer];
             });
 
+                $guestToken = $request->cookie('guest_token');
+        if ($guestToken) {
+            Googlelinks::where('guest_token', $guestToken)
+                ->update([
+                    'user_id'     => $user->id,
+                    'guest_token' => null,
+                ]);
+
+            Cookie::queue(Cookie::forget('guest_token'));
+        }
+
             // Handle login for form_index = 2
             if ($validated['form_index'] == '2') {
                 // Attempt to log the user in using the phone and password
@@ -443,7 +468,7 @@ public function register(Request $request)
 
                     return response()->json([
                         'status'       => 'success',
-                        'message'      => 'Account created and logged in successfully.',
+                        'message'      => trans('messages.account_created_logged_in', [], session('locale')),
                         'user_id'      => $user->id,
                         'customer_id'  => $customer->id,
                         'logged_in'    => true,
@@ -463,7 +488,7 @@ public function register(Request $request)
             // Default response for form_index = 1
             return response()->json([
                 'status'       => 'success',
-                'message'      => 'Account created successfully.',
+                'message'      => trans('messages.account_created_successfully', [], session('locale')),
                 'user_id'      => $user->id,
                 'customer_id'  => $customer->id,
                 'logged_in'    => false,
@@ -475,10 +500,23 @@ public function register(Request $request)
                 'message' => 'Could not create account. Please try again.',
             ], 500);
         }
+
+        $guestToken = $request->cookie('guest_token');
+        if ($guestToken) {
+            Googlelinks::where('guest_token', $guestToken)
+                ->update([
+                    'user_id'     => $user->id,
+                    'guest_token' => null,
+                ]);
+
+            Cookie::queue(Cookie::forget('guest_token'));
+        }
+
     }
 
     public function loginAjax(Request $request)
     {
+
         // Validate request, including the hidden form_1 field
         $data = $request->validate([
             'identifier' => 'required|string',
@@ -492,13 +530,22 @@ public function register(Request $request)
         $user = \App\Models\User::where($isPhone ? 'user_phone' : 'user_name', $id)->first();
 
         if (!$user || !Hash::check($data['password'], $user->password)) {
-            return response()->json(['status' => 'error', 'message' => 'Invalid credentials'], 422);
+            return response()->json(['status' => 'error', 'message' => trans('messages.invalid_credentials', [], session('locale'))], 422);
         }
 
         // Perform login
         Auth::login($user); // No remember flag
         $request->session()->regenerate(); // Prevent session fixation
+   $guestToken = $request->cookie('guest_token');
+    if ($guestToken) {
+        Googlelinks::where('guest_token', $guestToken)
+            ->update([
+                'user_id'     => $user->id,
+                'guest_token' => null,
+            ]);
 
+        Cookie::queue(Cookie::forget('guest_token'));
+    }
         // Determine redirect URL based on form_1
         $redirectUrl = $data['form_1'] == '1' ? '/' : 'checkout/booking_no';
 
@@ -506,6 +553,8 @@ public function register(Request $request)
             'status'       => 'success',
             'redirect_url' => url($redirectUrl),
         ]);
+
+        
     }
 
 
@@ -516,10 +565,10 @@ public function logoutAjax(Request $request)
     $request->session()->regenerateToken();
 
     return response()->json([
-        'ok' => true,
-        'redirect_url' => url('/')
+        'ok' => true
     ]);
 }
+
 
 public function user_profile($id)
 {
@@ -653,14 +702,14 @@ public function user_bookings(Request $request)
     $visit->save();
 
     return response()->json([
-        'ok'    => true,
-        'visit' => [
+        'ok'      => true,
+        'message' => trans('messages.visit_updated', [], session('locale')) ?? 'Visit updated successfully',
+        'visit'   => [
             'id'         => $visit->id,
             'visit_date' => $visit->visit_date,
             'duration'   => $visit->duration,
             'shift'      => $visit->shift,
         ],
-        'message' => 'Visit updated',
     ]);
 }
 
@@ -691,9 +740,164 @@ public function store(Request $request)
 
     return response()->json([
         'ok'      => true,
-        'message' => 'Feedback saved successfully.',
+        'message' => trans('messages.feedback_saved_successfully', [], session('locale')),
         'feedback'=> $feedback,
     ]);
 }
 
+
+
+
+   public function login_page()
+    {
+        return view('pages.login');
+    }
+
+
+
+
+
+
+public function login(Request $request)
+{
+    // Validate the input first
+
+
+
+    $baseInput = $request->input('user_name');
+    $password  = $request->input('password');
+
+    // Find user by username or email
+    $user = User::where('user_name', $baseInput)
+        ->orWhere('user_phone', $baseInput)
+        ->first();
+
+    if ($user) {
+        if (Hash::check($password, $user->password)) {
+            Auth::login($user);
+
+            // Check user_type restrictions
+            if ($user->user_type == 3) {
+                $driver = Driver::where('user_id', $user->id)->first();
+                
+                if (!$driver) {
+                    return response()->json([
+                        'status'  => 2,
+                        'message' => 'Driver profile not found. Please contact administrator.',
+                    ]);
+                }
+                
+                return response()->json([
+                    'status'  => 4,
+                    'id'      => $driver->id,
+                    'message' => 'Login successful',
+                ]);
+            }
+
+            if ($user->user_type == 4) {
+                $worker = Worker::where('user_id', $user->id)->first();
+                
+                if (!$worker) {
+                    return response()->json([
+                        'status'  => 2,
+                        'message' => 'Worker profile not found. Please contact administrator.',
+                    ]);
+                }
+                
+                return response()->json([
+                    'status'  => 5,
+                    'id'      => $worker->id,
+                    'message' => 'Login successful',
+                ]);
+            }
+
+
+            if ($user->user_type == 2) {
+                return response()->json([
+                        'status'   => 1,
+                'message'  => 'Login successful',
+                'redirect' => route('home'),
+                ]);
+            }
+
+             if ($user->user_type == 10) {
+                return response()->json([
+                        'status'   => 1,
+                'message'  => 'Login successful',
+                'redirect' => route('/'),
+                ]);
+            }
+
+            // Default success for user_type 1
+            return response()->json([
+                'status'   => 1,
+                'message'  => 'Login successful',
+                'redirect' => route('home'),
+            ]);
+        }
+
+        return response()->json([
+            'status'  => 2,
+            'message' => trans('messages.password_incorrect', [], session('locale')),
+        ], 401);
+    }
+
+    return response()->json([
+        'status'  => 2,
+        'message' => trans('messages.user_not_found', [], session('locale')),
+    ], 404);
+}
+
+
+ public function logout(Request $request)
+{
+    if (Auth::check()) {
+        Auth::logout();
+        return redirect('login_page')->with('message', trans('messages.logged_out_successfully', [], session('locale')));
+    }
+
+    return redirect('login_page')->with('error', trans('messages.no_active_session', [], session('locale')));
+}
+
+// Debug method to check driver/worker records
+public function checkDriverWorkerRecord(Request $request)
+{
+    $userId = $request->get('user_id');
+    
+    if (!$userId) {
+        return response()->json(['error' => 'User ID required']);
+    }
+    
+    $user = User::find($userId);
+    if (!$user) {
+        return response()->json(['error' => 'User not found']);
+    }
+    
+    $driver = Driver::where('user_id', $userId)->first();
+    $worker = Worker::where('user_id', $userId)->first();
+    
+    return response()->json([
+        'user_id' => $userId,
+        'user_type' => $user->user_type,
+        'user_name' => $user->user_name,
+        'driver_exists' => $driver ? true : false,
+        'driver_id' => $driver ? $driver->id : null,
+        'driver_data' => $driver,
+        'worker_exists' => $worker ? true : false,
+        'worker_id' => $worker ? $worker->id : null,
+        'worker_data' => $worker,
+    ]);
+}
+
+// Debug method to test CSRF token
+public function testCsrf(Request $request)
+{
+    return response()->json([
+        'success' => true,
+        'message' => 'CSRF token is working correctly',
+        'request_data' => $request->all(),
+        'csrf_token' => csrf_token(),
+        'session_token' => session()->token(),
+    ]);
+}
 }

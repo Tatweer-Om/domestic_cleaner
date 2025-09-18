@@ -12,16 +12,21 @@ class SmsController extends Controller
 {
     public function index (){
         $user = Auth::user();
-        // $permit = User::find($user->id)->permit_type;
-        // $permit_array = json_decode($permit, true);
+       
+            if (!Auth::check()) {
+        return redirect()->route('login_page')->with('error', 'Please login first');
+    }
 
-        // if ($permit_array && in_array('17', $permit_array)) {
+
+    $permissions = explode(',', Auth::user()->permissions ?? '');
+
+
+    if (!in_array('9', $permissions)) {
+        return redirect()->route('login_error')->with('error', 'Permission denied');
+    }
 
             return view('sms_template.sms');
-        // } else {
-
-        //     return redirect()->route('home');
-        // }
+       
 
     }
 

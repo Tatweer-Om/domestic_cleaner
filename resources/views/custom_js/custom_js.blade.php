@@ -2,33 +2,44 @@
 
 
 document.addEventListener('DOMContentLoaded', function () {
-    const logoutBtn = document.getElementById('btnLogout');
-    if (!logoutBtn) return;
+    const logoutBtns = document.querySelectorAll('.btn-logout');
+    if (!logoutBtns.length) return;
 
-    logoutBtn.addEventListener('click', function (e) {
-        e.preventDefault();
+    logoutBtns.forEach(btn => {
+        btn.addEventListener('click', function (e) {
+            e.preventDefault();
 
-        fetch("{{ route('logout.ajax') }}", {
-            method: "POST",
-            headers: {
-                "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
-                "Accept": "application/json",
-                "X-Requested-With": "XMLHttpRequest",
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({})
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.ok) {
-                window.location.href = data.redirect_url || "{{ url('/') }}";
-            } else {
-                alert(data.error || "Logout failed");
-            }
-        })
-        .catch(() => alert("Network error while logging out"));
+            const redirectUrl = this.getAttribute('data-redirect') || "{{ url('/') }}";
+            console.log('Logout clicked, redirect URL:', redirectUrl);
+
+            fetch("{{ route('logout.ajax') }}", {
+                method: "POST",
+                headers: {
+                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
+                    "Accept": "application/json",
+                    "X-Requested-With": "XMLHttpRequest",
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({})
+            })
+            .then(res => res.json())
+            .then(data => {
+                console.log('Logout response:', data);
+                if (data.ok) {
+                    console.log('Redirecting to:', redirectUrl);
+                    window.location.href = redirectUrl;
+                } else {
+                    alert(data.error || "Logout failed");
+                }
+            })
+            .catch(error => {
+                console.error('Logout error:', error);
+                alert("Network error while logging out");
+            });
+        });
     });
 });
+
 
 
 $('.datepicker').bootstrapMaterialDatePicker({

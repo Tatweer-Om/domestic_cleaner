@@ -38,11 +38,11 @@ function buildTileHTML(index, date, shift, duration, visit, availability) {
     const isWorkerStatusIssue = availability.worker_status && !availability.worker_available;
     const messageClass = isWorkerStatusIssue ? 'text-warning' : 'text-danger';
     const iconClass = isWorkerStatusIssue ? 'fa-exclamation-triangle' : 'fa-times-circle';
-    
+
     availabilityMessage = `<div class="availability-message ${messageClass} border-start border-3 border-${isWorkerStatusIssue ? 'warning' : 'danger'} ps-2 py-1 mb-2">
       <i class="fa ${iconClass} me-1"></i>
       <strong>${availability.message || `Worker is occupied on ${date} for the ${shift} shift`}</strong>`;
-    
+
     if (availability.opposite_shift_available && !isWorkerStatusIssue) {
       availabilityMessage += `<br><small class="text-muted">💡 ${availability.opposite_shift} shift is available on this date.</small>`;
     } else if (availability.next_available_date && !isWorkerStatusIssue) {
@@ -50,7 +50,7 @@ function buildTileHTML(index, date, shift, duration, visit, availability) {
     } else if (isWorkerStatusIssue) {
       availabilityMessage += `<br><small class="text-muted">Please try a different date or contact support.</small>`;
     }
-    
+
     availabilityMessage += '</div>';
   } else {
     // Show available status with green indicator
@@ -75,7 +75,7 @@ function buildTileHTML(index, date, shift, duration, visit, availability) {
               <path d="M7 3v4M17 3v4M3 9h18M5 21h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2Z"
                     stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
             </svg>
-            <input type="text" class="mini-date" value="${date}" placeholder="Select date" readonly>
+            <input type="text" class="mini-date" value="${date}" placeholder="{{ trans('messages.select_date', [], session('locale')) }}" readonly>
             <small class="day-name">${dayName}</small>
           </div>
 
@@ -115,14 +115,14 @@ function validateTopFormFirstError() {
 
   // 1) Package
   if (!($pkg.val() || '').trim()) {
-    show_notification('error', 'Please choose a package.');
+    show_notification('error', '{{ trans('messages.please_choose_package', [], session('locale')) }}');
     scrollFocus($pkg);
     return false;
   }
 
   // 2) Worker
   if (!($worker.val() || '').trim()) {
-    show_notification('error', 'Please choose a worker.');
+    show_notification('error', '{{ trans('messages.please_choose_worker', [], session('locale')) }}');
     scrollFocus($worker);
     return false;
   }
@@ -130,27 +130,27 @@ function validateTopFormFirstError() {
   // 3) Start date
   const dateVal = ($date.val() || '').trim();
   if (!dateVal) {
-    show_notification('error', 'Please choose a start date.');
+    show_notification('error', '{{ trans('messages.please_choose_start_date', [], session('locale')) }}');
     scrollFocus($date);
     return false;
   }
   const d = new Date(dateVal + 'T00:00:00');
   if (isNaN(d.getTime())) {
-    show_notification('error', 'Please choose a valid start date.');
+    show_notification('error', '{{ trans('messages.please_choose_valid_start_date', [], session('locale')) }}');
     scrollFocus($date);
     return false;
   }
 
   // 4) Duration
   if (!$dur4.is(':checked') && !$dur5.is(':checked')) {
-    show_notification('error', 'Please select a duration (4h or 5h).');
+    show_notification('error', '{{ trans('messages.please_select_duration_4h_5h', [], session('locale')) }}');
     scrollFocus($dur4);
     return false;
   }
 
   // 5) Shift
   if (!$('input[name="shift"]:checked').length) {
-    show_notification('error', 'Please select a shift (morning or evening).');
+    show_notification('error', '{{ trans('messages.please_select_shift_morning_evening', [], session('locale')) }}');
     scrollFocus($('#shiftMorning'));
     return false;
   }
@@ -172,16 +172,16 @@ function refreshDurationBadges() {
   if (!dur) return;
   const text = dur === '5' ? '5h' : '4h';
   $('#visitTiles .duration-badge').text(text);
-  
+
   // Update time ranges in visit tiles based on duration
   const morningTimeRange = dur === '5' ? '8:00 AM – 1:00 PM' : '8:00 AM – 12:00 PM';
   const eveningTimeRange = dur === '5' ? '4:00 PM – 9:00 PM' : '4:00 PM – 8:00 PM';
-  
+
   $('#visitTiles .pill').each(function() {
     const $pill = $(this);
     const isMorning = $pill.text().includes('Morning');
     const isEvening = $pill.text().includes('Evening');
-    
+
     if (isMorning) {
       $pill.html($pill.html().replace(/\([^)]+\)/, `(${morningTimeRange})`));
     } else if (isEvening) {
@@ -215,11 +215,11 @@ $(document).ready(function() {
     },
     onReady: function(selectedDates, dateStr, instance) {
       // Add custom styling to Friday cells
-      const fridayCells = instance.calendarContainer.querySelectorAll('.flatpickr-day[aria-label*="Friday"]');
-      fridayCells.forEach(cell => {
-        cell.classList.add('friday');
-        cell.title = 'Fridays are off - please select another day';
-      });
+        const fridayCells = instance.calendarContainer.querySelectorAll('.flatpickr-day[aria-label*="Friday"]');
+        fridayCells.forEach(cell => {
+          cell.classList.add('friday');
+          cell.title = '{{ trans('messages.fridays_are_off', [], session('locale')) }}';
+        });
     }
   });
 
@@ -238,10 +238,10 @@ $(document).ready(function() {
         const $input = $(element);
         const $tile = $input.closest('.mini-cal');
         const $message = $tile.find('.availability-message');
-        
+
         // Remove existing availability message
         $message.remove();
-        
+
         if (!dateStr) {
           $input.siblings('.day-name').text('');
           $input.data('prev', '');
@@ -266,11 +266,11 @@ $(document).ready(function() {
                 const isWorkerStatusIssue = res.worker_status && !res.worker_available;
                 const messageClass = isWorkerStatusIssue ? 'text-warning' : 'text-danger';
                 const iconClass = isWorkerStatusIssue ? 'fa-exclamation-triangle' : 'fa-times-circle';
-                
+
                 let msgHtml = `<div class="availability-message ${messageClass} border-start border-3 border-${isWorkerStatusIssue ? 'warning' : 'danger'} ps-2 py-1 mb-2">
                   <i class="fa ${iconClass} me-1"></i>
                   <strong>${res.message || `This date (${dateStr}) is not available for the ${shift} shift`}</strong>`;
-                
+
                 if (res.opposite_shift_available && !isWorkerStatusIssue) {
                   msgHtml += `<br><small class="text-muted">💡 ${res.opposite_shift} shift is available on this date.</small>`;
                 } else if (res.next_available_date && !isWorkerStatusIssue) {
@@ -278,7 +278,7 @@ $(document).ready(function() {
                 } else if (isWorkerStatusIssue) {
                   msgHtml += `<br><small class="text-muted">Please try a different date or contact support.</small>`;
                 }
-                
+
                 msgHtml += '</div>';
                 $tile.find('.mini-cal-body').append(msgHtml);
                 show_notification('error', res.message || `This date (${dateStr}) is not available for the ${shift} shift.`);
@@ -306,7 +306,7 @@ $(document).ready(function() {
         const fridayCells = instance.calendarContainer.querySelectorAll('.flatpickr-day[aria-label*="Friday"]');
         fridayCells.forEach(cell => {
           cell.classList.add('friday');
-          cell.title = 'Fridays are off - please select another day';
+          cell.title = '{{ trans('messages.fridays_are_off', [], session('locale')) }}';
         });
       }
     });
@@ -332,14 +332,14 @@ function buildActionRowHtml() {
   if (IS_AUTH) {
     // For authenticated users, always show Pay Now button
     // The actual redirect will be handled by the click handler using booking_no
-    console.log('Creating Pay Now button for authenticated user');
+    console.log('{{ trans('messages.creating_pay_now_button', [], session('locale')) }}');
     return `
       <div class="col-12" id="paymentBtnRow">
         <button type="button" id="paymentBtn" ${commonBtn}>Pay Now</button>
       </div>
     `;
   } else {
-    console.log('Creating Proceed button for guest user');
+    console.log('{{ trans('messages.creating_proceed_button', [], session('locale')) }}');
     return `
       <div class="col-12" id="proceedBtnRow">
         <button type="button" id="proceedBtn" ${commonBtn}>Proceed</button>
@@ -414,7 +414,7 @@ function validateVisits(visits, worker_id, callback) {
           visit_number: visit.visit_number,
           date: visit.date,
           shift: visit.shift,
-          message: 'Failed to check availability for this visit.',
+          message: '{{ trans('messages.failed_to_check_availability', [], session('locale')) }}',
         });
         completedRequests++;
         if (completedRequests === visits.length) {
@@ -444,13 +444,13 @@ $('#generateBtn').on('click', function (e) {
 
   const duration = payload.duration_4 ? '4' : (payload.duration_5 ? '5' : null);
   if (!duration) {
-    show_notification('error', 'Please select a duration (4h or 5h) before generating.');
+    show_notification('error', '{{ trans('messages.please_select_duration_before_generating', [], session('locale')) }}');
     return;
   }
 
   const shift = selectedShift;
   if (!shift) {
-    show_notification('error', 'Please select a shift (morning or evening) before generating.');
+    show_notification('error', '{{ trans('messages.please_select_shift_before_generating', [], session('locale')) }}');
     return;
   }
 
@@ -521,11 +521,11 @@ $('#generateBtn').on('click', function (e) {
               const isWorkerStatusIssue = res.worker_status && !res.worker_available;
               const messageClass = isWorkerStatusIssue ? 'text-warning' : 'text-danger';
               const iconClass = isWorkerStatusIssue ? 'fa-exclamation-triangle' : 'fa-times-circle';
-              
+
               let msgHtml = `<div class="availability-message ${messageClass} border-start border-3 border-${isWorkerStatusIssue ? 'warning' : 'danger'} ps-2 py-1 mb-2">
                 <i class="fa ${iconClass} me-1"></i>
                 <strong>${res.message || `This date (${date}) is not available for the ${shift} shift`}</strong>`;
-              
+
               if (res.opposite_shift_available && !isWorkerStatusIssue) {
                 msgHtml += `<br><small class="text-muted">💡 ${res.opposite_shift} shift is available on this date.</small>`;
               } else if (res.next_available_date && !isWorkerStatusIssue) {
@@ -533,7 +533,7 @@ $('#generateBtn').on('click', function (e) {
               } else if (isWorkerStatusIssue) {
                 msgHtml += `<br><small class="text-muted">Please try a different date or contact support.</small>`;
               }
-              
+
                 msgHtml += '</div>';
                 $tile.find('.mini-cal-body').append(msgHtml);
               show_notification('error', res.message || `This date (${date}) is not available for the ${shift} shift.`);
@@ -733,6 +733,8 @@ $(document).on('submit', '#loginForm', function (e) {
   // Read fields
   const identifier = ($form.find('#phone_name').val() || '').trim(); // username OR phone
   const password   = ($form.find('input[name="password"]').val() || '').trim();
+    const form_1     = $form.find('input[name="form_1"]').val() || '1'; // fallback to 1
+
 
   if (!identifier) {
     show_notification('error', 'Please enter username or phone');
@@ -749,8 +751,8 @@ $(document).on('submit', '#loginForm', function (e) {
   const fd = new FormData();
   fd.append('identifier', identifier); // backend should accept "identifier"
   fd.append('password', password);
+    fd.append('form_1', form_1);
   // Mark this login as coming from booking flow (form_1=2)
-  fd.append('form_1', '2');
 
   $.ajax({
     url: "{{ route('login.ajax') }}",

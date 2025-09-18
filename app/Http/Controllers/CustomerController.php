@@ -9,6 +9,19 @@ class CustomerController extends Controller
 {
       public function index()
 {
+
+     if (!Auth::check()) {
+        return redirect()->route('login_page')->with('error', 'Please login first');
+    }
+
+
+    $permissions = explode(',', Auth::user()->permissions ?? '');
+
+
+    if (!in_array('11', $permissions)) {
+        return redirect()->route('login_error')->with('error', 'Permission denied');
+    }
+
     return view('customers.customers');
 }
 

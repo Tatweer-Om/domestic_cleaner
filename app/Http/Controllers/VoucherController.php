@@ -5,12 +5,26 @@ namespace App\Http\Controllers;
 use Carbon\Carbon;
 use App\Models\History;
 use App\Models\Voucher;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
 class VoucherController extends Controller
 {
      public function index()
     {
+
+        
+            if (!Auth::check()) {
+        return redirect()->route('login_page')->with('error', 'Please login first');
+    }
+
+
+    $permissions = explode(',', Auth::user()->permissions ?? '');
+
+
+    if (!in_array('6', $permissions)) {
+        return redirect()->route('login_error')->with('error', 'Permission denied');
+    }
 
         return view('packages.voucher');
     }

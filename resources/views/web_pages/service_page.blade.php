@@ -10,8 +10,8 @@
         <div class="row">
             <div class="col-12">
                 <div class="breadcumb-wrap">
-                                            <h2>Because Clean Feels Better</h2>
-                                                                <h3>Services</h3>
+                                            <h2>{{ trans('messages.clean_feels_better', [], session('locale')) }}</h2>
+                                                                <h3>{{ trans('messages.services_page_title', [], session('locale')) }}</h3>
                                     </div>
             </div>
         </div>
@@ -24,7 +24,7 @@
                     <div class="row align-items-center justify-content-center">
                         <div class="col-lg-6">
                             <div class="wpo-section-title">
-                                <h2 class="poort-text poort-in-right">Where Cleanliness meets Care Services</h2>
+                                <h2 class="poort-text poort-in-right">{{ trans('messages.cleanliness_meets_care', [], session('locale')) }}</h2>
                             </div>
                         </div>
                     </div>
@@ -57,31 +57,27 @@
                     <div class="col-lg-6 col-12">
                         <div class="wpo-cta-box wow fadeInUp" data-wow-duration="1200ms">
                             <div class="wpo-section-title-s2">
-                                <span><i><img src="assets/images/cleaning-icon.svg" alt=""></i>emergency
-                                    call</span>
-                                <h2 class="poort-text poort-in-right">Need Help Fast? We’re Just One Call
-                                    Away</h2>
-                                <p>In today's competitive business, the demand for efficient
-                                    IT solutions has never been more critical.</p>
+                                <span><i><img src="assets/images/cleaning-icon.svg" alt=""></i>{{ trans('messages.emergency_call', [], session('locale')) }}</span>
+                                <h2 class="poort-text poort-in-right">{{ trans('messages.need_help_heading', [], session('locale')) }}</h2>
+                                <p>{{ trans('messages.need_help_desc', [], session('locale')) }}</p>
                             </div>
                             <a href="tel:+17189044450" class="call"><i><img src="assets/images/phone-call.svg"
                                         alt=""></i>+1
                                 718-904-4450</a>
-                            <small>Consult With It Advisor? <a href="#">Click Now</a></small>
+                            <small>{{ trans('messages.consult_advisor', [], session('locale')) }} <a href="#">{{ trans('messages.click_now', [], session('locale')) }}</a></small>
                         </div>
                     </div>
                     <div class="col-lg-6">
                         <div class="wpo-cta-box features wow fadeInUp" data-wow-duration="1400ms">
                             <div class="wpo-section-title-s2">
-                                <span><i><img src="assets/images/cleaning-icon.svg" alt=""></i>features</span>
-                                <h2 class="poort-text poort-in-right">Your Space Deserves the Best Here’s
-                                    Why We’re It</h2>
+                                <span><i><img src="assets/images/cleaning-icon.svg" alt=""></i>{{ trans('messages.features', [], session('locale')) }}</span>
+                                <h2 class="poort-text poort-in-right">{{ trans('messages.features_heading', [], session('locale')) }}</h2>
                             </div>
                             <ul>
-                                <li>50+ Experienced Workers</li>
-                                <li>50+ Trained Domestic Helpers</li>
-                                <li>20+ Expert Drivers</li>
-                                <li> Professional Support Personnel</li>
+                                <li>{{ trans('messages.feature_workers', [], session('locale')) }}</li>
+                                <li>{{ trans('messages.feature_helpers', [], session('locale')) }}</li>
+                                <li>{{ trans('messages.feature_drivers', [], session('locale')) }}</li>
+                                <li>{{ trans('messages.feature_support', [], session('locale')) }}</li>
                             </ul>
                             <div class="r-shape"><img src="assets/images/cleaning-logo-business-composition.png"
                                     alt="">

@@ -14,6 +14,18 @@ class LocationController extends Controller
     public function index()
     {
 
+        
+            if (!Auth::check()) {
+        return redirect()->route('login_page')->with('error', 'Please login first');
+    }
+
+
+    $permissions = explode(',', Auth::user()->permissions ?? '');
+
+
+    if (!in_array('2', $permissions)) {
+        return redirect()->route('login_error')->with('error', 'Permission denied');
+    }
         return view('locations.location');
     }
 
@@ -72,105 +84,156 @@ class LocationController extends Controller
         }
     }
 
-    public function add_location(Request $request)
-    {
+ public function add_location(Request $request)
+{
+    // Validate input
+    $request->validate([
+        'location_name' => 'required|string|max:255',
+        'location_fare' => 'required|numeric',
+        'driver_status' => 'required|boolean',
+        'notes' => 'nullable|string',
+        'location_polygon' => 'nullable|json', // Ensure it's valid JSON
+    ]);
 
-        // $user_id = Auth::id();
-        // $data= User::where('id', $user_id )->first();
-        // $user_name= $data->user_name;
-
-
-
-        $location = new Location();
-
-        $location->location_name = $request['location_name'];
-        $location->location_fare = $request['location_fare'];
-        $location->driver_availabe = $request['driver_status'];
-        $location->notes = $request['notes'];
-        $location->added_by = 1;
-        $location->user_id = 1;
-        $location->save();
-        return response()->json(['location_id' => $location->id]);
+    $user_id = Auth::id();
+    $data = User::where('id', $user_id)->first();
+    if (!$data) {
+        return response()->json(['error' => 'User not found'], 404);
     }
+    $user_name = $data->user_name;
 
+    $location = new Location();
+    $location->location_name = $request['location_name'];
+    $location->location_fare = $request['location_fare'];
+    $location->driver_availabe = $request['driver_status'];
+    $location->notes = $request['notes'];
+    $location->added_by = $user_name;
+    $location->user_id = $user_id;
 
-    public function edit_location(Request $request)
-    {
-
-        $location_id = $request->input('id');
-
-        $location_data = Location::where('id', $location_id)->first();
-
-   $raw = $location_data->location_availabe ?? null;
-
-    if ($raw == 1) {
-        $status = 1; // available
-    } elseif ($raw == 2) {
-        $status = 2; // unavailable
-    } else {
-        $status = 0; // unknown
-    }
-
-        $data = [
-            'location_id' => $location_data->id,
-            'location_name' => $location_data->location_name,
-            'location_available' => $status,
-            'location_fare' => $location_data->location_fare,
-            'notes' => $location_data->notes,
-            // Add more attributes as needed
-        ];
-
-        return response()->json($data);
-    }
-
-    public function update_location(Request $request)
-    {
-        $location_id = $request->input('location_id');
-
-        // $user_id = Auth::id();
-
-        // $user = User::where('id', $user_id)->first();
-        // $user_name = $user->user_name;
-
-        $location = Location::where('id', $location_id)->first();
-
-        if (!$location) {
-            return response()->json(['error' => trans('messages.location_not_found', [], session('locale'))], 404);
+    if ($request->has('location_polygon')) {
+        $polygon = json_decode($request['location_polygon'], true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return response()->json(['error' => 'Invalid polygon JSON: ' . json_last_error_msg()], 422);
         }
 
-        $previousData = $location->only(['location_name', 'location_fare', 'notes', 'added_by', 'user_id', 'created_at']);
+        if (!is_array($polygon) || empty($polygon)) {
+            return response()->json(['error' => 'Polygon must be a non-empty array'], 422);
+        }
 
-        $location->location_name = $request->input('location_name');
-        $location->location_name = $request->input('location_fare');
-        $location->notes = $request->input('notes');
-        $location->added_by = 1;
-        $location->user_id = 1;
-        $location->save();
+        // Assign polygon (cast will handle JSON serialization)
+        $location->polygon = $polygon;
 
-        $history = new History();
-        $history->user_id = 1;
-        $history->table_name = 'locationes';
-        $history->function = 'update';
-        $history->function_status = 1;
-        $history->record_id = $location->id;
-        $history->branch_id = 1;
+        // Flatten nested arrays for bounding box calculation
+        $flatCoordinates = [];
+        foreach ($polygon as $poly) {
+            if (is_array($poly)) {
+                $flatCoordinates = array_merge($flatCoordinates, $poly);
+            }
+        }
 
-        $history->previous_data = json_encode($previousData);
-        $history->updated_data = json_encode($location->only([
-            'location_name',
-            'location_email',
-            'location_phone',
-            'notes',
-            'added_by',
-            'user_id'
-        ]));
-        $history->added_by = 'system';
-        $history->save();
+        if (empty($flatCoordinates)) {
+            return response()->json(['error' => 'No valid coordinates found in polygon'], 422);
+        }
 
-        return response()->json([trans('messages.success_lang', [], session('locale')) => trans('messages.user_update_lang', [], session('locale'))]);
+        // Calculate bounding box
+        $lats = array_column($flatCoordinates, 0); // All latitudes
+        $lons = array_column($flatCoordinates, 1); // All longitudes
+
+        if (empty($lats) || empty($lons)) {
+            return response()->json(['error' => 'Invalid coordinate format in polygon'], 422);
+        }
+
+        $location->lat_min = min($lats);
+        $location->lat_max = max($lats);
+        $location->lon_min = min($lons);
+        $location->lon_max = max($lons);
     }
 
+    $location->save();
+    return response()->json(['location_id' => $location->id]);
+}
 
+public function edit_location(Request $request)
+{
+    $location_id = $request->input('id');
+    $location_data = Location::where('id', $location_id)->first();
+
+    if (!$location_data) {
+        return response()->json(['error' => trans('messages.location_not_found', [], session('locale'))], 404);
+    }
+
+    // Map driver_availabe to driver_status (1: available, 2: unavailable, 0: unknown)
+    $status = $location_data->driver_availabe ?? 0;
+    if ($status == 1) {
+        $status = 1; // Available
+    } elseif ($status == 2) {
+        $status = 2; // Unavailable
+    } else {
+        $status = 0; // Unknown
+    }
+
+    $data = [
+        'location_id' => $location_data->id,
+        'location_name' => $location_data->location_name,
+        'location_fare' => $location_data->location_fare,
+        'driver_status' => $status,
+        'notes' => $location_data->notes,
+        'location_polygon' => $location_data->polygon ?? '',
+    ];
+
+    return response()->json($data);
+}
+
+public function update_location(Request $request)
+{
+    $location_id = $request->input('location_id');
+    $user_id = Auth::id();
+    $user = User::where('id', $user_id)->first();
+    $user_name = $user->user_name;
+
+    $location = Location::where('id', $location_id)->first();
+
+    if (!$location) {
+        return response()->json(['error' => trans('messages.location_not_found', [], session('locale'))], 404);
+    }
+
+    $previousData = $location->only(['location_name', 'location_fare', 'driver_availabe', 'notes', 'added_by', 'user_id', 'polygon']);
+
+    // Update fields
+    $location->location_name = $request->input('location_name');
+    $location->location_fare = $request->input('location_fare');
+    $location->driver_availabe = $request->input('driver_status');
+    $location->notes = $request->input('notes');
+    $location->added_by = $user_name;
+    $location->user_id = $user_id;
+    if ($request->has('location_polygon')) {
+        $location->polygon = $request->input('location_polygon');
+    }
+    $location->save();
+
+    // Log history
+    $history = new History();
+    $history->user_id = $user_id;
+    $history->table_name = 'locations'; // Fixed typo: 'locationes' to 'locations'
+    $history->function = 'update';
+    $history->function_status = 1;
+    $history->record_id = $location->id;
+    $history->branch_id = 1;
+    $history->previous_data = json_encode($previousData);
+    $history->updated_data = json_encode($location->only([
+        'location_name',
+        'location_fare',
+        'driver_availabe',
+        'notes',
+        'added_by',
+        'user_id',
+        'polygon'
+    ]));
+    $history->added_by = $user_name;
+    $history->save();
+
+    return response()->json(['message' => trans('messages.user_update_lang', [], session('locale'))]);
+}
     public function delete_location(Request $request)
     {
 

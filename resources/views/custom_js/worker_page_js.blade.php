@@ -83,21 +83,33 @@ $(document).ready(function() {
     var allWorkersTable = $('#all_worker_visits').DataTable({
         processing: true,
         serverSide: false,
-        responsive: true, // 📱 auto adjust for small screens
+        responsive: false, // Disable responsive to prevent column hiding
+        scrollX: false, // Disable horizontal scrolling
+        autoWidth: false, // Disable automatic column width calculation
         ajax: {
             url: '{{ route("worker.visits.all", $worker->id) }}',
             dataSrc: 'aaData'
         },
         columns: [
-            { data: 0 },  // S.No
-            { data: 1 },  // Booking No
-            { data: 2 },  // Visit Date
-            { data: 3 },  // Customer
-            { data: 4 },  // Location
-            { data: 5 }   // Shift / Duration / Status
+            { data: 0, width: "8%", className: "text-center" },   // S.No
+            { data: 1, width: "15%", className: "text-center" },  // Booking No
+            { data: 2, width: "15%", className: "text-center" },  // Visit Date
+            { data: 3, width: "20%", className: "text-left" },    // Customer
+            { data: 4, width: "22%", className: "text-left" },    // Location
+            { data: 5, width: "20%", className: "text-center" }   // Shift / Duration / Status
         ],
         language: {
             url: '{{ asset("vendor/datatables/lang/" . $locale . ".json") }}'
+        },
+        dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
+             '<"row"<"col-sm-12"tr>>' +
+             '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+        pageLength: 10,
+        lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
+        order: [[2, 'desc']], // Order by visit date descending
+        drawCallback: function(settings) {
+            // Ensure proper styling after draw
+            $(this.api().table().node()).addClass('table-fixed');
         }
     });
 
@@ -114,6 +126,11 @@ $(document).ready(function() {
             loadThisWeekVisits();
         } else if (target === '#all-visits') {
             allWorkersTable.ajax.reload(null, false);
+            // Adjust table columns and redraw
+            setTimeout(function() {
+                allWorkersTable.columns.adjust().responsive.recalc();
+                allWorkersTable.draw();
+            }, 100);
         }
     });
 });

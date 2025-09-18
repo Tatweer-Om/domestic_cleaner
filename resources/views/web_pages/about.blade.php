@@ -10,8 +10,8 @@
         <div class="row">
             <div class="col-12">
                 <div class="breadcumb-wrap">
-                                            <h2>Because Clean Feels Better</h2>
-                                                                <h3>About us</h3>
+                                            <h2>{{ trans('messages.clean_feels_better', [], session('locale')) }}</h2>
+                                                                <h3>{{ trans('messages.about_us_heading', [], session('locale')) }}</h3>
                                     </div>
             </div>
         </div>
@@ -26,15 +26,12 @@
                     <div class="row">
                         <div class="col-lg-4">
                             <div class="sub-title wow fadeInLeftSlow" data-wow-duration="1000ms">
-                                <span><i><img src="assets/images/cleaning-icon.svg" alt=""></i>about Us</span>
+                                <span><i><img src="assets/images/cleaning-icon.svg" alt=""></i>{{ trans('messages.about_us_heading', [], session('locale')) }}</span>
                             </div>
                         </div>
                         <div class="col-lg-8">
                             <div class="main-title">
-                                <h2 class="text-opacity-animation">we believe that a clean space is
-                                    happy space. Founded in 1998, our
-                                    mission is to make homes &
-                                    businesses sparkle while...</h2>
+                                <h2 class="text-opacity-animation">{{ trans('messages.we_believe_clean_space', [], session('locale')) }}</h2>
                             </div>
                         </div>
                     </div>
@@ -51,17 +48,13 @@
                                         data-wow-duration="1000ms">
                                         <div class="wrap">
                                             <h2><span class="odometer" data-count="40">00</span>K+</h2>
-                                            <p>Client’s serviced</p>
+                                            <p>{{ trans('messages.clients_serviced', [], session('locale')) }}</p>
                                         </div>
                                     </div>
                                 </div>
-                                <p class="wow fadeInUp" data-wow-duration="1000ms">At Shiny Clean, we believe a
-                                    clean
-                                    space is a happy space.
-                                    With years of experience in residential and commercial cleaning
-                                    our mission is to deliver top-quality services tha health...</p>
+                                <p class="wow fadeInUp" data-wow-duration="1000ms">{{ trans('messages.about_company_description', [], session('locale')) }}</p>
                                 <div class="wow fadeInUp" data-wow-duration="1200ms">
-                                    <a href="appoinment.html" class="theme-btn">Book Now</a>
+                                    <a href="appoinment.html" class="theme-btn">{{ trans('messages.book_now', [], session('locale')) }}</a>
                                 </div>
                             </div>
                         </div>
@@ -70,8 +63,7 @@
                                 <div class="about-right-img wow fadeInRightSlow" data-wow-duration="1000ms">
                                     <img src="assets/images/about/about-img-2.jpg" alt="">
                                     <div class="content-box wow fadeInLeftSlow" data-wow-duration="1000ms">
-                                        <span>Office
-                                            Cleaning</span>
+                                        <span>{{ trans('messages.office_cleaning', [], session('locale')) }}</span>
                                     </div>
                                 </div>
                                 <div class="leaf-shape wow zoomIn" data-wow-duration="1000ms">
@@ -99,7 +91,7 @@
                                     <div class="wrap">
                                         <div class="inside">
                                             <h2><span class="odometer" data-count="50">00</span>+</h2>
-                                            <p>Team Member</p>
+                                            <p>{{ trans('messages.team_member', [], session('locale')) }}</p>
                                         </div>
                                     </div>
                                     <div class="radius-shape"><img src="assets/images/choose/radius-shape.svg"
@@ -111,21 +103,15 @@
                         <div class="col-lg-6">
                             <div class="wpo-choose-right-side wow fadeInRightSlow" data-wow-duration="1000ms">
                                 <div class="wpo-section-title-s2">
-                                    <span><i><img src="assets/images/cleaning-icon.svg" alt=""></i>why choose
-                                        us</span>
-                                    <h2 class="poort-text poort-in-right">Your Space Deserves the Best Here’s
-                                        Why We’re
-                                        It</h2>
-                                    <p>Our team of trained professionals takes pride in every detail, going
-                                        above
-                                        and beyond to exceed your expectations. Whether it’s routine
-                                        housekeeping.</p>
+                                    <span><i><img src="assets/images/cleaning-icon.svg" alt=""></i>{{ trans('messages.why_choose_us', [], session('locale')) }}</span>
+                                    <h2 class="poort-text poort-in-right">{{ trans('messages.why_choose_heading', [], session('locale')) }}</h2>
+                                    <p>{{ trans('messages.why_choose_desc', [], session('locale')) }}</p>
                                 </div>
                                 <ul>
-                                    <li><span>Trusted & Vetted Cleaners</span></li>
-                                    <li class="active"><span>Customizable Cleaning Plans</span></li>
-                                    <li><span>Affordable & Transparent Pricing</span></li>
-                                    <li><span>Satisfaction Guarantee</span></li>
+                                    <li><span>{{ trans('messages.trusted_cleaners', [], session('locale')) }}</span></li>
+                                    <li class="active"><span>{{ trans('messages.custom_plans', [], session('locale')) }}</span></li>
+                                    <li><span>{{ trans('messages.affordable_pricing', [], session('locale')) }}</span></li>
+                                    <li><span>{{ trans('messages.satisfaction_guarantee', [], session('locale')) }}</span></li>
                                 </ul>
                             </div>
                         </div>

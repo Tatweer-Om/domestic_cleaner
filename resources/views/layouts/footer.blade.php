@@ -16,7 +16,8 @@
     <script src="{{ asset('vendor/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
     <script src="{{ asset('vendor/chart.js/chart.bundle.min.js') }}"></script>
     <script src="{{ asset('vendor/owl-carousel/owl.carousel.js') }}"></script>
-        <script src="{{ asset('vendor/datatables/js/jquery-ui.min.js') }}"></script>
+        <!-- <script src="{{ asset('vendor/datatables/js/jquery-ui.min.js') }}"></script> -->
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
 
 <!-- Bootstrap 5 JS -->
 
@@ -69,6 +70,7 @@
 <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
 
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 
 <!-- All init script -->
@@ -210,6 +212,7 @@
          @include('custom_js.worker_page_js')
          	        @elseif ($route_name == 'driver_page')
          @include('custom_js.driver_page_js')
+
     @endif
 
 </body>

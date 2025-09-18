@@ -26634,4 +26634,8 @@ html[dir="rtl"] [direction="rtl"][data-sidebar-style="mini"]:not([data-layout="h
 html[dir="rtl"] [direction="rtl"][data-sidebar-style="compact"]:not([data-layout="horizontal"]) .footer {
   padding-right: 9.375rem; }
 
+
+.navbar-header{
+  height:125px!important
+}
 /*# sourceMappingURL=style.css.map */

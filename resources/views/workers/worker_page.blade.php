@@ -19,6 +19,48 @@
     font-size: 1.1rem !important;
 }
 
+/* DataTable improved styling */
+.dataTables_wrapper {
+    width: 100% !important;
+}
+
+#all_worker_visits_wrapper {
+    width: 100% !important;
+}
+
+#all_worker_visits {
+    width: 100% !important;
+    table-layout: fixed;
+}
+
+.table-fixed {
+    table-layout: fixed !important;
+    width: 100% !important;
+}
+
+.table-fixed th,
+.table-fixed td {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+/* Ensure table fits in col-lg-12 */
+.table-responsive {
+    width: 100%;
+    overflow-x: visible;
+}
+
+/* DataTable controls styling */
+.dataTables_length,
+.dataTables_filter {
+    margin-bottom: 1rem;
+}
+
+.dataTables_info,
+.dataTables_paginate {
+    margin-top: 1rem;
+}
+
 /* Responsive fix */
 @media (max-width: 576px) {
     .swal-small-popup {
@@ -265,7 +307,7 @@
                                        
 
                                         <h1 class="display-5 fw-bold text-white mb-3">
-                                            {{ $worker->worker_name ?? 'Residential Cleaning' }}
+                                            {{ $worker->worker_name ?? trans('messages.residential_cleaning', [], session('locale')) }}
                                         </h1>
 
 
@@ -275,7 +317,7 @@
                     {{-- Location name chip --}}
                     {{-- <span class="chip bg-light text-dark fw-semibold px-3 py-1 rounded-pill shadow-sm">
                         <i class="ti-location-pin me-1 text-primary"></i>
-                        {{ $location_name ?? 'No location' }}
+                        {{ $location_name ?? trans('messages.no_location', [], session('locale')) }}
                     </span> --}}
 
                  {{-- Visit Stats --}}
@@ -322,7 +364,7 @@
                     @endphp
 
                     <div class="hero-photo-circle mx-auto position-relative">
-                        <img src="{{ $imgSrc }}" alt="{{ $worker->worker_name ?? 'Worker photo' }}"
+                        <img src="{{ $imgSrc }}" alt="{{ $worker->worker_name ?? trans('messages.worker_photo', [], session('locale')) }}"
                             class="img-fluid rounded-circle shadow-lg hero-photo-img"
                             onerror="this.onerror=null;this.src='{{ asset('assets/images/default-worker.png') }}';">
 
@@ -431,28 +473,38 @@
                         <div class="col-12">
                             <div class="card">
                                 <div class="card-body p-3">
-                                    <div class="table-responsive">
+                                    <!-- ✅ Desktop table -->
+                                    <div class="table-responsive d-none d-md-block">
                                         <table id="all_worker_visits" class="table table-striped mb-4 dataTablesCard fs-14">
                                             <thead class="bg-light">
                                                 <tr>
-                                                    <th><i class="fas fa-list-ol me-1"></i>
+                                                    <th style="width: 8%"><i class="fas fa-list-ol me-1"></i>
                                                         {{ trans('messages.sr_no', [], $locale) }}</th>
-                                                    <th><i class="fas fa-receipt me-1"></i>
+                                                    <th style="width: 15%"><i class="fas fa-receipt me-1"></i>
                                                         {{ trans('messages.booking_no', [], $locale) }}</th>
-                                                    <th><i class="fas fa-calendar-check me-1"></i>
+                                                    <th style="width: 15%"><i class="fas fa-calendar-check me-1"></i>
                                                         {{ trans('messages.visit_date', [], $locale) }}</th>
-                                                    <th><i class="fas fa-user-tie me-1"></i>
+                                                    <th style="width: 20%"><i class="fas fa-user-tie me-1"></i>
                                                         {{ trans('messages.customer', [], $locale) }}</th>
-                                                    <th><i class="fas fa-map-marker-alt me-1"></i>
+                                                    <th style="width: 22%"><i class="fas fa-map-marker-alt me-1"></i>
                                                         {{ trans('messages.location', [], $locale) }}</th>
-                                                    <th><i class="fas fa-info-circle me-1"></i>
+                                                    <th style="width: 20%"><i class="fas fa-info-circle me-1"></i>
                                                         {{ trans('messages.shift-duration-status', [], $locale) }}</th>
-                                                    
                                                 </tr>
                                             </thead>
                                             <tbody>
                                             </tbody>
                                         </table>
+                                    </div>
+
+                                    <!-- ✅ Mobile cards -->
+                                    <div id="all_worker_cards" class="d-block d-md-none">
+                                        <div class="text-center p-3">
+                                            <div class="spinner-border text-primary" role="status">
+                                                <span class="visually-hidden">Loading...</span>
+                                            </div>
+                                            <p class="mt-2 text-muted">Loading visits...</p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

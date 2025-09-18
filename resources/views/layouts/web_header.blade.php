@@ -1,11 +1,17 @@
 @php
-    $locale = app()->getLocale();
-    $isRtl = in_array($locale, ['ar']); // keep what you actually support
+    $locale = session('locale');
+
+    if ($locale == 'ar') {
+        $class = 'rtl';
+    } else {
+        $class = 'ltr';
+    }
+ 
 @endphp
 
 
 <!DOCTYPE html>
-<html lang="{{ current_locale() }}" dir="{{ dir_attr() }}">
+<html lang="{{ current_locale() }}" dir="{{ $class }}">
 <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
 
 <head>
@@ -18,12 +24,12 @@
 
     <link rel="shortcut icon" type="image/png" href="{{ asset('images/logo/logo.png') }}">
     <!-- Page Title -->
-    <title>CLEANING</title>
+    <title>{{ trans('messages.site_title', [], session('locale')) }}</title>
     <!-- Icon fonts -->
     <link href="{{ asset('assets/css/themify-icons.css') }}" rel="stylesheet">
     <link href="{{ asset('assets/css/flaticon.css') }}" rel="stylesheet">
     <!-- Bootstrap core CSS -->
-    @if ($isRtl)
+    @if ($locale == 'ar')
         <link href="{{ asset('assets/css/bootstrap.rtl.min.css') }}" rel="stylesheet">
     @else
         <link href="{{ asset('assets/css/bootstrap.min.css') }}" rel="stylesheet">
@@ -39,19 +45,28 @@
     <link href="{{ asset('assets/css/jquery.fancybox.css') }}" rel="stylesheet">
     <link href="{{ asset('assets/css/odometer-theme-default.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('vendor/toastr/css/toastr.min.css') }}">
-
     <!-- Custom styles for this template -->
-    <link href="{{ asset('assets/sass/style.css') }}" rel="stylesheet">
-    @if ($isRtl)
+    
+    @if ($locale == 'ar')
         <link href="{{ asset('assets/sass/style.rtl.css') }}" rel="stylesheet">
+    @else
+        <link href="{{ asset('assets/sass/style.css') }}" rel="stylesheet">
     @endif
+
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-search@3.0.2/dist/leaflet-search.min.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-control-search@3.0.2/dist/leaflet-search.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
 </head>
 
 <style>
-    .navbar-header {
-    height: 50px; /* Adjust the height as needed (e.g., 50px for a smaller navbar) */
-    line-height: 50px; /* Ensure vertical alignment of content */
-}
+    /* .navbar-header {
+    height: 50px;  
+    line-height: 50px; 
+} */
 
 .navbar-brand img {
     width: 113px;
@@ -60,10 +75,10 @@
 }
 
 @media (max-width: 768px) {
-    .navbar-header {
-        height: 40px; /* Smaller height for mobile devices */
+    /* .navbar-header {
+        height: 40px;  
         line-height: 40px;
-    }
+    } */
 
     .navbar-brand img {
         width: 80px; /* Smaller logo width for mobile */
@@ -72,7 +87,7 @@
 }
 </style>
 
-<body class="{{ $isRtl ? 'rtl' : 'ltr' }}">
+<body class="{{ $locale == 'ar' ? 'rtl' : 'ltr' }}">
     <div class="page-wrapper">
         <!-- start preloader -->
         <div class="preloader">
@@ -103,7 +118,7 @@
                                     <div class="col-lg-3 col-md-3 col-3 d-lg-none dl-block">
                                         <div class="mobail-menu">
                                             <button type="button" class="navbar-toggler open-btn">
-                                                <span class="sr-only">Toggle navigation</span>
+                                                <span class="sr-only">{{ trans('messages.toggle_navigation', [], session('locale')) }}</span>
                                                 <span class="icon-bar first-angle"></span>
                                                 <span class="icon-bar middle-angle"></span>
                                                 <span class="icon-bar last-angle"></span>
@@ -121,22 +136,22 @@
                                             <button class="menu-close"><i class="ti-close"></i></button>
                                             <ul class="nav navbar-nav mb-2 mb-lg-0">
                                                 <li class="menu-item-has-children">
-                                                    <a href="{{ url('/') }}">Home</a>
+                                                    <a href="{{ url('/') }}">{{ trans('messages.nav_home', [], session('locale')) }}</a>
 
                                                 </li>
                                                 <li class="menu-item-has-children">
-                                                    <a href="{{ url('service_page') }}">Services</a>
+                                                    <a href="{{ url('service_page') }}">{{ trans('messages.nav_services', [], session('locale')) }}</a>
                                                 </li>
                                                 <li class="menu-item-has-children">
-                                                    <a href="{{ url('about') }}">About Us</a>
+                                                    <a href="{{ url('about') }}">{{ trans('messages.nav_about_us', [], session('locale')) }}</a>
 
                                                 </li>
                                                 <li class="menu-item-has-children">
-                                                    <a href="{{ url('contact') }}">Contact Us</a>
+                                                    <a href="{{ url('contact') }}">{{ trans('messages.nav_contact_us', [], session('locale')) }}</a>
 
                                                 </li>
                                                 <li class="menu-item-has-children">
-                                                    <a href="{{ url('policy') }}">Policy</a>
+                                                    <a href="{{ url('policy') }}">{{ trans('messages.nav_policy', [], session('locale')) }}</a>
 
                                                 </li>
 
@@ -154,16 +169,16 @@
                                                         style="font-size:20px; color:#6c757d;"></i>
                                                     <span class="d-none d-md-inline"
                                                         style="font-size:14px; color:#6c757d;">
-                                                        {{ app()->getLocale() === 'ar' ? 'العربية' : 'English' }}
+                                                        {{ app()->getLocale() === 'ar' ? trans('messages.lang_arabic', [], session('locale')) : trans('messages.lang_english', [], session('locale')) }}
                                                     </span>
                                                 </a>
                                                 <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3"
                                                     aria-labelledby="langMenu">
                                                     <li><a class="dropdown-item"
-                                                            href="{{ route('locale.switch', 'en') }}">🇬🇧 English</a>
+                                                            href="{{ route('locale.switch', 'en') }}">🇬🇧 {{ trans('messages.lang_english', [], session('locale')) }}</a>
                                                     </li>
                                                     <li><a class="dropdown-item"
-                                                            href="{{ route('locale.switch', 'ar') }}">🇸🇦 العربية</a>
+                                                            href="{{ route('locale.switch', 'ar') }}">🇸🇦 {{ trans('messages.lang_arabic', [], session('locale')) }}</a>
                                                     </li>
                                                 </ul>
                                             </div>
@@ -183,21 +198,23 @@
                                                     <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3"
                                                         aria-labelledby="userMenu">
                                                         <li class="dropdown-header text-muted small">
-                                                            Hello, {{ Auth::user()->user_name }}
+                                                            {{ trans('messages.user_hello', [], session('locale')) }}, {{ Auth::user()->user_name }}
                                                         </li>
                                                         <li>
                                                             <a class="dropdown-item d-flex align-items-center"
                                                                 href="{{ url('user_profile/' . Auth::user()->id) }}">
                                                                 <i class="fi flaticon-user me-2 text-muted"
-                                                                    style="font-size:16px;"></i> Profile
+                                                                    style="font-size:16px;"></i> {{ trans('messages.user_profile', [], session('locale')) }}
                                                             </a>
                                                         </li>
                                                         <li>
-                                                            <a class="dropdown-item d-flex align-items-center text-danger"
-                                                                href="#" id="btnLogout">
-                                                                <i class="fi flaticon-logout me-2"
-                                                                    style="font-size:16px;"></i> Logout
+                                                            <a class="dropdown-item d-flex align-items-center text-danger btn-logout"
+                                                                href="#"
+                                                                data-redirect="{{ url('/') }}">
+                                                                <i class="fi flaticon-logout me-2" style="font-size:16px;"></i>
+                                                                {{ trans('messages.user_logout', [], session('locale')) }}
                                                             </a>
+
                                                         </li>
                                                     </ul>
                                                 </div>

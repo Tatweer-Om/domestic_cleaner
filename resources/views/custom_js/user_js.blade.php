@@ -1,4 +1,11 @@
 <script>
+    // Setup CSRF token for all AJAX requests
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+
     $(document).ready(function() {
         $('#add_user_modal').on('hidden.bs.modal', function() {
             $(".add_user")[0].reset();
@@ -29,7 +36,8 @@
             e.preventDefault();
 
             var formdatas = new FormData($('.add_user')[0]);
-            formdatas.append('_token', '{{ csrf_token() }}');
+            var csrfToken = $('meta[name="csrf-token"]').attr('content');
+            formdatas.append('_token', csrfToken);
             var title = $('.user_name').val();
             var password = $('.password').val();
             var phone = $('.phone').val();
@@ -69,13 +77,24 @@
                     $('#all_user').DataTable().ajax.reload();
                     if (!id) $(".add_user")[0].reset();
                 },
-                error: function(data) {
+                error: function(xhr, status, error) {
                     hidePreloader();
                     after_submit();
-                    show_notification('error', id ?
-                        '<?php echo trans('messages.data_update_failed_lang', [], session('locale')); ?>' :
-                        '<?php echo trans('messages.data_add_failed_lang', [], session('locale')); ?>'
-                    );
+                    
+                    // Check for CSRF token mismatch
+                    if (xhr.status === 419) {
+                        show_notification('error', 'Session expired. Please refresh the page and try again.');
+                        // Optionally refresh the page after a delay
+                        setTimeout(function() {
+                            location.reload();
+                        }, 3000);
+                    } else {
+                        show_notification('error', id ?
+                            '<?php echo trans('messages.data_update_failed_lang', [], session('locale')); ?>' :
+                            '<?php echo trans('messages.data_add_failed_lang', [], session('locale')); ?>'
+                        );
+                    }
+                    console.log('Error:', xhr.responseText);
                     $('#all_user').DataTable().ajax.reload();
                 }
             });
@@ -86,14 +105,12 @@
     function edit(id) {
         $('#global-loader').show();
         before_submit();
-        var csrfToken = $('meta[name="csrf-token"]').attr('content');
         $.ajax({
             dataType: 'JSON',
             url: "{{ url('edit_user') }}",
             method: "POST",
             data: {
-                id: id,
-                _token: csrfToken
+                id: id
             },
             success: function(fetch) {
                 $('#global-loader').hide();
@@ -117,11 +134,20 @@
                     $(".modal-title").html('<?php echo trans('messages.update_lang', [], session('locale')); ?>');
                 }
             },
-            error: function(html) {
+            error: function(xhr, status, error) {
                 $('#global-loader').hide();
                 after_submit();
-                show_notification('error', '<?php echo trans('messages.edit_failed_lang', [], session('locale')); ?>');
-
+                
+                // Check for CSRF token mismatch
+                if (xhr.status === 419) {
+                    show_notification('error', 'Session expired. Please refresh the page and try again.');
+                    setTimeout(function() {
+                        location.reload();
+                    }, 3000);
+                } else {
+                    show_notification('error', '<?php echo trans('messages.edit_failed_lang', [], session('locale')); ?>');
+                }
+                console.log('Edit Error:', xhr.responseText);
                 return false;
             }
         });

@@ -158,7 +158,7 @@ $(function () {
         return;
       }
       if (!status) {
-        show_notification('error', 'Please select a worker status.');
+        show_notification('error', '{{ trans('messages.please_select_worker_status', [], session('locale')) }}');
         return;
       }
 
