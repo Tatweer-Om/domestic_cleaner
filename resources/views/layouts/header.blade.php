@@ -8,7 +8,7 @@ if ($locale == 'ar') {
 }
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="{{ $class }}" class="{{ $class }}">
 
 <head>
 
@@ -38,10 +38,10 @@ if ($locale == 'ar') {
     <link href="{{ asset('vendor/clockpicker/css/bootstrap-clockpicker.min.css') }}" rel="stylesheet">
     <link href="{{ asset('vendor/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css') }}" rel="stylesheet">
     <link
-        href="{{ asset('vendor/bootstrap-datetimepicker-master/css/bootstrap-datetimepicker.min.css') }}"rel="stylesheet">
+        href="{{ asset('vendor/bootstrap-datetimepicker-master/css/bootstrap-datetimepicker.min.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('vendor/toastr/css/toastr.min.css') }}">
     <!-- <link href="{{ asset('vendor/bootstrap-datetimepicker-master/css/jquery-ui.css') }}"rel="stylesheet"> -->
-     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
 
     <link href="{{ asset('vendor/sweetalert2/dist/sweetalert2.min.css') }}">
 
@@ -56,7 +56,7 @@ if ($locale == 'ar') {
     <link class="main-css" href="{{ asset('css/style-rtl.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
 
 
@@ -78,12 +78,12 @@ if ($locale == 'ar') {
         <div class="nav-header">
 
 
-         <a href="{{ url('/') }}" class="brand-logo d-flex align-items-center">
-    <img src="{{ asset('images/logo/logo.png') }}" 
-         alt="Logo" 
-         class="img-fluid"
-         style="max-height: 60px; height: auto; width: auto;">
-</a>
+            <a href="{{ url('/') }}" class="brand-logo d-flex align-items-center">
+                <img src="{{ asset('images/logo/logo.png') }}"
+                    alt="Logo"
+                    class="img-fluid"
+                    style="max-height: 60px; height: auto; width: auto;">
+            </a>
 
 
             <div class="nav-control">
@@ -141,19 +141,17 @@ if ($locale == 'ar') {
 
                                 </a>
                             </li>
-                            <li class="nav-item dropdown notification_dropdown">
-                                @if ($locale == 'ar')
-                                    <a class="nav-link" href="{{ route('switch_language', ['locale' => 'en']) }}">
-                                        <img src="{{ asset('images/logo/logo.png') }}" class="me-1"
-                                            height="15">
-                                    </a>
-                                @else
-                                    <a class="nav-link" href="{{ route('switch_language', ['locale' => 'ar']) }}">
-                                        <img src="{{ asset('images/logo/logo.png') }}" class="me-1"
-                                            height="30">
-                                    </a>
-                                @endif
-                            </li>
+                                         <li class="nav-item dropdown notification_dropdown">
+    @if ($locale == 'ar')
+        <a class="nav-link lang-switch" data-lang="en" href="{{ route('switch_language', ['locale' => 'en']) }}">
+            <img src="{{ asset('flags/us.png') }}" class="me-1" height="12">
+        </a>
+    @else
+        <a class="nav-link lang-switch" data-lang="ar" href="{{ route('switch_language', ['locale' => 'ar']) }}">
+            <img src="{{ asset('flags/om.png') }}" class="me-1" height="12">
+        </a>
+    @endif
+</li>
 
                             <li class="nav-item dropdown header-profile">
                                 <a class="nav-link" href="javascript:;" role="button" data-bs-toggle="dropdown">
@@ -164,12 +162,12 @@ if ($locale == 'ar') {
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-end">
 
-                                  <a href="#" class="dropdown-item ai-icon btn-logout"
+                                    <a href="#" class="dropdown-item ai-icon btn-logout"
                                         data-redirect="{{ url('/login_page') }}">
                                         <svg id="icon-logout" xmlns="http://www.w3.org/2000/svg" class="text-danger"
-                                                width="18" height="18" viewBox="0 0 24 24" fill="none"
-                                                stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                                stroke-linejoin="round">
+                                            width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round">
                                             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                                             <polyline points="16 17 21 12 16 7"></polyline>
                                             <line x1="21" y1="12" x2="9" y2="12"></line>
@@ -194,7 +192,7 @@ if ($locale == 'ar') {
 
                     {{-- Dashboard --}}
                     <li>
-                        <a class="ai-icon" href="{{ url('/') }}" aria-expanded="false">
+                        <a class="ai-icon" href="{{ url('home') }}" aria-expanded="false">
                             <i class="flaticon-381-home text-primary"></i>
                             <span class="nav-text">{{ trans('messages.dashboard', [], session('locale')) }}</span>
                         </a>
@@ -244,37 +242,64 @@ if ($locale == 'ar') {
                             <li><a href="{{ url('all_visits') }}">{{ trans('messages.all_visits', [], session('locale')) }}</a></li>
                         </ul>
                     </li>
-                        <li>
+                <li>
     <a href="javascript:void(0);" class="ai-icon has-arrow" aria-expanded="false">
         <i class="flaticon-381-user-1"
-           style="font-size:18px;
-                  background: linear-gradient(45deg, #ff6b6b, #feca57, #48dbfb, #1dd1a1);
-                  -webkit-background-clip: text;
-                  -webkit-text-fill-color: transparent;">
+            style="font-size:18px;
+            background: linear-gradient(45deg, #ff6b6b, #feca57, #48dbfb, #1dd1a1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;">
         </i>
         <span class="nav-text">{{ trans('messages.users', [], session('locale')) }}</span>
     </a>
     <ul aria-expanded="false">
+        <li> <a href="{{ url('user') }}"> {{ trans('messages.add_user', [], session('locale')) }} </a> </li>
         <li>
-            <a href="{{ url('user') }}">
-                {{ trans('messages.add_user', [], session('locale')) }}
+            <a href="{{ url('general_users') }}">
+                {{ trans('messages.general_users', [], session('locale')) }}
+            </a>
+        </li>
+        <li>
+            <a href="{{ url('worker_users') }}">
+                {{ trans('messages.worker_users', [], session('locale')) }}
+            </a>
+        </li>
+        <li>
+            <a href="{{ url('driver_users') }}">
+                {{ trans('messages.driver_users', [], session('locale')) }}
             </a>
         </li>
     </ul>
 </li>
 
-                <li>
-                    <a href="javascript:void(0);" class="ai-icon has-arrow" aria-expanded="false">
-                        <i class="bi bi-box-seam text-success"></i>
-                        <span class="nav-text">{{ trans('messages.packages_lang', [], session('locale')) }}</span>
-                    </a>
-                    <ul aria-expanded="false">
-                        <li><a href="{{ url('package') }}">{{ trans('messages.all_packages_lang', [], session('locale')) }}</a></li>
-                    </ul>
-                    <ul aria-expanded="false">
-                        <li><a href="{{ url('voucher') }}">{{ trans('messages.all_vouchers_lang', [], session('locale')) }}</a></li>
-                    </ul>
-                </li>
+
+                    <li>
+                        <a href="javascript:void(0);" class="ai-icon has-arrow" aria-expanded="false">
+                            <i class="bi bi-box-seam text-success"></i>
+                            <span class="nav-text">{{ trans('messages.packages_lang', [], session('locale')) }}</span>
+                        </a>
+                        <ul aria-expanded="false">
+                            <li><a href="{{ url('package') }}">{{ trans('messages.all_packages_lang', [], session('locale')) }}</a></li>
+                        </ul>
+                        <ul aria-expanded="false">
+                            <li><a href="{{ url('voucher') }}">{{ trans('messages.all_vouchers_lang', [], session('locale')) }}</a></li>
+                        </ul>
+                    </li>
+
+<li>
+    <a href="javascript:void(0);" class="ai-icon has-arrow" aria-expanded="false">
+        <i class="bi bi-people-fill text-success"></i>
+        <span class="nav-text">{{ trans('messages.customers', [], session('locale')) }}</span>
+    </a>
+    <ul aria-expanded="false">
+        <li>
+            <a href="{{ url('package') }}">
+                {{ trans('messages.all_customer', [], session('locale')) }}
+            </a>
+        </li>
+    </ul>
+</li>
+
 
                     <li>
                         <a href="javascript:void(0);" class="ai-icon has-arrow" aria-expanded="false">
@@ -283,10 +308,10 @@ if ($locale == 'ar') {
                         </a>
                         <ul aria-expanded="false">
                             <li><a href="{{ url('expense_category') }}">{{ trans('messages.expense_category', [], session('locale')) }}</a></li>
-                            {{-- <li><a href="{{ url('account') }}">Account</a></li> --}}
-                            <li><a href="{{ url('expense') }}">{{ trans('messages.expense', [], session('locale')) }}</a></li>
-                        </ul>
-                    </li>
+                      
+                    <li><a href="{{ url('expense') }}">{{ trans('messages.expense', [], session('locale')) }}</a></li>
+                </ul>
+                </li>
 
 
                 </ul>

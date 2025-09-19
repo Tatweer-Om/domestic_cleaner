@@ -175,6 +175,8 @@
 
 	</script>
 
+	
+
 @include('custom_js.custom_js')
 @php
 
@@ -212,6 +214,14 @@
          @include('custom_js.worker_page_js')
          	        @elseif ($route_name == 'driver_page')
          @include('custom_js.driver_page_js')
+		  	        @elseif ($route_name == 'worker_users')
+         @include('custom_js.worker_users_js')
+		  	        @elseif ($route_name == 'driver_users')
+         @include('custom_js.driver_users_js')
+		       @elseif ($route_name == 'general_users')
+         @include('custom_js.general_users_js')
+    @elseif ($route_name == 'customer')
+         @include('custom_js.customer_js')
 
     @endif
 

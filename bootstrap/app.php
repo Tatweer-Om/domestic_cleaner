@@ -14,7 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         // Add SetLocale only to "web" group
-        $middleware->appendToGroup('web', SetLocale::class);
+        // $middleware->appendToGroup('web', SetLocale::class);
 
         // Add EnsureGuestToken globally
         $middleware->append(EnsureGuestToken::class);
