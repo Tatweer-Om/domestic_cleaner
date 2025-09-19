@@ -249,22 +249,52 @@ function deleteAllCookie(reload = true){
 		var demoTheme = jQuery(this).data('theme');
 		themeChange(demoTheme, 'ltr');
 		setCookie('demo_theme',demoTheme);
-		jQuery('.main-css').attr('href','css/style.css');
+		jQuery('.main-css').attr('href',base_url+'css/style.css');
+		// 🔹 AJAX call to switch_language route
+		jQuery.ajax({
+			url: window.appRoutes.switchLanguage,   // adjust if your route has prefix
+			type: 'POST',
+			data: {
+				locale: 'en',
+				_token: jQuery('meta[name="csrf-token"]').attr('content') // Laravel CSRF
+			},
+			success: function (response) {
+				location.reload(); // ✅ reload page after success
+			},
+			error: function (xhr) {
+				console.error("Error switching language:", xhr.responseText);
+			}
+		});
 	});
 
 	jQuery(document).on('click', '.dz_theme_demo_rtl', function(){
 		var demoTheme = jQuery(this).data('theme');
 		themeChange(demoTheme, 'rtl');
 		setCookie('demo_theme',demoTheme);
-		jQuery('.main-css').attr('href','css/style-rtl.css');
+		jQuery('.main-css').attr('href',base_url+'css/style-rtl.css');
+		jQuery.ajax({
+			url: window.appRoutes.switchLanguage,   // adjust if your route has prefix
+			type: 'POST',
+			data: {
+				locale: 'ar',
+				_token: jQuery('meta[name="csrf-token"]').attr('content') // Laravel CSRF
+			},
+			success: function (response) {
+				location.reload(); // ✅ reload page after success
+			},
+			error: function (xhr) {
+				console.error("Error switching language:", xhr.responseText);
+			}
+		});
 	});
 	
 	jQuery(window).on('load', function(){
 		direction = (direction != undefined) ? direction : 'ltr';
 		
 		if(getCookie('direction') == 'rtl'){
-			jQuery('.main-css').attr('href','css/style-rtl.css');
+			jQuery('.main-css').attr('href',base_url+'css/style-rtl.css');
 		}
+		
 
 		if(getCookie('demo_theme') != ''){
 			$('.dz_theme_demo[data-theme="'+getCookie('demo_theme')+'"]').closest('.dz-demo-bx').addClass('demo-active');
@@ -273,7 +303,7 @@ function deleteAllCookie(reload = true){
 		if(theme != undefined){
 			if(theme == 'rtl'){
 				themeChange(0, 'rtl');
-				jQuery('.main-css').attr('href','css/style-rtl.css');
+				jQuery('.main-css').attr('href',base_url+'css/style-rtl.css');
 			}else {
 				themeChange(theme, direction);
 			}

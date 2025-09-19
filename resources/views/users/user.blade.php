@@ -2,7 +2,7 @@
 
 @section('main')
     @push('title')
-        <title> Users</title>
+        <title>  {{ trans('messages.users', [], session('locale')) }}</title>
     @endpush
     <style>
         /* Make button full-width on small screens */

@@ -127,13 +127,13 @@ function addSwitcher(){
 	
 	var currentURL = window.location.href;
 	
-	jQuery('#theme_direction').on('change',function(){
-		if(html.attr('dir') === "rtl"){
-			jQuery('.main-css').attr('href','css/style-rtl.css');
-		}else{
-			jQuery('.main-css').attr('href','css/style.css')
-		}
-	});
+	// jQuery('#theme_direction').on('change',function(){
+	// 	if(html.attr('dir') === "rtl"){
+	// 		jQuery('.main-css').attr('href','css/style-rtl.css');
+	// 	}else{
+	// 		jQuery('.main-css').attr('href','css/style.css')
+	// 	}
+	// });
 
     //change the sidebar style controller
     sidebarStyleSelect.on('change', function() {

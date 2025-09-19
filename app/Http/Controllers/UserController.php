@@ -41,6 +41,64 @@ class UserController extends Controller
     return view('users.user');
 }
 
+   public function worker_users()
+{
+    
+            if (!Auth::check()) {
+        return redirect()->route('login_page')->with('error', 'Please login first');
+    }
+
+
+    $permissions = explode(',', Auth::user()->permissions ?? '');
+
+
+    if (!in_array('5', $permissions)) {
+        return redirect()->route('login_error')->with('error', 'Permission denied');
+    }
+
+
+    return view('users.worker_users');
+}
+
+   public function driver_users()
+{
+    
+            if (!Auth::check()) {
+        return redirect()->route('login_page')->with('error', 'Please login first');
+    }
+
+
+    $permissions = explode(',', Auth::user()->permissions ?? '');
+
+
+    if (!in_array('5', $permissions)) {
+        return redirect()->route('login_error')->with('error', 'Permission denied');
+    }
+
+
+    return view('users.driver_users');
+}
+
+   public function general_users()
+{
+    
+            if (!Auth::check()) {
+        return redirect()->route('login_page')->with('error', 'Please login first');
+    }
+
+
+    $permissions = explode(',', Auth::user()->permissions ?? '');
+
+
+    if (!in_array('5', $permissions)) {
+        return redirect()->route('login_error')->with('error', 'Permission denied');
+    }
+
+
+    return view('users.general_users');
+}
+
+
 
     public function show_user()
     {
@@ -48,7 +106,7 @@ class UserController extends Controller
         $sno = 0;
 
 
-            $view_authuser = User::all();
+$view_authuser = User::whereIn('user_type', [1, 2])->get();
 
         if (count($view_authuser) > 0) {
             foreach ($view_authuser as $value) {
@@ -117,12 +175,222 @@ $user_name = '<a class="patient-info ps-0" href="user_profile/' . $value->id . '
         }
     }
 
+
+     public function show_driver_users()
+    {
+
+        $sno = 0;
+
+
+$view_authuser = User::where('user_type', 3)->get();
+
+        if (count($view_authuser) > 0) {
+            foreach ($view_authuser as $value) {
+
+$user_name = '<a class="patient-info ps-0" href="user_profile/' . $value->id . '">' . $value->user_name . '</a>';
+
+                
+
+                $add_data = Carbon::parse($value->created_at)->format('d-m-Y (h:i a)');
+                $user_image = asset('images/dummy_images/no_image.jpg');
+                if (!empty($value->user_image)) {
+                    $user_image = asset('images/user_images') . "/" . $value->user_image;
+                }
+                $src = '<img src="' . $user_image . '" class-"patient-info ps-0" style="max-width:40px">';
+
+                $user_type = "";
+
+                switch ($value->user_type) {
+                    case 1:
+                        $user_type = 'Admin';
+                        break;
+                    case 2:
+                        $user_type = 'User';
+                        break;
+                    case 3:
+                        $user_type = trans('messages.doctor', [], session('locale'));
+                        break;
+                    case 4:
+                        $user_type = trans('messages.employee', [], session('locale'));
+                        break;
+                    default:
+                        $user_type = trans('messages.unknown', [], session('locale'));
+                        break;
+                }
+
+
+                $sno++;
+                $json[] = array(
+                    '<span class="patient-info ps-0">' . $sno . '</span>',
+                    '<span class="text-nowrap ms-2">' . $src . '  ' . $user_name . '</span>',
+                    '<span class="text-primary">' . $value->user_phone . '</span>',
+                    '<span >' . $user_type . '</span>',
+
+                    '<span >' . $value->added_by . '</span>',
+                    '<span >' . $add_data . '</span>',
+                   
+                );
+            }
+            $response = array();
+            $response['success'] = true;
+            $response['aaData'] = $json;
+            echo json_encode($response);
+        } else {
+            $response = array();
+            $response['sEcho'] = 0;
+            $response['iTotalRecords'] = 0;
+            $response['iTotalDisplayRecords'] = 0;
+            $response['aaData'] = [];
+            echo json_encode($response);
+        }
+    }
+
+
+     public function show_worker_users()
+    {
+
+        $sno = 0;
+
+
+$view_authuser = User::where('user_type', 4)->get();
+
+        if (count($view_authuser) > 0) {
+            foreach ($view_authuser as $value) {
+
+$user_name = '<a class="patient-info ps-0" href="user_profile/' . $value->id . '">' . $value->user_name . '</a>';
+
+                
+
+                $add_data = Carbon::parse($value->created_at)->format('d-m-Y (h:i a)');
+                $user_image = asset('images/dummy_images/no_image.jpg');
+                if (!empty($value->user_image)) {
+                    $user_image = asset('images/user_images') . "/" . $value->user_image;
+                }
+                $src = '<img src="' . $user_image . '" class-"patient-info ps-0" style="max-width:40px">';
+
+                $user_type = "";
+
+                switch ($value->user_type) {
+                    case 1:
+                        $user_type = 'Admin';
+                        break;
+                    case 2:
+                        $user_type = 'User';
+                        break;
+                    case 3:
+                        $user_type = trans('messages.doctor', [], session('locale'));
+                        break;
+                    case 4:
+                        $user_type = trans('messages.employee', [], session('locale'));
+                        break;
+                    default:
+                        $user_type = trans('messages.unknown', [], session('locale'));
+                        break;
+                }
+
+
+                $sno++;
+                $json[] = array(
+                    '<span class="patient-info ps-0">' . $sno . '</span>',
+                    '<span class="text-nowrap ms-2">' . $src . '  ' . $user_name . '</span>',
+                    '<span class="text-primary">' . $value->user_phone . '</span>',
+                    '<span >' . $user_type . '</span>',
+
+                    '<span >' . $value->added_by . '</span>',
+                    '<span >' . $add_data . '</span>',
+                   
+                );
+            }
+            $response = array();
+            $response['success'] = true;
+            $response['aaData'] = $json;
+            echo json_encode($response);
+        } else {
+            $response = array();
+            $response['sEcho'] = 0;
+            $response['iTotalRecords'] = 0;
+            $response['iTotalDisplayRecords'] = 0;
+            $response['aaData'] = [];
+            echo json_encode($response);
+        }
+    }
+
+
+     public function show_general_users()
+    {
+
+        $sno = 0;
+
+
+            $view_authuser = User::where('user_type', 10)->get();
+
+
+        if (count($view_authuser) > 0) {
+            foreach ($view_authuser as $value) {
+
+$user_name = '<a class="patient-info ps-0" href="user_profile/' . $value->id . '">' . $value->user_name . '</a>';
+
+                
+
+                $add_data = Carbon::parse($value->created_at)->format('d-m-Y (h:i a)');
+                $user_image = asset('images/dummy_images/no_image.jpg');
+                if (!empty($value->user_image)) {
+                    $user_image = asset('images/user_images') . "/" . $value->user_image;
+                }
+                $src = '<img src="' . $user_image . '" class-"patient-info ps-0" style="max-width:40px">';
+
+                $user_type = "";
+
+                switch ($value->user_type) {
+                    case 1:
+                        $user_type = 'Admin';
+                        break;
+                    case 2:
+                        $user_type = 'User';
+                        break;
+                    case 3:
+                        $user_type = trans('messages.doctor', [], session('locale'));
+                        break;
+                    case 4:
+                        $user_type = trans('messages.employee', [], session('locale'));
+                        break;
+                    default:
+                        $user_type = trans('messages.unknown', [], session('locale'));
+                        break;
+                }
+
+
+                $sno++;
+                $json[] = array(
+                    '<span class="patient-info ps-0">' . $sno . '</span>',
+                    '<span class="text-nowrap ms-2">' . $src . '  ' . $user_name . '</span>',
+                    '<span class="text-primary">' . $value->user_phone . '</span>',
+                    '<span >' . $user_type . '</span>',
+
+                    '<span >' . $value->added_by . '</span>',
+                    '<span >' . $add_data . '</span>',
+                   
+                );
+            }
+            $response = array();
+            $response['success'] = true;
+            $response['aaData'] = $json;
+            echo json_encode($response);
+        } else {
+            $response = array();
+            $response['sEcho'] = 0;
+            $response['iTotalRecords'] = 0;
+            $response['iTotalDisplayRecords'] = 0;
+            $response['aaData'] = [];
+            echo json_encode($response);
+        }
+    }
     public function add_user(Request $request)
     {
 
-        // $user_id = Auth::id();
-        // $data = User::where('id', $user_id)->first();
-        // $username = $data->user_name;
+        $user_id = Auth::id();
+        $data = User::where('id', $user_id)->first();
+        $username = $data->user_name;
 
 
         $user_image = "";
@@ -152,8 +420,8 @@ $user->permissions = implode(',', $permissions);
         $user->user_image = $user_image;
         $user->user_type = $request['user_type'];
         $user->notes = $request['notes'];
-        $user->added_by = 'system';
-        $user->user_id = 1;
+        $user->added_by = $username;
+        $user->user_id = $user_id;
         $user->save();
         return response()->json(['user_id' => $user->id]);
     }
@@ -257,10 +525,10 @@ $user->permissions = implode(',', $permissions);
             'created_at'
         ]);
 
-        // $user_id = Auth::id();
-        // $data = User::where('id', $user_id)->first();
-        // $username = $data->user_name;
-        // $branch = $data->branch_id;
+        $user_id = Auth::id();
+        $data = User::where('id', $user_id)->first();
+        $username = $data->user_name;
+        $branch = $data->branch_id;
 
         $user_image = $user->user_image;
 
@@ -289,8 +557,8 @@ $user->permissions = is_array($request['permissions'])
         $user->user_image = $user_image;
         $user->user_type = $request['user_type'];
         $user->notes = $request['notes'];
-        $user->added_by = 'system';
-        $user->user_id = 1;
+        $user->added_by = $username;
+        $user->user_id =$user_id;
         $user->save();
 
         $history = new History();
@@ -343,10 +611,10 @@ $user->permissions = is_array($request['permissions'])
             'created_at'
         ]);
 
-        // Get current user info
-        // $currentUser = Auth::user();
-        // $username = $currentUser->user_name;
-        // $branch = $currentUser->branch_id;
+        
+        $currentUser = Auth::user();
+        $username = $currentUser->user_name;
+        $branch = $currentUser->branch_id;
 
         // Save history before deletion
         $history = new History();
@@ -357,7 +625,7 @@ $user->permissions = is_array($request['permissions'])
         $history->function_status = 2;
         $history->record_id = $user->id;
         $history->previous_data = json_encode($previousData);
-        $history->added_by = 'system';
+        $history->added_by = $username;
         $history->save();
 
         $user->delete();
@@ -368,52 +636,7 @@ $user->permissions = is_array($request['permissions'])
     }
 
 
-//   public function register(Request $request)
-// {
-//     // Validate (added phone because you reference it below)
-//     $validated = $request->validate([
-//         'user_name'     => ['required', 'string', 'max:255'],
-//         'phone'    => ['required', 'string', 'max:30', 'unique:users,user_phone'],
-//         'password' => ['required', 'string', 'min:4'],
-//     ]);
 
-//     try {
-//         [$user, $customer] = DB::transaction(function () use ($validated) {
-//             // ---- USER ----
-//             $user = new User();
-//             $user->user_name   = $validated['user_name'];
-//             $user->user_phone  = $validated['phone'];
-//             $user->user_type   = 10;
-//             $user->added_by    = $validated['user_name'];    // or auth()->id() if you prefer
-//             $user->permissions = 500;
-//             $user->password    = Hash::make($validated['password']);
-//             $user->save();
-
-//             // ---- CUSTOMER ----
-//             $customer = new Customer();
-//             $customer->user_id       = $user->id;
-//             $customer->customer_name = $validated['user_name'];
-//             $customer->phone_number  = $validated['phone'];
-//             $customer->added_by      = $user->id;       // or keep your name if that’s your convention
-//             $customer->save();
-
-//             return [$user, $customer];
-//         });
-
-//         return response()->json([
-//             'status'       => 'success',
-//             'message'      => 'Account created successfully.',
-//             'user_id'      => $user->id,
-//             'customer_id'  => $customer->id,
-//         ]);
-//     } catch (\Throwable $e) {
-//         report($e);
-//         return response()->json([
-//             'status'  => 'error',
-//             'message' => 'Could not create account. Please try again.',
-//         ], 500);
-//     }
-// }
 
 public function register(Request $request)
     {

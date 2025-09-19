@@ -65,7 +65,7 @@ return [
     |
     */
 
-    'timezone' => env('APP_TIMEZONE', 'UTC'),
+    'timezone' => config('app.timezone', date_default_timezone_get()),
 
     /*
     |--------------------------------------------------------------------------

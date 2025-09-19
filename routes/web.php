@@ -10,6 +10,7 @@ use App\Http\Controllers\DriverController;
 use App\Http\Controllers\WorkerController;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\PackageController;
 use App\Http\Controllers\ServiceController;
@@ -24,7 +25,7 @@ Route::get('/', function () {
 
 
 Route::get('home', [HomeController::class, 'index'])->name('home');
-Route::get('/switch-language/{locale}', [HomeController::class, 'switchLanguage'])->name('switch_language');
+Route::get('/switch-language', [HomeController::class, 'switchLanguage'])->name('switch_language');
 Route::get('login_page', [HomeController::class, 'login_page'])->name('login_page');
 Route::get('login_error', [HomeController::class, 'login_error'])->name('login_error');
 
@@ -74,6 +75,12 @@ Route::post('delete_driver', [DriverController::class, 'delete_driver'])->name('
 //usercontroller
 
 Route::get('user', [UserController::class, 'index'])->name('user');
+Route::get('worker_users', [UserController::class, 'worker_users'])->name('worker_users');
+Route::get('driver_users', [UserController::class, 'driver_users'])->name('driver_users');
+Route::get('general_users', [UserController::class, 'general_users'])->name('general_users');
+Route::get('show_general_users', [UserController::class, 'show_general_users'])->name('show_general_users');
+Route::get('show_driver_users', [UserController::class, 'show_driver_users'])->name('show_driver_users');
+Route::get('show_worker_users', [UserController::class, 'show_worker_users'])->name('show_worker_users');
 Route::post('add_user', [UserController::class, 'add_user'])->name('add_user');
 Route::get('show_user', [UserController::class, 'show_user'])->name('show_user');
 Route::post('edit_user', [UserController::class, 'edit_user'])->name('edit_user');
@@ -230,3 +237,5 @@ Route::post('driver/visits/complete', [DriverController::class, 'completeVisitdr
 
 // cronjobamwal
 Route::get('AmwalCancelSession', [CronjobController::class, 'AmwalCancelSession'])->name('AmwalCancelSession');
+Route::get('customer', [CustomerController::class, 'index'])->name('customer');
+Route::get('show_customer', [CustomerController::class, 'show_customer'])->name('show_customer');

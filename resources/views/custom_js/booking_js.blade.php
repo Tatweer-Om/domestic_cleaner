@@ -225,7 +225,8 @@
                         if (created_at) {
                             let createdTime = new Date(created_at).getTime(); // Convert to milliseconds
                             let expiryTime = createdTime + 10 * 60 * 1000; // Add 10 minutes
-                            startCountdown(expiryTime);
+                            // console.log(expiryTime);
+                            // startCountdown(expiryTime);
                         } else {
                             document.getElementById("timer").innerHTML = "Invalid Time!";
                         }
@@ -296,14 +297,15 @@
         let interval = setInterval(() => {
             let now = new Date().getTime();
             let timeLeft = expiryTime - now;
+            console.log(timeLeft)
 
             if (timeLeft <= 0) {
                 clearInterval(interval);
                 timerElement.innerHTML = "انتهى الوقت!";
                 $('#expire-order-modal').modal('show');
-                setTimeout(function() {
-                    window.location = "{{ route('PaymentError') }}";
-                }, 2000);
+                // setTimeout(function() {
+                //     window.location = "{{ route('PaymentError') }}";
+                // }, 2000);
                 return;
             }
 
