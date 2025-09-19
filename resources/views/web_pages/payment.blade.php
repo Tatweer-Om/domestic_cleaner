@@ -499,7 +499,15 @@
                     </div>
                 </div> --}}
             </div>
-
+                <div class="form-check mt-4 text-start">
+                    <input class="form-check-input" type="checkbox" id="accept-policy">
+                    <label class="form-check-label" for="accept-policy">
+                        {{ trans('messages.i_accept_policy', [], session('locale')) }}
+                        <a href="{{ url('policy') }}" target="_blank">
+                            {{ trans('messages.view_policy', [], session('locale')) }}
+                        </a>
+                    </label>
+                </div>
             <!-- Pay Now Button -->
             <div class="mt-4 text-center">
                 <button type="button" class="btn btn-pay-now" id="pay-now-btn" data-worker-id="{{ $worker_id }}" {{ empty($booking_details['visits']) ? 'disabled' : '' }}>
