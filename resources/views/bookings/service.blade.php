@@ -50,12 +50,12 @@
                                 <table id="all_services" class="table table-striped mb-4 dataTablesCard fs-14">
                                     <thead class="bg-light text-dark border-bottom">
                                         <tr class="align-middle text-nowrap">
-                                            <th><i class="fas fa-list-ol me-1 text-primary"></i>{{ trans('messages.sr_no') }}</th>
-                                            <th><i class="fas fa-briefcase me-1 text-success"></i>{{ trans('messages.service_name') }}</th>
-                                            <th><i class="fas fa-dollar-sign me-1 text-warning"></i>{{ trans('messages.fee') }}</th>
-                                            <th><i class="fas fa-user-tie me-1 text-info"></i>{{ trans('messages.added_by') }}</th>
-                                            <th><i class="fas fa-calendar-alt me-1 text-secondary"></i>{{ trans('messages.added_on') }}</th>
-                                            <th><i class="fas fa-tools me-1 text-danger"></i>{{ trans('messages.action') }}</th>
+                                              <th><i class="fas fa-list-ol me-1 text-primary"></i>{{ trans('messages.sr_no', [], session('locale')) }}</th>
+        <th><i class="fas fa-briefcase me-1 text-success"></i>{{ trans('messages.service_name', [], session('locale')) }}</th>
+        <th><i class="fas fa-dollar-sign me-1 text-warning"></i>{{ trans('messages.fee', [], session('locale')) }}</th>
+        <th><i class="fas fa-user-tie me-1 text-info"></i>{{ trans('messages.added_by', [], session('locale')) }}</th>
+        <th><i class="fas fa-calendar-alt me-1 text-secondary"></i>{{ trans('messages.added_on', [], session('locale')) }}</th>
+        <th><i class="fas fa-tools me-1 text-danger"></i>{{ trans('messages.action', [], session('locale')) }}</th>
                                         </tr>
                                     </thead>
                                     <tbody></tbody>

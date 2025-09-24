@@ -159,7 +159,7 @@
                         </div>
 
                         <!-- Map Container -->
-                        <div class="col-12">
+                        <div class="col-12 d-none">
                             <label class="col-form-label">{{ trans('messages.location_map', [], $locale) }}</label>
                             <div id="map" style="height: 350px; width: 100%; border: 1px solid #ddd; border-radius: 4px;"></div>
                             <div id="map-status" class="text-muted mt-2">
@@ -168,7 +168,7 @@
                                     <i class="fas fa-spinner fa-spin"></i> Loading...
                                 </span>
                             </div>
-                            <input type="hidden" class="location_polygon" name="location_polygon">
+                            <!-- <input type="hidden" class="location_polygon" name="location_polygon"> -->
                         </div>
 
                         <!-- Location Fare -->

@@ -39,38 +39,44 @@ class WebController extends Controller
     return view('web_pages.policy');
   }
 
-  public function service_section(Request $request)
-  {
+public function service_section(Request $request)
+{
     $services = Service::select('id', 'service_name', 'service_image')->get();
 
     $html = '';
 
-    foreach ($services as $service) {
-      $html .= '
-        <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-            <div class="card h-100 shadow-sm border-0 text-center">
-                <div class="card-img-top" style="height:180px; overflow:hidden;">
-                    <img src="' . asset("images/service_images/" . $service->service_image) . '"
-                         alt="' . e($service->service_name) . '"
-                         class="img-fluid w-100" style="object-fit:cover; height:100%;">
-                </div>
-                <div class="card-body p-3">
-                    <h6 class="card-title mb-2" style="font-size: 1rem; font-weight:600; color:#333;">
-                        ' . e($service->service_name) . '
-                    </h6>
-                    <a href="' . url("service-single/" . $service->id) . '"
-                       class="btn btn-sm btn-success mt-2"
-                       style="border-radius:20px; padding:5px 15px;">
-                        View Service
-                    </a>
+    if ($services->isEmpty()) {
+        $html = '
+            <div class="col-12 text-center py-5">
+                <div class="alert alert-warning shadow-sm d-inline-block px-4 py-3" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    ' . trans('messages.no_data_found', [], session('locale')) . '
                 </div>
             </div>
-        </div>
         ';
+    } else {
+        foreach ($services as $service) {
+            $html .= '
+                <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                    <div class="card h-100 shadow-sm border-0 text-center">
+                        <div class="card-img-top" style="height:180px; overflow:hidden;">
+                            <img src="' . asset("images/service_images/" . $service->service_image) . '"
+                                 alt="' . e($service->service_name) . '"
+                                 class="img-fluid w-100" style="object-fit:cover; height:100%;">
+                        </div>
+                        <div class="card-body p-3">
+                            <h6 class="card-title mb-2" style="font-size: 1rem; font-weight:600; color:#333;">
+                                ' . e($service->service_name) . '
+                            </h6>
+                        </div>
+                    </div>
+                </div>
+            ';
+        }
     }
 
     return response($html);
-  }
+}
 
 
 
@@ -78,7 +84,6 @@ class WebController extends Controller
   {
     $locations  = Location::select('id', 'location_name')->orderBy('location_name')->get();
     $locationId = $request->query('location_id');
-
 
     $slidesHtml = $this->buildWorkerSlidesHtml($locationId);
 
@@ -111,17 +116,17 @@ class WebController extends Controller
 
             <div class="col-lg-12">
             
-              <div class="d-flex justify-content-lg-end">
+              <div class="d-flex align-items-center justify-content-between">
                 <div class="location-picker-wrap" style="min-width:100%">
                   <label class="form-label small text-muted mb-1 d-flex align-items-center gap-2">
                     <span aria-hidden="true" style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:#f0f2f5;">🔎</span>
                     <span class="d-none">' . trans('messages.filter_by_location', [], session('locale')) . '</span>
                     <small class="ms-auto text-muted">
-                      <span id="locCount" class="badge rounded-pill bg-light text-dark border d-none">' . trans('messages.all', [], session('locale')) . '</span>
+                      <span id="locCount" class="badge rounded-pill bg-light text-dark border">' . trans('messages.all', [], session('locale')) . '</span>
                     </small>
                   </label>
 
-                  <div class="d-flex align-items-center gap-2 d-none">
+                  <div class="d-flex align-items-center gap-2">
                   
                     <select
                       id="filter_location"
@@ -145,7 +150,7 @@ class WebController extends Controller
             </div>
           </div>
 
-          <div id="workers_slider" class="service-slider">
+          <div id="workers_slider" class="service-slider" style="direction:ltr">
             ' . $slidesHtml . '
           </div>
         </div>
@@ -170,30 +175,52 @@ class WebController extends Controller
     $locationId = $request->query('location_id');
     return response($this->buildWorkerSlidesHtml($locationId));
   }
-
   private function buildWorkerSlidesHtml($locationId = null): string
-  {
-    $workers = Worker::select('id', 'worker_name', 'worker_image', 'location_id')
-      ->with(['location:id,location_name'])
-      ->when($locationId, function ($q) use ($locationId) {
-        $q->where('location_id', $locationId);
-      })
-      ->orderBy('worker_name')
-      ->get();
+    {
+        // Build the query for workers
+        $query = Worker::select('id', 'worker_name', 'worker_image', 'location_id')
+            ->orderBy('worker_name');
 
-    if ($workers->isEmpty()) {
-      return '<div class="alert alert-info mb-0">' . trans('messages.no_worker_found', [], session('locale')) . '</div>';
-    }
+        // If a locationId is provided, filter workers where location_id matches
+        // either as a single ID or within a JSON array
+        if ($locationId) {
+            $query->where(function ($q) use ($locationId) {
+                // Match single location_id (integer or string)
+                $q->where('location_id', $locationId)
+                  // Match location_id within JSON array
+                  ->orWhereRaw('JSON_CONTAINS(location_id, ?)', [json_encode($locationId)]);
+            });
+        }
 
+        $workers = $query->get();
 
+        // If no workers are found, return the "no workers" message
+        if ($workers->isEmpty()) {
+            return '<div class="alert alert-info mb-0">' . trans('messages.no_worker_found', [], session('locale')) . '</div>';
+        }
 
-    $slides = '';
-    foreach ($workers as $worker) {
-      $imagePath = asset('images/worker_images/' . $worker->worker_image);
-      $workerUrl = url('worker_profile/' . $worker->id);
-      $locName = optional($worker->location)->location_name ?? 'Unassigned';
+        // Fetch all locations to map IDs to names
+        $locations = Location::pluck('location_name', 'id')->toArray();
 
-      $slides .= '
+        $slides = '';
+        foreach ($workers as $worker) {
+            $imagePath = asset('images/worker_images/' . $worker->worker_image);
+            $workerUrl = url('worker_profile/' . $worker->id);
+
+            // Handle location_id (single ID or JSON array)
+            $locationIds = json_decode($worker->location_id, true) ?: [$worker->location_id];
+            // Ensure $locationIds is an array
+            $locationIds = is_array($locationIds) ? $locationIds : [$locationIds];
+            // Map location IDs to names
+            $locNames = [];
+            foreach ($locationIds as $id) {
+                if ($id && isset($locations[$id])) {
+                    $locNames[] = $locations[$id];
+                }
+            }
+            $locName = !empty($locNames) ? implode(', ', $locNames) : 'Unassigned';
+
+            $slides .= '
                 <div class="wpo-service-slide-item section-padding">
                 <a href="' . $workerUrl . '" class="wpo-service-link" style="text-decoration:none; color:inherit;">
                     <div class="wpo-service-item wow fadeInUp" data-wow-duration="1000ms">
@@ -212,166 +239,198 @@ class WebController extends Controller
                     </div>
                 </a>
                 </div>';
+        }
+
+        return $slides;
     }
 
-    return $slides;
-  }
 
 
 
+  // public function getPolygon($id)
+  // {
+  //   $location = Location::findOrFail($id);
+  //   $polygon = json_decode($location->polygon);
+  //   // If coordinates are [lng, lat], swap to [lat, lng]
+  //   $polygon = array_map(function ($coord) {
+  //     return ['lat' => $coord->lng, 'lng' => $coord->lat];
+  //   }, $polygon);
+  //   return response()->json([
+  //     'id' => $location->id,
+  //     'name' => $location->location_name,
+  //     'polygon' => $polygon
+  //   ]);
+  // }
 
-  public function getPolygon($id)
-  {
-    $location = Location::findOrFail($id);
-    $polygon = json_decode($location->polygon);
-    // If coordinates are [lng, lat], swap to [lat, lng]
-    $polygon = array_map(function ($coord) {
-      return ['lat' => $coord->lng, 'lng' => $coord->lat];
-    }, $polygon);
-    return response()->json([
-      'id' => $location->id,
-      'name' => $location->location_name,
-      'polygon' => $polygon
-    ]);
-  }
+    public function worker_profile($id)
+    {
+        // Fetch the worker
+        $worker = Worker::where('id', $id)->firstOrFail();
 
-  public function worker_profile($id)
-  {
+        // Handle location_id (single ID or JSON array)
+        $locationIds = json_decode($worker->location_id, true) ?: [$worker->location_id];
+        $locationIds = is_array($locationIds) ? $locationIds : [$locationIds];
 
-    $worker = Worker::where('id', $id)->first();
-    $location = Location::where('id', $worker->location_id)->first();
-    $location_name = $location->location_name;
-    $delivery = $location->driver_availabe;
-    $packages = Package::select('package_name', 'id')->get();
-    $locations = Location::select('location_name', 'id')->get();
-    return view('web_pages.worker_profile', compact('worker', 'packages', 'location_name', 'delivery', 'locations'));
-  }
+        // Fetch location names for all location IDs
+        $locations = Location::whereIn('id', $locationIds)->pluck('location_name', 'id')->toArray();
+        $locationNames = [];
+        foreach ($locationIds as $id) {
+            if ($id && isset($locations[$id])) {
+                $locationNames[] = $locations[$id];
+            }
+        }
+        $location_name = !empty($locationNames) ? implode(', ', $locationNames) : 'Unassigned';
 
+        // Fetch delivery status (assuming it's from the first location or needs custom logic)
+        $location = Location::whereIn('id', $locationIds)->first();
+        $delivery = $location ? $location->driver_availabe : false;
 
+        // Fetch packages and all locations for the view
+        $packages = Package::select('package_name', 'id')->get();
+        $all_locations = Location::select('location_name', 'id')->get();
 
-
-  public function save_location(Request $request)
-  {
-    // Validate input
-    $request->validate([
-      'address' => 'nullable|string|max:255',
-      'latitude' => 'required|numeric',
-      'longitude' => 'required|numeric',
-      'google_link' => 'nullable|url',
-      'osm_link' => 'nullable|url',
-    ]);
-
-    // Get lat/lon from request (truncate to 2 decimals if needed)
-    $lat = round((float) $request->input('latitude'), 2);
-    $lon = round((float) $request->input('longitude'), 2);
-    $address = $request->input('address');
-    $googleLink = $request->input('google_link');
-    $osmLink = $request->input('osm_link');
-
-    // Fetch all locations with bounding box data
-    $locations = Location::select('id', 'location_name', 'lat_min', 'lat_max', 'lon_min', 'lon_max')
-      ->whereNotNull(['lat_min', 'lat_max', 'lon_min', 'lon_max'])
-      ->get();
-
-    $matchedLocation = null;
-
-    foreach ($locations as $location) {
-      if (
-        $lat >= $location->lat_min && $lat <= $location->lat_max &&
-        $lon >= $location->lon_min && $lon <= $location->lon_max
-      ) {
-        $matchedLocation = $location;
-        break;
-      }
+        return view('web_pages.worker_profile', compact('worker', 'packages', 'location_name', 'delivery', 'all_locations'));
     }
 
-    if ($matchedLocation) {
 
 
-      return response()->json([
-        'status' => 'inside',
-        'location_id' => $matchedLocation->id,
-        'location' => $matchedLocation->location_name,
-        'point' => [$lat, $lon],
-        'message' => "The point [$lat, $lon] is inside the region '{$matchedLocation->location_name}'."
-      ], 200);
-    } else {
-      return response()->json([
-        'status' => 'outside',
-        'location_id' => null,
-        'location' => null,
-        'point' => [$lat, $lon],
-        'message' => "The point [$lat, $lon] is outside all defined regions."
-      ], 200);
-    }
-  }
+  // public function save_location(Request $request)
+  // {
+  //   // Validate input
+  //   $request->validate([
+  //     'address' => 'nullable|string|max:255',
+  //     'latitude' => 'required|numeric',
+  //     'longitude' => 'required|numeric',
+  //     'google_link' => 'nullable|url',
+  //     'osm_link' => 'nullable|url',
+  //   ]);
+
+  //   // Get lat/lon from request (truncate to 2 decimals if needed)
+  //   $lat = round((float) $request->input('latitude'), 2);
+  //   $lon = round((float) $request->input('longitude'), 2);
+  //   $address = $request->input('address');
+  //   $googleLink = $request->input('google_link');
+  //   $osmLink = $request->input('osm_link');
+
+  //   // Fetch all locations with bounding box data
+  //   $locations = Location::select('id', 'location_name', 'lat_min', 'lat_max', 'lon_min', 'lon_max')
+  //     ->whereNotNull(['lat_min', 'lat_max', 'lon_min', 'lon_max'])
+  //     ->get();
+
+  //   $matchedLocation = null;
+
+  //   foreach ($locations as $location) {
+  //     if (
+  //       $lat >= $location->lat_min && $lat <= $location->lat_max &&
+  //       $lon >= $location->lon_min && $lon <= $location->lon_max
+  //     ) {
+  //       $matchedLocation = $location;
+  //       break;
+  //     }
+  //   }
+
+  //   if ($matchedLocation) {
+
+  //     $location = new Googlelinks();
+  //     $location->location_id = $matchedLocation->id;
+  //     $location->google_map = $googleLink;
+  //     $location->e_map = $osmLink;
+  //     $location->address = $address;
+  //     $location->lon = $lon;
+  //     $location->lat = $lat;
+
+  //     // If user is logged in, attach user_id
+  //     if ($user = Auth::user()) {
+  //       $location->user_id = $user->id;
+  //     } else {
+  //       $location->guest_token = $request->cookie('guest_token');
+  //     }
+
+  //     $location->save();
+  //     return response()->json([
+  //       'status' => 'inside',
+  //       'location_id' => $matchedLocation->id,
+  //       'location' => $matchedLocation->location_name,
+  //       'point' => [$lat, $lon],
+  //       'message' => "The point [$lat, $lon] is inside the region '{$matchedLocation->location_name}'."
+  //     ], 200);
+  //   } else {
+  //     return response()->json([
+  //       'status' => 'outside',
+  //       'location_id' => null,
+  //       'location' => null,
+  //       'point' => [$lat, $lon],
+  //       'message' => "The point [$lat, $lon] is outside all defined regions."
+  //     ], 200);
+  //   }
+  // }
 
 
 
 
-  public function confirm_map(Request $request)
-  {
-    // Validate incoming data
-    $request->validate([
-      'address' => 'nullable|string|max:255',
-      'latitude' => 'required|numeric',
-      'longitude' => 'required|numeric',
-      'google_link' => 'nullable|url',
-      'osm_link' => 'nullable|url',
-    ]);
+  // public function confirm_map(Request $request)
+  // {
+  //   // Validate incoming data
+  //   $request->validate([
+  //     'address' => 'nullable|string|max:255',
+  //     'latitude' => 'required|numeric',
+  //     'longitude' => 'required|numeric',
+  //     'google_link' => 'nullable|url',
+  //     'osm_link' => 'nullable|url',
+  //   ]);
 
-    // Get lat/lon from request (truncate to 2 decimals if needed)
-    $lat = round((float) $request->input('latitude'), 2);
-    $lon = round((float) $request->input('longitude'), 2);
-    $address = $request->input('address');
-    $googleLink = $request->input('google_link');
-    $osmLink = $request->input('osm_link');
+  //   // Get lat/lon from request (truncate to 2 decimals if needed)
+  //   $lat = round((float) $request->input('latitude'), 2);
+  //   $lon = round((float) $request->input('longitude'), 2);
+  //   $address = $request->input('address');
+  //   $googleLink = $request->input('google_link');
+  //   $osmLink = $request->input('osm_link');
 
-    // Fetch all locations with bounding box data
-    $locations = Location::select('id', 'location_name', 'lat_min', 'lat_max', 'lon_min', 'lon_max')
-      ->whereNotNull(['lat_min', 'lat_max', 'lon_min', 'lon_max'])
-      ->get();
+  //   // Fetch all locations with bounding box data
+  //   $locations = Location::select('id', 'location_name', 'lat_min', 'lat_max', 'lon_min', 'lon_max')
+  //     ->whereNotNull(['lat_min', 'lat_max', 'lon_min', 'lon_max'])
+  //     ->get();
 
-    $matchedLocation = null;
+  //   $matchedLocation = null;
 
-    foreach ($locations as $location) {
-      if (
-        $lat >= $location->lat_min && $lat <= $location->lat_max &&
-        $lon >= $location->lon_min && $lon <= $location->lon_max
-      ) {
-        $matchedLocation = $location;
-        break;
-      }
-    }
+  //   foreach ($locations as $location) {
+  //     if (
+  //       $lat >= $location->lat_min && $lat <= $location->lat_max &&
+  //       $lon >= $location->lon_min && $lon <= $location->lon_max
+  //     ) {
+  //       $matchedLocation = $location;
+  //       break;
+  //     }
+  //   }
 
-    if ($matchedLocation) {
-      $location = new Googlelinks();
-      $location->location_id = $matchedLocation->id;
-      $location->google_map = $googleLink;
-      $location->e_map = $osmLink;
-      $location->address = $address;
-      $location->lon = $lon;
-      $location->lat = $lat;
+  //   if ($matchedLocation) {
+  //     $location = new Googlelinks();
+  //     $location->location_id = $matchedLocation->id;
+  //     $location->google_map = $googleLink;
+  //     $location->e_map = $osmLink;
+  //     $location->address = $address;
+  //     $location->lon = $lon;
+  //     $location->lat = $lat;
 
-      // If user is logged in, attach user_id
-      if ($user = Auth::user()) {
-        $location->user_id = $user->id;
-      } else {
-        $location->guest_token = $request->cookie('guest_token');
-      }
+  //     // If user is logged in, attach user_id
+  //     if ($user = Auth::user()) {
+  //       $location->user_id = $user->id;
+  //     } else {
+  //       $location->guest_token = $request->cookie('guest_token');
+  //     }
 
-      $location->save();
+  //     $location->save();
 
-      return response()->json([
-        'status' => 'inside',
-        'message' => "Location is confirmed'."
-      ], 200);
-    } else {
-      return response()->json([
-        'status' => 'outside',
+  //     return response()->json([
+  //       'status' => 'inside',
+  //       'message' => "Location is confirmed'."
+  //     ], 200);
+  //   } else {
+  //     return response()->json([
+  //       'status' => 'outside',
 
-        'message' => "Location not Found"
-      ], 200);
-    }
-  }
+  //       'message' => "Location not Found"
+  //     ], 200);
+  //   }
+  // }
 }

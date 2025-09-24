@@ -137,6 +137,9 @@
                                             <p class="text-success duration" style="cursor: pointer;">
                                                 {{ trans('messages.duration', [], session('locale')) }}
                                             </p>
+                                                   <p class="text-success customer_number" style="cursor: pointer;">
+                                                {{ trans('messages.customer_number', [], session('locale')) }}
+                                            </p>
                                         </div>
 
 

@@ -70,8 +70,13 @@ Route::get('show_driver', [DriverController::class, 'show_driver'])->name('show_
 Route::post('edit_driver', [DriverController::class, 'edit_driver'])->name('edit_driver');
 Route::post('update_driver', [DriverController::class, 'update_driver'])->name('update_driver');
 Route::post('delete_driver', [DriverController::class, 'delete_driver'])->name('delete_driver');
-
-
+Route::get('drivers/{driver}/visits', [DriverController::class, 'visitsPage'])->name('driver.visits.page');
+Route::get('drivers/{driver}/visits/today', [DriverController::class, 'todayVisitsdriver'])->name('driver.visits.today');
+Route::get('drivers/{driver}/visits/this_week', [DriverController::class, 'thisWeekVisitsdriver'])->name('driver.visits.this_week');
+Route::get('drivers/{driver}/visits/all', [DriverController::class, 'allVisitsdriver'])->name('driver.visits.all');
+Route::post('driver/visits/complete', [DriverController::class, 'completeVisitdriver'])->name('driver.visits.complete');
+Route::get('driver/{id}/visits/next24hours', [DriverController::class, 'upcomingVisitsDriver'])
+    ->name('driver.visits.next24hours');
 //usercontroller
 
 Route::get('user', [UserController::class, 'index'])->name('user');
@@ -214,6 +219,9 @@ Route::post('add_visit2', [BookingController::class, 'add_visit2'])->name('add_v
 Route::post('edit_visit2', [BookingController::class, 'edit_visit2'])->name('edit_visit2');
 Route::post('update_visit2', [BookingController::class, 'update_visit2'])->name('update_visit2');
 Route::post('delete_visit', [BookingController::class, 'delete_visit'])->name('delete_visit');
+Route::get('show_booking_visits', [BookingController::class, 'show_booking_visits'])->name('show_booking_visits');
+
+Route::get('booking_profile/{id}', [BookingController::class, 'booking_profile'])->name('booking_profile');
 
 Route::get('/locale/{locale}', function (string $locale) {
     $supported = ['en','ar'];

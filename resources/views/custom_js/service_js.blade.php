@@ -17,19 +17,32 @@ $(function () {
   });
 
   // DataTable
-  const servicesTable = $('#all_services').DataTable({
+const servicesTable = $('#all_services').DataTable({
     ajax: {
-      url: "{{ url('show_service') }}",
-      type: 'GET'
+        url: "{{ url('show_service') }}",
+        type: 'GET'
     },
     bFilter: true,
     pagingType: 'numbers',
     ordering: true,
-    // NOTE: 0-based column index. Change 5 -> whichever column you actually want to sort by.
     order: [[5, "desc"]],
-    // Prevent reinit errors if you re-call
-    destroy: true
-  });
+    destroy: true,
+
+    language: {
+        search: "{{ trans('messages.search', [], session('locale')) }}",
+        lengthMenu: "{{ trans('messages.show_entries', [], session('locale')) }}",
+        info: "{{ trans('messages.showing_entries', [], session('locale')) }}",
+        infoEmpty: "{{ trans('messages.no_entries', [], session('locale')) }}",
+        zeroRecords: "{{ trans('messages.no_matching_records', [], session('locale')) }}",
+        paginate: {
+            first: "{{ trans('messages.first', [], session('locale')) }}",
+            last: "{{ trans('messages.last', [], session('locale')) }}",
+            next: "{{ trans('messages.next', [], session('locale')) }}",
+            previous: "{{ trans('messages.previous', [], session('locale')) }}"
+        }
+    }
+});
+
 
   // Create/Update submit
   $('.add_service').off('submit').on('submit', function (e) {

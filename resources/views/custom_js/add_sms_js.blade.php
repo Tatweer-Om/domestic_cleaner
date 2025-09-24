@@ -98,6 +98,9 @@ $(".shift").click(function () {
 $(".duration").click(function () {
     $(".sms_area").val((index, value) => value + '{duration}');
 });
+$(".customer_number").click(function () {
+    $(".sms_area").val((index, value) => value + '{customer_number}');
+});
 
 
 

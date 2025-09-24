@@ -101,13 +101,23 @@ public function show_worker()
                 $shiftLabel = '-';
             }
 
-            $location_name= Location::where('id', $worker->location_id)->value('location_name');
-            $sno++;
+            $locationIds = json_decode($worker->location_id, true);
+
+            // If it’s a single value, wrap it in an array
+            if (!is_array($locationIds)) {
+                $locationIds = [$locationIds];
+            }
+
+            $locations = Location::whereIn('id', $locationIds)->pluck('location_name')->toArray();
+            $locationNames = implode(', ', $locations);          
+
+
+$sno++;
             $json[] = array(
                 '<span class="worker-info ps-0">' . $sno . '</span>',
                 '<span class="text-nowrap ms-2">' . $src . ' ' . $worker_name . '</span>',
                 '<span class="text-primary">' . $worker->phone . '</span>',
-                '<span class="text-primary">' . $location_name . '</span>',
+                '<span class="text-primary">' . $locationNames . '</span>',
 
                 '<span class="text-primary">' .$shiftLabel . '</span>',
                 '<span class="text-primary">' . e($worker->status ?? '-') . '</span>',
@@ -139,16 +149,11 @@ public function add_worker(Request $request)
     $worker = new Worker();
     $worker->worker_name = $request->input('worker_name');
     $worker->phone = $request->input('phone');
-
     $worker->worker_user_id = $request->input('worker_user_id');
-        $worker->location_id = $request->input('location_id');
-
-        $worker->shift = $request->input('shift');
-        $worker->status = $request->input('status', 'available');
+    $worker->location_id = json_encode($request->input('location_id')); 
+    $worker->status = $request->input('status', 'available');
     $worker->worker_image = $worker_image;
     $worker->notes = $request->input('notes');
-
-    // Auto set user_id and added_by for branch 1
     $worker->user_id = 1;
     $worker->added_by =  'system';
 
@@ -170,8 +175,7 @@ public function edit_worker(Request $request)
         'worker_id' => $worker->id,
         'worker_name' => $worker->worker_name,
         'worker_user_id' => $worker->worker_user_id,
-                'location_id' => $worker->location_id,
-
+       'location_id' => json_decode($worker->location_id, true),
         'shift' => $worker->shift,
         'status' => $worker->status,
         'phone' => $worker->phone,
@@ -210,7 +214,7 @@ public function update_worker(Request $request)
     $worker->worker_name = $request->input('worker_name');
     $worker->phone = $request->input('phone');
     $worker->worker_user_id = $request->input('worker_user_id');
-        $worker->location_id = $request->input('location_id');
+    $worker->location_id = json_encode($request->input('location_id')); 
 
     $worker->shift = $request->input('shift');
     $worker->status = $request->input('status', $worker->status);
@@ -376,6 +380,12 @@ public function workers_list(Request $request)
         $package = Package::findOrFail($validated['package_id']);
         $worker = Worker::findOrFail($validated['worker_id']);
 
+$packagePrice = null;
+if (!empty($validated['duration_4']) && $validated['duration_4'] == 1) {
+    $packagePrice = $package->package_price_4 ?? 0; // change column name if needed
+} elseif (!empty($validated['duration_5']) && $validated['duration_5'] == 1) {
+    $packagePrice = $package->package_price_5 ?? 0; // change column name if needed
+}
 
 
         $visits = $package->sessions;
@@ -513,6 +523,7 @@ public function workers_list(Request $request)
             'visits' => is_numeric($visits) ? [] : $visits,
             'worker_availability' => $worker_availability,
             'availability_issues' => $availability_issues,
+            'package_price'=>$packagePrice,
         ]);
     }
 
@@ -580,7 +591,7 @@ public function todayVisits(Request $request, $worker)
 {
     $today = Carbon::today();
 
-    $visits = Visit::with(['booking.location', 'customer'])
+    $visits = Visit::with(['booking', 'customer'])
                    ->where('worker_id', $worker)
                    ->where('visit_date', $today->toDateString())
                    ->get();
@@ -596,25 +607,41 @@ public function todayVisits(Request $request, $worker)
 
             $durationText = $row->duration ? $row->duration . ' Hours' : 'N/A';
 
+            // ✅ handle location ids array
+            $locationNames = 'N/A';
+            if ($row->booking && !empty($row->booking->location_id)) {
+                $locationIds = $row->booking->location_id;
+
+                // If it’s a JSON string, decode it
+                if (is_string($locationIds)) {
+                    $decoded = json_decode($locationIds, true);
+                    $locationIds = json_last_error() === JSON_ERROR_NONE ? $decoded : [$locationIds];
+                }
+
+                // If it’s a single value, wrap it in an array
+                if (!is_array($locationIds)) {
+                    $locationIds = [$locationIds];
+                }
+
+                $locations = \App\Models\Location::whereIn('id', $locationIds)->pluck('location_name')->toArray();
+                $locationNames = $locations ? implode(', ', $locations) : 'N/A';
+            }
+
             return [
                 'id' => $row->id,
                 'booking_no' => $row->booking ? $row->booking->booking_no : 'N/A',
                 'visit_date' => $row->visit_date ? \Carbon\Carbon::parse($row->visit_date)->format('d-m-Y') : 'N/A',
                 'customer' => $row->customer ? $row->customer->customer_name : 'N/A',
-                'location' => $row->booking && $row->booking->location
-                                ? $row->booking->location->location_name
-                                : 'N/A',
+                'location' => $locationNames,
                 'shift_duration_status' =>
                     '<span class="badge bg-info me-1">' . ($row->shift ?? 'N/A') . '</span>' .
                     '<span class="badge bg-warning me-1">' . $durationText . '</span>' .
                     '<span class="badge ' .
                         ($row->status == 1 ? 'bg-secondary' : ($row->status == 2 ? 'bg-success' : 'bg-danger')) .
                     '">' . $statusText . '</span>',
-           'action' => $row->status == 2
-    ? '<span class="badge bg-success text-light">Done</span>'
-    : '<span class="badge bg-warning text-dark" style="cursor:pointer;" onclick="edit_driver_visit(' . $row->id . ')">Mark Completed</span>',
-
-
+                'action' => $row->status == 2
+                    ? '<span class="badge bg-success text-light">Done</span>'
+                    : '<span class="badge bg-warning text-dark" style="cursor:pointer;" onclick="edit_driver_visit(' . $row->id . ')">Mark Completed</span>',
             ];
         })
     ]);
@@ -622,14 +649,12 @@ public function todayVisits(Request $request, $worker)
 
 
 
- public function thisWeekVisits(Request $request, $worker)
+public function thisWeekVisits(Request $request, $worker)
 {
-
-
     $today = Carbon::today();
     $endOfWeek = $today->copy()->addDays(6); // today + 6 days
 
-    $visits = Visit::with(['booking.location', 'customer'])
+    $visits = Visit::with(['booking', 'customer']) // remove direct location eager load
                    ->where('worker_id', $worker)
                    ->whereBetween('visit_date', [$today->toDateString(), $endOfWeek->toDateString()])
                    ->get();
@@ -645,6 +670,20 @@ public function todayVisits(Request $request, $worker)
 
             $durationText = $row->duration ? $row->duration . ' Hours' : 'N/A';
 
+            // Handle location (array of IDs or single ID)
+            $locationNames = 'N/A';
+            if ($row->booking && $row->booking->location_id) {
+                $locationIds = is_array($row->booking->location_id)
+                    ? $row->booking->location_id
+                    : json_decode($row->booking->location_id, true);
+
+                if (!empty($locationIds)) {
+                    $locationNames = \App\Models\Location::whereIn('id', $locationIds)
+                        ->pluck('location_name')
+                        ->implode(', ');
+                }
+            }
+
             return [
                 'id' => $row->id,
                 'booking_no' => $row->booking?->booking_no ?? 'N/A',
@@ -652,7 +691,7 @@ public function todayVisits(Request $request, $worker)
                     ? \Carbon\Carbon::parse($row->visit_date)->format('d-m-Y')
                     : 'N/A',
                 'customer' => $row->customer?->customer_name ?? 'N/A',
-                'location' => $row->booking?->location?->location_name ?? 'N/A',
+                'location' => $locationNames,
                 'shift_duration_status' =>
                     '<span class="badge bg-info me-1">' . ($row->shift ?? 'N/A') . '</span>' .
                     '<span class="badge bg-warning me-1">' . $durationText . '</span>' .
@@ -667,6 +706,7 @@ public function todayVisits(Request $request, $worker)
         })
     ]);
 }
+
 
 public function allVisits($workerId)
 {
@@ -695,28 +735,36 @@ public function allVisits($workerId)
                 </a>';
 
             $add_data   = Carbon::parse($visit->created_at)->format('d-m-Y (h:i a)');
-            $location   = optional($visit->booking->location)->location_name;
+                   $locationIds = json_decode($visit->location_id, true);
+
+            // If it’s a single value, wrap it in an array
+            if (!is_array($locationIds)) {
+                $locationIds = [$locationIds];
+            }
+
+            $locations = Location::whereIn('id', $locationIds)->pluck('location_name')->toArray();
+            $locationNames = implode(', ', $locations);   
             $booking_no = optional($visit->booking)->booking_no;
             $customer   = optional($visit->customer)->customer_name;
             $visit_date = Carbon::parse($visit->visit_date)->format('d-m-Y');
             $worker     = optional($visit->worker)->worker_name;
 
            if ($visit->status == 1) {
-    $statusBadge = '<span class="badge bg-secondary me-1">Pending</span>';
-} elseif ($visit->status == 2) {
-    $statusBadge = '<span class="badge bg-success me-1">Completed</span>';
-} elseif ($visit->status == 3) {
-    $statusBadge = '<span class="badge bg-danger me-1">Cancelled</span>';
-} else {
-    $statusBadge = '<span class="badge bg-dark me-1">N/A</span>';
-}
+                $statusBadge = '<span class="badge bg-secondary me-1">Pending</span>';
+            } elseif ($visit->status == 2) {
+                $statusBadge = '<span class="badge bg-success me-1">Completed</span>';
+            } elseif ($visit->status == 3) {
+                $statusBadge = '<span class="badge bg-danger me-1">Cancelled</span>';
+            } else {
+                $statusBadge = '<span class="badge bg-dark me-1">N/A</span>';
+            }
 
-// shift + duration badges
-$shiftBadge    = $visit->shift    ? '<span class="badge bg-info me-1">' . e($visit->shift) . '</span>' : '';
-$durationBadge = $visit->duration ? '<span class="badge bg-warning me-1">' . e($visit->duration) . ' Hours</span>' : '';
+            // shift + duration badges
+            $shiftBadge    = $visit->shift    ? '<span class="badge bg-info me-1">' . e($visit->shift) . '</span>' : '';
+            $durationBadge = $visit->duration ? '<span class="badge bg-warning me-1">' . e($visit->duration) . ' Hours</span>' : '';
 
-// combine all into one column
-$shiftDurationStatus = $statusBadge . $shiftBadge . $durationBadge;
+            // combine all into one column
+            $shiftDurationStatus = $statusBadge . $shiftBadge . $durationBadge;
 
             $sno++;
             $json[] = [
@@ -724,7 +772,7 @@ $shiftDurationStatus = $statusBadge . $shiftBadge . $durationBadge;
                 '<span class="text-nowrap ms-2"> ' . $booking_no . '</span>',
                 '<span class="text-nowrap ms-2"> ' . $visit_date . '</span>',
                 '<span class="text-primary">' . $customer . '</span>',
-                '<span class="text-primary">' . $location . '</span>',
+                '<span class="text-primary">' . $locationNames . '</span>',
                 $shiftDurationStatus,
 
             ];

@@ -38,7 +38,7 @@
                                 <thead>
                                     <tr>
                                         <th>{{ trans('messages.serial_no_lang', [], session('locale')) }}</th>
-                                        <th>{{ trans('messages.voucher_name_lang', [], session('locale')) }}</th>
+                                        <th>{{ trans('messages.voucher_number_lang', [], session('locale')) }}</th>
                                         <th>{{ trans('messages.price_lang', [], session('locale')) }}</th>
                                         <th>{{ trans('messages.voucher_type_lang', [], session('locale')) }}</th>
                                         <th>{{ trans('messages.added_by_lang', [], session('locale')) }}</th>
@@ -68,8 +68,8 @@
                         <div class="row">
                             <div class="col-lg-4 col-xl-4">
                                 <div class="form-group">
-                                    <label class="col-form-label">{{ trans('messages.voucher_name_lang', [], session('locale')) }}</label>
-                                    <input type="text" class="form-control voucher_name" name="voucher_name" placeholder="{{ trans('messages.voucher_name_lang', [], session('locale')) }}">
+                                    <label class="col-form-label">{{ trans('messages.voucher_number_lang', [], session('locale')) }}</label>
+                                    <input type="text" class="form-control voucher_number" name="voucher_number" placeholder="{{ trans('messages.voucher_number_lang', [], session('locale')) }}">
                                 </div>
                             </div>
 

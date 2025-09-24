@@ -101,7 +101,7 @@ $(document).ready(function () {
                     </div>
                     <div class="sleek-sub small text-muted mt-1">
                       <i class="far fa-clock me-1"></i>${b.start_date ?? ''} •
-                      <i class="fas fa-map-marker-alt me-1 ms-2"></i>${locationName} •
+                    
                       <i class="fas fa-list-ol me-1 ms-2"></i>${b.visits_count ?? 0} visits •
                       <i class="fas fa-hourglass-half me-1 ms-2"></i>${durationLabel}
                     </div>

@@ -85,6 +85,8 @@
         margin-bottom: 4px; /* Slightly smaller offset on mobile */
     }
 }
+
+
 </style>
 
 <body class="{{ $locale == 'ar' ? 'rtl' : 'ltr' }}">
@@ -94,10 +96,10 @@
             <div class="vertical-centered-box">
                 <div class="content">
                     <div class="loader-circle"></div>
-                    <div class="loader-line-mask">
+                    <!-- <div class="loader-line-mask">
                         <div class="loader-line"></div>
-                    </div>
-                    <img src="{{ asset('assets/images/preloader.png') }}" alt="">
+                    </div> -->
+                    <img src="{{ asset('images/logo/logo.png') }}" alt="" style="width: 100px; height: 100px;">
                 </div>
             </div>
         </div> <!-- end preloader -->
@@ -127,7 +129,7 @@
                                     </div>
                                     <div class="col-lg-2 col-md-6 col-6">
                                         <div class="navbar-header">
-                                            <a class="navbar-brand" href="index.html"><img
+                                            <a class="navbar-brand" href="{{url('/')}}"><img
                                                     src="{{ asset('images/logo/logo.png') }}" alt=""></a>
                                         </div>
                                     </div>

@@ -39,7 +39,7 @@ class VoucherController extends Controller
         if (count($view_authvoucher) > 0) {
             foreach ($view_authvoucher as $value) {
 
-                $voucher_name = '<a class-"patient-info ps-0" href="javascript:void(0);">' . $value->voucher_name . '</a>';
+                $voucher_number = '<a class-"patient-info ps-0" href="javascript:void(0);">' . $value->voucher_number . '</a>';
 
                 $modal = '
                     <a href="javascript:void(0);" class="me-3 edit-staff" data-bs-toggle="modal" data-bs-target="#add_voucher_modal" onclick=edit("' . $value->id . '")>
@@ -55,7 +55,7 @@ class VoucherController extends Controller
                 $sno++;
                 $json[] = array(
                     '<span class="patient-info ps-0">' . $sno . '</span>',
-                    '<span class="text-nowrap ms-2">' . $voucher_name . '</span>',
+                    '<span class="text-nowrap ms-2">' . $voucher_number . '</span>',
                     '<span >' . $value->voucher_price . '</span>',
                     $voucher_type_label,
                     '<span >' . $value->added_by . '</span>',
@@ -88,7 +88,7 @@ class VoucherController extends Controller
 
         $voucher = new voucher();
 
-        $voucher->voucher_name = $request['voucher_name'];
+        $voucher->voucher_number = $request['voucher_number'];
         $voucher->voucher_type = $request['voucher_type'];
 
         $voucher->voucher_price = $request['voucher_price'];
@@ -108,7 +108,7 @@ class VoucherController extends Controller
         $voucher_data = Voucher::where('id', $voucher_id)->first();
         $data = [
             'voucher_id' => $voucher_data->id,
-            'voucher_name' => $voucher_data->voucher_name,
+            'voucher_number' => $voucher_data->voucher_number,
             'voucher_type' => $voucher_data->voucher_type,
             'voucher_price' => $voucher_data->voucher_price,
             'notes' => $voucher_data->notes,
@@ -131,7 +131,7 @@ class VoucherController extends Controller
     $previousData = $voucher->toArray();
 
     // ✅ Update fields
-    $voucher->voucher_name = $request['voucher_name'];
+    $voucher->voucher_number = $request['voucher_number'];
     $voucher->voucher_type = $request['voucher_type'];
     $voucher->voucher_price = $request['voucher_price'];
     $voucher->branch_id = $request['branch_id'];
@@ -178,7 +178,7 @@ class VoucherController extends Controller
 
         // Capture the previous data before deletion
         $previousData = $voucher->only([
-            'voucher_name',
+            'voucher_number',
             'sessions',
             'voucher_price',
             'branch_id',

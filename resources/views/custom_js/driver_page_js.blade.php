@@ -62,6 +62,29 @@ $(document).ready(function() {
         });
     }
 
+function loadNext24HoursVisits() {
+    $.ajax({
+        url: '<?php echo route("driver.visits.next24hours", $driver->id); ?>', // 👈 new route
+        method: 'GET',
+        dataType: 'json',
+        success: function(response) {
+            renderVisits(
+                response,
+                '#next24_driver_body',   // 👈 tbody selector for next 24 hrs table
+                '#next24_driver_cards',  // 👈 cards selector for next 24 hrs mobile view
+                true,
+                "<?php echo trans('messages.no_visits_next24', [], session('locale')); ?>"
+            );
+        },
+        error: function(xhr) {
+            console.error('Error loading Next 24 Hours Visits:', xhr.responseText);
+            $('#next24_driver_body').html('<tr><td colspan="7" class="text-center text-danger">Error loading data</td></tr>');
+            $('#next24_driver_cards').html('<p class="text-center text-danger">Error loading data</p>');
+        }
+    });
+}
+
+
     // 🔹 Load This Week Visits
     function loadThisWeekVisits() {
         $.ajax({
@@ -116,33 +139,35 @@ $(document).ready(function() {
     // 🔹 Initial load
     loadTodayVisits();
     loadThisWeekVisits();
-
+  loadNext24HoursVisits();
     // 🔹 Refresh on tab switch
-    $('#visitsTab a').on('shown.bs.tab', function (e) {
-        var target = $(e.target).attr('data-bs-target');
-        if (target === '#today-visits') {
-            loadTodayVisits();
-        } else if (target === '#this-week-visits') {
-            loadThisWeekVisits();
-        } else if (target === '#all-visits') {
-            alldriversTable.ajax.reload(null, false);
-            // Adjust table columns and redraw
-            setTimeout(function() {
-                alldriversTable.columns.adjust().responsive.recalc();
-                alldriversTable.draw();
-            }, 100);
-        }
-    });
+   $('#visitsTab a').on('shown.bs.tab', function (e) {
+    var target = $(e.target).attr('data-bs-target');
+    if (target === '#today-visits') {
+        loadTodayVisits();
+    } else if (target === '#this-week-visits') {
+        loadThisWeekVisits();
+    } else if (target === '#next24-visits') {   // 👈 add this
+        loadNext24HoursVisits();
+    } else if (target === '#all-visits') {
+        alldriversTable.ajax.reload(null, false);
+        setTimeout(function() {
+            alldriversTable.columns.adjust().responsive.recalc();
+            alldriversTable.draw();
+        }, 100);
+    }
+});
 });
 
 function edit_driver_visit(visitId) {
     Swal.fire({
-        title: '{{ trans('messages.mark_visit_completed', [], session('locale')) }}',
-        text: "{{ trans('messages.update_status_completed', [], session('locale')) }}",
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: '{{ trans('messages.confirm', [], session('locale')) }}',
-        cancelButtonText: '{{ trans('messages.cancel', [], session('locale')) }}',
+title: '<?php echo trans('messages.mark_visit_completed', [], session('locale')); ?>',
+text: "<?php echo trans('messages.update_status_completed', [], session('locale')); ?>",
+icon: 'question',
+showCancelButton: true,
+confirmButtonText: '<?php echo trans('messages.confirm', [], session('locale')); ?>',
+cancelButtonText: '<?php echo trans('messages.cancel', [], session('locale')); ?>',
+
         reverseButtons: true,
         customClass: {
             popup: 'swal-small-popup',
@@ -166,7 +191,7 @@ function edit_driver_visit(visitId) {
                         Swal.fire({
                             icon: 'success',
                             title: 'Updated!',
-                            text: '{{ trans('messages.visit_marked_completed', [], session('locale')) }}',
+text: '<?php echo trans('messages.visit_marked_completed', [], session('locale')); ?>',
                             timer: 1500,
                             showConfirmButton: false,
                             didClose: () => {
@@ -175,7 +200,7 @@ function edit_driver_visit(visitId) {
                             }
                         });
                     } else {
-                        Swal.fire('{{ trans('messages.error_general', [], session('locale')) }}', response.message ?? '{{ trans('messages.could_not_update_status', [], session('locale')) }}', 'error');
+Swal.fire('<?php echo trans('messages.error_general', [], session('locale')); ?>', response.message ?? '<?php echo trans('messages.could_not_update_status', [], session('locale')); ?>', 'error');
                     }
                 },
                 error: function(xhr) {

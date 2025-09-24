@@ -222,9 +222,10 @@
          @include('custom_js.general_users_js')
     @elseif ($route_name == 'customer')
          @include('custom_js.customer_js')
+		    @elseif ($route_name == 'booking_profile')
+         @include('custom_js.booking_js')
 
-    @endif
-
+@endif
 </body>
 
 </html>

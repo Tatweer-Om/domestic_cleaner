@@ -1,17 +1,48 @@
 <script>
-    // $('#all_booking').DataTable({
-    //     "sAjaxSource": "{{ url('show_booking') }}",
-    //     "bFilter": true,
-    //     'pagingType': 'numbers',
-    //     "ordering": true,
-    // });
+$(document).ready(function() {
+    const dtLanguage = {
+        search: "{{ trans('messages.search', [], session('locale')) }}",
+        lengthMenu: "{{ trans('messages.show_entries', [], session('locale')) }}",
+        info: "{{ trans('messages.showing_entries', [], session('locale')) }}",
+        infoEmpty: "{{ trans('messages.no_entries', [], session('locale')) }}",
+        infoFiltered: "{{ trans('messages.filtered_from', [], session('locale')) }}",
+        zeroRecords: "{{ trans('messages.no_matching_records', [], session('locale')) }}",
+        paginate: {
+            first: "{{ trans('messages.first', [], session('locale')) }}",
+            last: "{{ trans('messages.last', [], session('locale')) }}",
+            next: "{{ trans('messages.next', [], session('locale')) }}",
+            previous: "{{ trans('messages.previous', [], session('locale')) }}"
+        }
+    };
 
-    //  $('#all_visits').DataTable({
-    //     "sAjaxSource": "{{ url('show_visit') }}",
-    //     "bFilter": true,
-    //     'pagingType': 'numbers',
-    //     "ordering": true,
-    // });
+    $('#all_booking').DataTable({
+        "sAjaxSource": "{{ url('show_booking') }}",
+        "bFilter": true,
+        'pagingType': 'numbers',
+        "ordering": true,
+        language: dtLanguage
+    });
+
+    $('#all_visits').DataTable({
+        "sAjaxSource": "{{ url('show_visit') }}",
+        "bFilter": true,
+        'pagingType': 'numbers',
+        "ordering": true,
+        language: dtLanguage
+    });
+
+    $('#all_booking_visits').DataTable({
+        "ajax": {
+            url: "{{ url('show_booking_visits') }}",
+            type: "GET",
+            data: function(d) {
+                d.booking_id = $('#booking_id').val(); 
+            }
+        },
+        language: dtLanguage
+    });
+});
+
 
     function cancel(id) {
         Swal.fire({
@@ -163,28 +194,29 @@
         $('#apply-voucher-btn').on('click', function() {
 
             var btn = $(this);
-            var formdatas = new FormData($('#voucher-form')[0]); // use your form ID
-            formdatas.append('_token', "<?php echo csrf_token(); ?>");
+            var formdatas = new FormData($('#voucher_form')[0]);
+            formdatas.append('_token', "{{ csrf_token() }}");
 
             var voucher_code = $('#voucher-code').val();
             if (voucher_code === "") {
                 show_notification(
                     'error',
-                    "<?php echo trans('messages.provide_voucher_code_lang', [], session('locale')); ?>"
+                    "{{ trans('messages.provide_voucher_code_lang', [], session('locale')) }}"
                 );
                 return false;
             }
 
-            // Add voucher_code to FormData
             formdatas.append('voucher_code', voucher_code);
 
             $.ajax({
                 type: "POST",
-                url: "<?php echo url('voucher_apply'); ?>",
+                url: "{{ url('voucher_apply') }}",
                 data: formdatas,
                 contentType: false,
                 processData: false,
                 success: function(data) {
+                    console.log('Server response:', data);
+                    console.log('Voucher amount:', data.voucher_amount, 'Type:', typeof data.voucher_amount);
                     if (data.status === 2) {
                         show_notification('error', 'Voucher Code is wrong.');
                         return;
@@ -192,49 +224,47 @@
 
                     show_notification(
                         'success',
-                        "<?php echo trans('messages.data_voucher_success_lang', [], session('locale')); ?>"
+                        "{{ trans('messages.data_voucher_success_lang', [], session('locale')) }}"
                     );
                     $('#voucher-code').attr('disabled', true);
                     btn.attr('disabled', true);
 
-                    $('.total_voucher').val(data.voucher_amount);
-                    $('#voucher-discount-amount').text(data.voucher_amount);
+                    var voucher_amount = 0;
+                    if (data.voucher_amount !== null && data.voucher_amount !== undefined) {
+                        voucher_amount = parseFloat(String(data.voucher_amount).replace(/,/g, '')) || 0;
+                    }
+                    $('.total_voucher').val(voucher_amount.toFixed(2));
+                    $('#voucher-discount-amount').text(voucher_amount.toFixed(2));
 
-                    var total_amount = parseFloat($('.total_amount').val()) || 0;
-                    var final_amount = total_amount - parseFloat(data.voucher_amount);
+                    var total_amount = parseFloat($('.total_amount').val().replace(/,/g, '')) || 0;
+                    var final_amount = (total_amount - voucher_amount).toFixed(2);
 
-                    $('.total_amount').val(final_amount);
+                    console.log('Total amount:', total_amount, 'Voucher amount:', voucher_amount, 'Final amount:', final_amount);
+
+                    $('#total_amount').text(final_amount);
                     $('#total-amount').text(final_amount);
+                    $('#voucher-discount-row').removeClass('d-none');
                 },
                 error: function(data) {
                     show_notification(
                         'error',
-                        "<?php echo trans('messages.data_update_failed_lang', [], session('locale')); ?>"
+                        "{{ trans('messages.data_update_failed_lang', [], session('locale')) }}"
                     );
                     console.log(data);
                 }
             });
-        });
-
-
-
-        // payment button
-        $('#pay-now-btn').on('click', function() {
-            var btn = $(this);
-            var formdatas = new FormData($('#payment-form')[0]); // use your form ID
-            formdatas.append('_token', '{{ csrf_token() }}');
-
+            
             var booking_no = $('.booking_no').val();
             var total_amount = $('.total_amount').val();
             var total_voucher = $('.total_voucher').val();
             var total_discount = $('.total_discount').val();
             var voucher_code = $('#voucher-code').val();
             var payment_method = 1;
-  if (!$('#accept-policy').is(':checked')) {
-                      show_notification('error', '<?php echo trans('messages.edit_failed_lang', [], session('locale')); ?>');
+            if (!$('#accept-policy').is(':checked')) {
+                show_notification('error', '<?php echo trans('messages.please_accept_privacy_policy', [], session('locale')); ?>');
 
-        return; // Stop further execution
-    }
+                return; // Stop further execution
+            }
 
 
             // Add voucher_code to FormData

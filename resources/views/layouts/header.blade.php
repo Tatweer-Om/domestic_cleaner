@@ -78,7 +78,7 @@ if ($locale == 'ar') {
         <div class="nav-header">
 
 
-            <a href="{{ url('/') }}" class="brand-logo d-flex align-items-center">
+            <a href="{{ url('home') }}" class="brand-logo d-flex align-items-center">
                 <img src="{{ asset('images/logo/logo.png') }}"
                     alt="Logo"
                     class="img-fluid"
@@ -141,25 +141,29 @@ if ($locale == 'ar') {
 
                                 </a>
                             </li>
-                                         <li class="nav-item dropdown notification_dropdown">
-    @if ($locale == 'ar')
-        <a class="nav-link lang-switch" data-lang="en" href="{{ route('switch_language', ['locale' => 'en']) }}">
-            <img src="{{ asset('flags/us.png') }}" class="me-1" height="12">
-        </a>
-    @else
-        <a class="nav-link lang-switch" data-lang="ar" href="{{ route('switch_language', ['locale' => 'ar']) }}">
-            <img src="{{ asset('flags/om.png') }}" class="me-1" height="12">
-        </a>
-    @endif
-</li>
+                            <li class="nav-item dropdown notification_dropdown">
+                                @if ($locale == 'ar')
+                                <a class="nav-link lang-switch" data-lang="en" href="{{ route('switch_language', ['locale' => 'en']) }}">
+                                    <img src="{{ asset('flags/us.png') }}" class="me-1" height="12">
+                                </a>
+                                @else
+                                <a class="nav-link lang-switch" data-lang="ar" href="{{ route('switch_language', ['locale' => 'ar']) }}">
+                                    <img src="{{ asset('flags/om.png') }}" class="me-1" height="12">
+                                </a>
+                                @endif
+                            </li>
 
                             <li class="nav-item dropdown header-profile">
-                                <a class="nav-link" href="javascript:;" role="button" data-bs-toggle="dropdown">
-                                    <img src="{{ asset('images/logo/logo.png') }}" width="20" alt="image">
-                                    <div class="header-info">
-                                        <span>{{ trans('messages.admin_hello', [], session('locale')) }},<strong> {{ trans('messages.admin_title', [], session('locale')) }}</strong></span>
-                                    </div>
-                                </a>
+                             <a class="nav-link" href="javascript:;" role="button" data-bs-toggle="dropdown">
+                                <img src="{{ asset('images/logo/logo.png') }}" width="20" alt="image">
+                                <div class="header-info">
+                                    <span>
+                                        {{ trans('messages.admin_hello', [], session('locale')) }}
+                                        <strong>{{ Auth::user()->user_name ?? '' }}</strong>
+                                    </span>
+                                </div>
+                            </a>
+
                                 <div class="dropdown-menu dropdown-menu-end">
 
                                     <a href="#" class="dropdown-item ai-icon btn-logout"
@@ -185,138 +189,174 @@ if ($locale == 'ar') {
         </div>
 
 
+@php
+    $permissions = explode(',', Auth::user()->permissions ?? '');
+@endphp
 
-        <div class="deznav">
-            <div class="deznav-scroll">
-                <ul class="metismenu" id="menu">
+<div class="deznav">
+    <div class="deznav-scroll">
+        <ul class="metismenu" id="menu">
 
-                    {{-- Dashboard --}}
+            {{-- Dashboard --}}
+            @if(in_array(1, $permissions))
+            <li>
+                <a class="ai-icon" href="{{ url('home') }}" aria-expanded="false">
+                    <i class="flaticon-381-home text-primary"></i>
+                    <span class="nav-text">{{ trans('messages.dashboard', [], session('locale')) }}</span>
+                </a>
+            </li>
+            @endif
+
+            {{-- Locations --}}
+            @if(in_array(2, $permissions))
+            <li>
+                <a href="javascript:void(0);" class="ai-icon has-arrow" aria-expanded="false">
+                    <i class="fas fa-map-marker-alt text-warning"></i>
+                    <span class="nav-text">{{ trans('messages.locations', [], session('locale')) }}</span>
+                </a>
+                <ul aria-expanded="false">
+                    <li><a href="{{ url('location') }}">{{ trans('messages.all_locations', [], session('locale')) }}</a></li>
+                </ul>
+            </li>
+            @endif
+
+            {{-- Drivers --}}
+            @if(in_array(3, $permissions))
+            <li>
+                <a href="javascript:void(0);" class="ai-icon has-arrow" aria-expanded="false">
+                    <i class="fas fa-car-side text-info"></i>
+                    <span class="nav-text">{{ trans('messages.drivers', [], session('locale')) }}</span>
+                </a>
+                <ul aria-expanded="false">
+                    <li><a href="{{ url('driver') }}">{{ trans('messages.all_drivers', [], session('locale')) }}</a></li>
+                </ul>
+            </li>
+            @endif
+
+            {{-- Workers --}}
+            @if(in_array(4, $permissions))
+            <li>
+                <a href="javascript:void(0);" class="ai-icon has-arrow" aria-expanded="false">
+                    <i class="fas fa-people-carry text-danger"></i>
+                    <span class="nav-text">{{ trans('messages.workers', [], session('locale')) }}</span>
+                </a>
+                <ul aria-expanded="false">
+                    <li><a href="{{ url('worker') }}">{{ trans('messages.all_workers', [], session('locale')) }}</a></li>
+                </ul>
+            </li>
+            @endif
+
+            {{-- Bookings --}}
+            @if(in_array(6, $permissions))
+            <li>
+                <a href="javascript:void(0);" class="ai-icon has-arrow" aria-expanded="false">
+                    <i class="fas fa-calendar-alt text-danger"></i>
+                    <span class="nav-text">{{ trans('messages.bookings_visits', [], session('locale')) }}</span>
+                </a>
+                <ul aria-expanded="false">
+                    <li><a href="{{ url('all_bookings') }}">{{ trans('messages.all_bookings', [], session('locale')) }}</a></li>
+                    <li><a href="{{ url('all_visits') }}">{{ trans('messages.all_visits', [], session('locale')) }}</a></li>
+                </ul>
+            </li>
+            @endif
+         @if(in_array(6, $permissions))
+            <li>
+                <a href="javascript:void(0);" class="ai-icon has-arrow" aria-expanded="false">
+                    <i class="fas fa-clipboard-list text-primary"></i>
+                    <span class="nav-text">{{ trans('messages.services', [], session('locale')) }}</span>
+                </a>
+                <ul aria-expanded="false">
                     <li>
-                        <a class="ai-icon" href="{{ url('home') }}" aria-expanded="false">
-                            <i class="flaticon-381-home text-primary"></i>
-                            <span class="nav-text">{{ trans('messages.dashboard', [], session('locale')) }}</span>
+                        <a href="{{ url('service') }}">
+                            {{ trans('messages.all_services', [], session('locale')) }}
                         </a>
                     </li>
-
-                    {{-- Locations --}}
-                    <li>
-                        <a href="javascript:void(0);" class="ai-icon has-arrow" aria-expanded="false">
-                            <i class="fas fa-map-marker-alt text-warning"></i>
-                            <span class="nav-text">{{ trans('messages.locations', [], session('locale')) }}</span>
-                        </a>
-                        <ul aria-expanded="false">
-                            <li><a href="{{ url('location') }}">{{ trans('messages.all_locations', [], session('locale')) }}</a></li>
-                        </ul>
-                    </li>
-
-                    {{-- Drivers --}}
-                    <li>
-                        <a href="javascript:void(0);" class="ai-icon has-arrow" aria-expanded="false">
-                            <i class="fas fa-car-side text-info"></i>
-                            <span class="nav-text">{{ trans('messages.drivers', [], session('locale')) }}</span>
-                        </a>
-                        <ul aria-expanded="false">
-                            <li><a href="{{ url('driver') }}">{{ trans('messages.all_drivers', [], session('locale')) }}</a></li>
-                            <li><a href="{{ url('drivers/schedule') }}">{{ trans('messages.driver_shifts', [], session('locale')) }}</a></li>
-                        </ul>
-                    </li>
-
-                    {{-- Workers --}}
-                    <li>
-                        <a href="javascript:void(0);" class="ai-icon has-arrow" aria-expanded="false">
-                            <i class="fas fa-people-carry text-danger"></i>
-                            <span class="nav-text">{{ trans('messages.workers', [], session('locale')) }}</span>
-                        </a>
-                        <ul aria-expanded="false">
-                            <li><a href="{{ url('worker') }}">{{ trans('messages.all_workers', [], session('locale')) }}</a></li>
-                            <li><a href="{{ url('workers/schedule') }}">{{ trans('messages.worker_shifts', [], session('locale')) }}</a></li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="javascript:void(0);" class="ai-icon has-arrow" aria-expanded="false">
-                            <i class="fas fa-calendar-alt text-danger"></i>
-                            <span class="nav-text">{{ trans('messages.bookings_visits', [], session('locale')) }}</span>
-                        </a>
-                        <ul aria-expanded="false">
-                            <li><a href="{{ url('all_bookings') }}">{{ trans('messages.all_bookings', [], session('locale')) }}</a></li>
-                            <li><a href="{{ url('all_visits') }}">{{ trans('messages.all_visits', [], session('locale')) }}</a></li>
-                        </ul>
-                    </li>
-                <li>
-    <a href="javascript:void(0);" class="ai-icon has-arrow" aria-expanded="false">
-        <i class="flaticon-381-user-1"
-            style="font-size:18px;
-            background: linear-gradient(45deg, #ff6b6b, #feca57, #48dbfb, #1dd1a1);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;">
-        </i>
-        <span class="nav-text">{{ trans('messages.users', [], session('locale')) }}</span>
-    </a>
-    <ul aria-expanded="false">
-        <li> <a href="{{ url('user') }}"> {{ trans('messages.add_user', [], session('locale')) }} </a> </li>
-        <li>
-            <a href="{{ url('general_users') }}">
-                {{ trans('messages.general_users', [], session('locale')) }}
-            </a>
-        </li>
-        <li>
-            <a href="{{ url('worker_users') }}">
-                {{ trans('messages.worker_users', [], session('locale')) }}
-            </a>
-        </li>
-        <li>
-            <a href="{{ url('driver_users') }}">
-                {{ trans('messages.driver_users', [], session('locale')) }}
-            </a>
-        </li>
-    </ul>
-</li>
+                </ul>
+            </li>
+        @endif
 
 
-                    <li>
-                        <a href="javascript:void(0);" class="ai-icon has-arrow" aria-expanded="false">
-                            <i class="bi bi-box-seam text-success"></i>
-                            <span class="nav-text">{{ trans('messages.packages_lang', [], session('locale')) }}</span>
-                        </a>
-                        <ul aria-expanded="false">
-                            <li><a href="{{ url('package') }}">{{ trans('messages.all_packages_lang', [], session('locale')) }}</a></li>
-                        </ul>
-                        <ul aria-expanded="false">
-                            <li><a href="{{ url('voucher') }}">{{ trans('messages.all_vouchers_lang', [], session('locale')) }}</a></li>
-                        </ul>
-                    </li>
+            {{-- Users --}}
+            @if(in_array(5, $permissions))
+            <li>
+                <a href="javascript:void(0);" class="ai-icon has-arrow" aria-expanded="false">
+                    <i class="flaticon-381-user-1"
+                       style="font-size:18px;
+                              background: linear-gradient(45deg, #ff6b6b, #feca57, #48dbfb, #1dd1a1);
+                              -webkit-background-clip: text;
+                              -webkit-text-fill-color: transparent;">
+                    </i>
+                    <span class="nav-text">{{ trans('messages.users', [], session('locale')) }}</span>
+                </a>
+                <ul aria-expanded="false">
+                    <li><a href="{{ url('user') }}">{{ trans('messages.add_user', [], session('locale')) }}</a></li>
+                    <li><a href="{{ url('general_users') }}">{{ trans('messages.general_users', [], session('locale')) }}</a></li>
+                    <li><a href="{{ url('worker_users') }}">{{ trans('messages.worker_users', [], session('locale')) }}</a></li>
+                    <li><a href="{{ url('driver_users') }}">{{ trans('messages.driver_users', [], session('locale')) }}</a></li>
+                </ul>
+            </li>
+            @endif
 
-<li>
-    <a href="javascript:void(0);" class="ai-icon has-arrow" aria-expanded="false">
-        <i class="bi bi-people-fill text-success"></i>
-        <span class="nav-text">{{ trans('messages.customers', [], session('locale')) }}</span>
-    </a>
-    <ul aria-expanded="false">
-        <li>
-            <a href="{{ url('package') }}">
-                {{ trans('messages.all_customer', [], session('locale')) }}
-            </a>
-        </li>
-    </ul>
-</li>
+            {{-- Reports --}}
+            @if(in_array(7, $permissions))
+            <li>
+                <a href="javascript:void(0);" class="ai-icon" aria-expanded="false">
+                    <i class="bi bi-graph-up-arrow text-primary"></i>
+                    <span class="nav-text">{{ trans('messages.reports', [], session('locale')) }}</span>
+                </a>
+            </li>
+            @endif
 
-
-                    <li>
-                        <a href="javascript:void(0);" class="ai-icon has-arrow" aria-expanded="false">
-                            <i class="fas fa-money-bill-wave text-success"></i>
-                            <span class="nav-text">{{ trans('messages.expense', [], session('locale')) }}</span>
-                        </a>
-                        <ul aria-expanded="false">
-                            <li><a href="{{ url('expense_category') }}">{{ trans('messages.expense_category', [], session('locale')) }}</a></li>
-                      
+            {{-- Expense --}}
+            @if(in_array(8, $permissions))
+            <li>
+                <a href="javascript:void(0);" class="ai-icon has-arrow" aria-expanded="false">
+                    <i class="fas fa-money-bill-wave text-success"></i>
+                    <span class="nav-text">{{ trans('messages.expense', [], session('locale')) }}</span>
+                </a>
+                <ul aria-expanded="false">
+                    <li><a href="{{ url('expense_category') }}">{{ trans('messages.expense_category', [], session('locale')) }}</a></li>
                     <li><a href="{{ url('expense') }}">{{ trans('messages.expense', [], session('locale')) }}</a></li>
                 </ul>
-                </li>
+            </li>
+            @endif
 
+            {{-- SMS --}}
+            @if(in_array(9, $permissions))
+            <li>
+                <a href="{{ url('sms') }}" class="ai-icon" aria-expanded="false">
+                    <i class="bi bi-chat-dots text-primary"></i>
+                    <span class="nav-text">{{ trans('messages.sms', [], session('locale')) }}</span>
+                </a>
+            </li>
+            @endif
 
+            {{-- Account --}}
+            <!-- @if(in_array(10, $permissions))
+            <li>
+                <a href="{{ url('account') }}" class="ai-icon" aria-expanded="false">
+                    <i class="bi bi-person-circle text-primary"></i>
+                    <span class="nav-text">{{ trans('messages.account', [], session('locale')) }}</span>
+                </a>
+            </li>
+            @endif -->
+
+            {{-- Customers --}}
+            @if(in_array(11, $permissions))
+            <li>
+                <a href="javascript:void(0);" class="ai-icon has-arrow" aria-expanded="false">
+                    <i class="bi bi-people-fill text-success"></i>
+                    <span class="nav-text">{{ trans('messages.customers', [], session('locale')) }}</span>
+                </a>
+                <ul aria-expanded="false">
+                    <li><a href="{{ url('package') }}">{{ trans('messages.all_customer', [], session('locale')) }}</a></li>
                 </ul>
-            </div>
-        </div>
+            </li>
+            @endif
+
+        </ul>
+    </div>
+</div>
 
 
 

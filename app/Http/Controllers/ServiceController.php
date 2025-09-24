@@ -8,6 +8,7 @@ use App\Models\History;
 use App\Models\Package;
 use App\Models\Service;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 
 class ServiceController extends Controller
