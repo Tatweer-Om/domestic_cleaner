@@ -60,7 +60,16 @@ class DriverController extends Controller
                 $add_data = Carbon::parse($driver->created_at)->format('d-m-Y (h:i a)');
                 $driver_image = $driver->driver_image ? asset('images/driver_images/' . $driver->driver_image) : asset('images/dummy_images/no_image.jpg');
                 $src = '<img src="' . $driver_image . '" class="driver-info ps-0" style="max-width:40px">';
-                $location = Location::where('id', $driver->location_id)->value('location_name');
+        $locationIds = json_decode($driver->location_id, true);
+
+// If it’s a single value, wrap it in an array
+if (!is_array($locationIds)) {
+    $locationIds = [$locationIds];
+}
+
+$locations = Location::whereIn('id', $locationIds)->pluck('location_name')->toArray();
+$locationNames = implode(', ', $locations);
+
                 $shiftLabel = '';
 
                 if ($driver->shift == 1) {
@@ -82,7 +91,7 @@ class DriverController extends Controller
                     '<span class="text-nowrap ms-2">' . $src . ' ' . $driver_name . '</span>',
                     '<span class="text-primary">' . $driver->phone . '</span>',
 
-                    '<span class="text-primary">' . $location . '</span>',
+                    '<span class="text-primary">' . $locationNames . '</span>',
                     '<span class="text-primary">' . $shiftLabel . '</span>',
                     $whatsappStatus,
 
@@ -117,11 +126,10 @@ class DriverController extends Controller
 
         $driver->driver_user_id = $request->input('driver_user_id');
         $driver->shift = $request->input('shift');
-        $driver->location_id = $request->input('location_id');
+        $driver->location_id = json_encode($request->input('location_id')); 
         $driver->whatsapp_notification = $request->has('enable_whatsapp') ? 1 : 2;
         $driver->driver_image = $driver_image;
         $driver->notes = $request->input('notes');
-
         // Auto set user_id and added_by for branch 1
         $driver->user_id = 1;
         $driver->added_by =  'system';
@@ -145,10 +153,11 @@ class DriverController extends Controller
             'driver_name' => $driver->driver_name,
             'driver_user_id' => $driver->driver_user_id,
             'shift' => $driver->shift,
-            'location_id' => $driver->location_id,
+            'location_id' => json_decode($driver->location_id, true),
             'phone' => $driver->phone,
             'driver_image' => $driver_image,
             'notes' => $driver->notes,
+             'whatsapp_notification' => $driver->whatsapp_notification, // 1 or 2
         ]);
     }
 
@@ -189,7 +198,7 @@ class DriverController extends Controller
         $driver->driver_user_id = $request->input('driver_user_id');
         $driver->whatsapp_notification = $request->has('enable_whatsapp') ? 1 : 2;
         $driver->shift = $request->input('shift');
-        $driver->location_id = $request->input('location_id');
+        $driver->location_id = json_encode($request->input('location_id')); 
         $driver->driver_image = $driver_image;
         $driver->notes = $request->input('notes');
 
@@ -306,7 +315,7 @@ public function todayVisitsdriver(Request $request, $driverId)
     $driver = Driver::findOrFail($driverId);
     $locationId = $driver->location_id;
 
-    $visits = Visit::with(['booking.location', 'customer'])
+    $visits = Visit::with(['booking', 'customer']) // remove direct location eager load
         ->where('location_id', $locationId)
         ->whereDate('visit_date', $today->toDateString())
         ->get();
@@ -322,6 +331,20 @@ public function todayVisitsdriver(Request $request, $driverId)
 
             $durationText = $row->duration ? $row->duration . ' Hours' : 'N/A';
 
+            // 🔹 Handle multiple locations
+            $locationNames = 'N/A';
+            if ($row->booking && $row->booking->location_id) {
+                $locationIds = is_array($row->booking->location_id)
+                    ? $row->booking->location_id
+                    : json_decode($row->booking->location_id, true);
+
+                if (!empty($locationIds)) {
+                    $locationNames = \App\Models\Location::whereIn('id', $locationIds)
+                        ->pluck('location_name')
+                        ->implode(', ');
+                }
+            }
+
             return [
                 'id' => $row->id,
                 'booking_no' => $row->booking?->booking_no ?? 'N/A',
@@ -329,7 +352,7 @@ public function todayVisitsdriver(Request $request, $driverId)
                     ? Carbon::parse($row->visit_date)->format('d-m-Y')
                     : 'N/A',
                 'customer' => $row->customer?->customer_name ?? 'N/A',
-                'location' => $row->booking?->location?->location_name ?? 'N/A',
+                'location' => $locationNames,
                 'shift_duration_status' =>
                     '<span class="badge bg-info me-1">' . ($row->shift ?? 'N/A') . '</span>' .
                     '<span class="badge bg-warning me-1">' . $durationText . '</span>' .
@@ -340,10 +363,9 @@ public function todayVisitsdriver(Request $request, $driverId)
                                 ? 'bg-success'
                                 : 'bg-danger')) .
                     '">' . $statusText . '</span>',
-               'action' => $row->driver_status == 2
-    ? '<span class="badge bg-success text-light">Done</span>'
-    : '<span class="badge bg-warning text-dark" style="cursor:pointer;" onclick="edit_driver_visit(' . $row->id . ')">Mark Completed</span>',
-
+                'action' => $row->driver_status == 2
+                    ? '<span class="badge bg-success text-light">Done</span>'
+                    : '<span class="badge bg-warning text-dark" style="cursor:pointer;" onclick="edit_driver_visit(' . $row->id . ')">Mark Completed</span>',
             ];
         })
     ]);
@@ -359,7 +381,7 @@ public function thisWeekVisitsdriver(Request $request, $driverId)
     $driver = Driver::findOrFail($driverId);
     $locationId = $driver->location_id;
 
-    $visits = Visit::with(['booking.location', 'customer'])
+    $visits = Visit::with(['booking', 'customer']) // remove booking.location eager load
         ->where('location_id', $locationId)
         ->whereBetween('visit_date', [$today->toDateString(), $endOfWeek->toDateString()])
         ->get();
@@ -375,6 +397,20 @@ public function thisWeekVisitsdriver(Request $request, $driverId)
 
             $durationText = $row->duration ? $row->duration . ' Hours' : 'N/A';
 
+            // 🔹 Handle multiple locations
+            $locationNames = 'N/A';
+            if ($row->booking && $row->booking->location_id) {
+                $locationIds = is_array($row->booking->location_id)
+                    ? $row->booking->location_id
+                    : json_decode($row->booking->location_id, true);
+
+                if (!empty($locationIds)) {
+                    $locationNames = \App\Models\Location::whereIn('id', $locationIds)
+                        ->pluck('location_name')
+                        ->implode(', ');
+                }
+            }
+
             return [
                 'id' => $row->id,
                 'booking_no' => $row->booking?->booking_no ?? 'N/A',
@@ -382,7 +418,7 @@ public function thisWeekVisitsdriver(Request $request, $driverId)
                     ? Carbon::parse($row->visit_date)->format('d-m-Y')
                     : 'N/A',
                 'customer' => $row->customer?->customer_name ?? 'N/A',
-                'location' => $row->booking?->location?->location_name ?? 'N/A',
+                'location' => $locationNames,
                 'shift_duration_status' =>
                     '<span class="badge bg-info me-1">' . ($row->shift ?? 'N/A') . '</span>' .
                     '<span class="badge bg-warning me-1">' . $durationText . '</span>' .
@@ -397,6 +433,7 @@ public function thisWeekVisitsdriver(Request $request, $driverId)
         })
     ]);
 }
+
 
 
 public function allVisitsdriver($driverId)
@@ -425,6 +462,15 @@ public function allVisitsdriver($driverId)
             $durationBadge = $visit->duration ? '<span class="badge bg-warning me-1">' . e($visit->duration) . ' Hours</span>' : '';
 
             $shiftDurationStatus = $statusBadge . $shiftBadge . $durationBadge;
+            $locationIds = json_decode($visit->location_id, true);
+
+                // If it’s a single value, wrap it in an array
+                if (!is_array($locationIds)) {
+                    $locationIds = [$locationIds];
+                }
+
+            $locations = Location::whereIn('id', $locationIds)->pluck('location_name')->toArray();
+            $locationNames = implode(', ', $locations);
 
             $sno++;
             $json[] = [
@@ -432,7 +478,7 @@ public function allVisitsdriver($driverId)
                 '<span class="text-nowrap ms-2"> ' . ($visit->booking?->booking_no ?? 'N/A') . '</span>',
                 '<span class="text-nowrap ms-2"> ' . ($visit->visit_date ? Carbon::parse($visit->visit_date)->format('d-m-Y') : 'N/A') . '</span>',
                 '<span class="text-primary">' . ($visit->customer?->customer_name ?? 'N/A') . '</span>',
-                '<span class="text-primary">' . ($visit->booking?->location?->location_name ?? 'N/A') . '</span>',
+                '<span class="text-primary">' . $locationNames . '</span>',
                 $shiftDurationStatus,
             ];
         }
@@ -466,5 +512,73 @@ public function completeVisitdriver(Request $request)
 
     return response()->json(['success' => true]);
 }
+
+
+public function upcomingVisitsDriver(Request $request, $driverId)
+{
+    $now = Carbon::now();
+    $next24Hours = $now->copy()->addDay(); // add 24 hours
+
+    // get driver's location_id
+    $driver = Driver::findOrFail($driverId);
+    $locationId = $driver->location_id;
+
+    $visits = Visit::with(['booking', 'customer']) // removed booking.location eager load
+        ->where('location_id', $locationId)
+        ->whereBetween('visit_date', [$now, $next24Hours]) // filter visits in next 24h
+        ->get();
+
+    return response()->json([
+        'data' => $visits->map(function ($row) {
+            $statusText = match ((int) $row->driver_status) {
+                1 => 'Pending',
+                2 => 'Completed',
+                3 => 'Cancelled',
+                default => 'N/A',
+            };
+
+            $durationText = $row->duration ? $row->duration . ' Hours' : 'N/A';
+
+            // 🔹 Handle multiple locations
+            $locationNames = 'N/A';
+            if ($row->booking && $row->booking->location_id) {
+                $locationIds = is_array($row->booking->location_id)
+                    ? $row->booking->location_id
+                    : json_decode($row->booking->location_id, true);
+
+                if (!empty($locationIds)) {
+                    $locationNames = \App\Models\Location::whereIn('id', $locationIds)
+                        ->pluck('location_name')
+                        ->implode(', ');
+                }
+            }
+
+            return [
+                'id' => $row->id,
+                'booking_no' => $row->booking?->booking_no ?? 'N/A',
+                'visit_date' => $row->visit_date
+                    ? Carbon::parse($row->visit_date)->format('d-m-Y H:i')
+                    : 'N/A',
+                'customer' => $row->customer?->customer_name ?? 'N/A',
+                'location' => $locationNames,
+                'shift_duration_status' =>
+                    '<span class="badge bg-info me-1">' . ($row->shift ?? 'N/A') . '</span>' .
+                    '<span class="badge bg-warning me-1">' . $durationText . '</span>' .
+                    '<span class="badge ' .
+                        ($row->status == 1
+                            ? 'bg-secondary'
+                            : ($row->status == 2
+                                ? 'bg-success'
+                                : 'bg-danger')) .
+                    '">' . $statusText . '</span>',
+                'action' => $row->driver_status == 2
+                    ? '<span class="badge bg-success text-light">Done</span>'
+                    : '<span class="badge bg-warning text-dark" style="cursor:pointer;" onclick="edit_driver_visit(' . $row->id . ')">Mark Completed</span>',
+            ];
+        })
+    ]);
+}
+
+
 
 }

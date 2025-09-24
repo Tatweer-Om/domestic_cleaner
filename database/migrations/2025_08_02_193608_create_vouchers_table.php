@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('vouchers', function (Blueprint $table) {
             $table->id();
-            $table->string('voucher_name');
+            $table->string('voucher_number')->nullable();
             $table->string('voucher_price')->nullable();
             $table->longText('notes')->nullable();
             $table->string('user_id', 255)->nullable();

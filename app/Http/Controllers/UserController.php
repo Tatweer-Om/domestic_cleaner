@@ -106,7 +106,7 @@ class UserController extends Controller
         $sno = 0;
 
 
-$view_authuser = User::whereIn('user_type', [1, 2])->get();
+$view_authuser = User::get();
 
         if (count($view_authuser) > 0) {
             foreach ($view_authuser as $value) {
@@ -138,10 +138,10 @@ $user_name = '<a class="patient-info ps-0" href="user_profile/' . $value->id . '
                         $user_type = 'User';
                         break;
                     case 3:
-                        $user_type = trans('messages.doctor', [], session('locale'));
+                        $user_type = trans('messages.driver', [], session('locale'));
                         break;
                     case 4:
-                        $user_type = trans('messages.employee', [], session('locale'));
+                        $user_type = trans('messages.worker', [], session('locale'));
                         break;
                     default:
                         $user_type = trans('messages.unknown', [], session('locale'));
@@ -208,11 +208,9 @@ $user_name = '<a class="patient-info ps-0" href="user_profile/' . $value->id . '
                         $user_type = 'User';
                         break;
                     case 3:
-                        $user_type = trans('messages.doctor', [], session('locale'));
+                        $user_type = trans('messages.driver', [], session('locale'));
                         break;
-                    case 4:
-                        $user_type = trans('messages.employee', [], session('locale'));
-                        break;
+          
                     default:
                         $user_type = trans('messages.unknown', [], session('locale'));
                         break;
@@ -450,7 +448,7 @@ $user->permissions = implode(',', $permissions);
     ['id' => 'reports', 'value' => 7, 'name' => 'messages.permissions_reports', 'icon' => 'bi-graph-up-arrow', 'color' => 'text-primary'],
         ['id' => 'expense', 'value' => 8, 'name' => 'messages.permissions_expense', 'icon' => 'bi-graph-up-arrow', 'color' => 'text-primary'],
         ['id' => 'sms', 'value' => 9, 'name' => 'messages.permissions_sms', 'icon' => 'bi-graph-up-arrow', 'color' => 'text-primary'],
-        ['id' => 'account', 'value' => 10, 'name' => 'messages.permissions_account', 'icon' => 'bi-graph-up-arrow', 'color' => 'text-primary'],
+        // ['id' => 'account', 'value' => 10, 'name' => 'messages.permissions_account', 'icon' => 'bi-graph-up-arrow', 'color' => 'text-primary'],
         ['id' => 'customer', 'value' => 11, 'name' => 'messages.permissions_customer', 'icon' => 'bi-graph-up-arrow', 'color' => 'text-primary'],
 
 ];
@@ -800,14 +798,49 @@ public function user_profile($id)
     $customerId = Customer::where('phone_number', $user->user_phone)->value('id');
 
     $totalBookings = Booking::where('user_id', $id)->count();
-    $bookingCount  = $customerId ? Booking::where('customer_id', $customerId)->count() : 0;
-    $visitCount    = $customerId ? Visit::where('customer_id', $customerId)->count() : 0;
+    $bookingCount = $customerId ? Booking::where('customer_id', $customerId)->count() : 0;
+    $visitCount = $customerId ? Visit::where('customer_id', $customerId)->count() : 0;
+    $pending = $customerId ? Visit::where('customer_id', $customerId)->where('status', 1)->count() : 0;
+    $completed = $customerId ? Visit::where('customer_id', $customerId)->where('status', 2)->count() : 0;
+
+    // Find the next upcoming visit
+    $nextVisit = $customerId ? Visit::where('customer_id', $customerId)
+        ->where('status', 1) // Pending visits
+        ->where('visit_date', '>=', now()) // Future or current visits
+        ->orderBy('visit_date', 'asc')
+        ->first() : null;
+
+    // Format the next visit date and time
+    $nextVisitDateTime = null;
+    if ($nextVisit) {
+        $shift = $nextVisit->shift;
+        $duration = $nextVisit->duration;
+        $date = $nextVisit->visit_date->format('Y-m-d'); // Get date part
+
+        // Determine time range based on shift and duration
+        if ($shift === 'morning' && $duration == 4) {
+            $nextVisitDateTime = "$date, 8:00 AM - 12:00 PM";
+        } elseif ($shift === 'morning' && $duration == 5) {
+            $nextVisitDateTime = "$date, 8:00 AM - 1:00 PM";
+        } elseif ($shift === 'evening' && $duration == 4) {
+            $nextVisitDateTime = "$date, 4:00 PM - 8:00 PM";
+        } elseif ($shift === 'evening' && $duration == 5) {
+            $nextVisitDateTime = "$date, 4:00 PM - 9:00 PM";
+        } else {
+            // Fallback if shift or duration is invalid
+            $nextVisitDateTime = $nextVisit->visit_date->format('Y-m-d H:i');
+        }
+    }
+
 
     return view('web_pages.user_profile', compact(
         'user',
         'totalBookings',
         'bookingCount',
-        'visitCount'
+        'visitCount',
+        'pending',
+        'completed',
+        'nextVisitDateTime'
     ));
 }
 
@@ -1001,7 +1034,7 @@ public function login(Request $request)
 
             // Check user_type restrictions
             if ($user->user_type == 3) {
-                $driver = Driver::where('user_id', $user->id)->first();
+                $driver = Driver::where('driver_user_id', $user->id)->first();
                 
                 if (!$driver) {
                     return response()->json([
@@ -1018,7 +1051,7 @@ public function login(Request $request)
             }
 
             if ($user->user_type == 4) {
-                $worker = Worker::where('user_id', $user->id)->first();
+                $worker = Worker::where('worker_user_id', $user->id)->first();
                 
                 if (!$worker) {
                     return response()->json([

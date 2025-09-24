@@ -24,7 +24,7 @@
                     <div class="row align-items-center justify-content-center">
                         <div class="col-lg-6">
                             <div class="wpo-section-title">
-                                <h2 class="poort-text poort-in-right">{{ trans('messages.cleanliness_meets_care', [], session('locale')) }}</h2>
+                                <h2 class="slide-title wow">{{ trans('messages.cleanliness_meets_care', [], session('locale')) }}</h2>
                             </div>
                         </div>
                     </div>
@@ -58,7 +58,7 @@
                         <div class="wpo-cta-box wow fadeInUp" data-wow-duration="1200ms">
                             <div class="wpo-section-title-s2">
                                 <span><i><img src="assets/images/cleaning-icon.svg" alt=""></i>{{ trans('messages.emergency_call', [], session('locale')) }}</span>
-                                <h2 class="poort-text poort-in-right">{{ trans('messages.need_help_heading', [], session('locale')) }}</h2>
+                                <h2 class="slide-title wow">{{ trans('messages.need_help_heading', [], session('locale')) }}</h2>
                                 <p>{{ trans('messages.need_help_desc', [], session('locale')) }}</p>
                             </div>
                             <a href="tel:+17189044450" class="call"><i><img src="assets/images/phone-call.svg"
@@ -71,7 +71,7 @@
                         <div class="wpo-cta-box features wow fadeInUp" data-wow-duration="1400ms">
                             <div class="wpo-section-title-s2">
                                 <span><i><img src="assets/images/cleaning-icon.svg" alt=""></i>{{ trans('messages.features', [], session('locale')) }}</span>
-                                <h2 class="poort-text poort-in-right">{{ trans('messages.features_heading', [], session('locale')) }}</h2>
+                                <h2 class="slide-title wow">{{ trans('messages.features_heading', [], session('locale')) }}</h2>
                             </div>
                             <ul>
                                 <li>{{ trans('messages.feature_workers', [], session('locale')) }}</li>
@@ -99,7 +99,7 @@
                             <div class="wpo-faq-box wow fadeInLeftSlow" data-wow-duration="1200ms">
                                 <div class="wpo-section-title-s2">
                                     <span><i><img src="assets/images/cleaning-icon.svg" alt=""></i>faq</span>
-                                    <h2 class="poort-text poort-in-right">Freequently ask questions...</h2>
+                                    <h2 class="slide-title wow">Freequently ask questions...</h2>
                                     <p>communication and utilizes cutting edge logistic planning
                                         to get your shipment completed on time. itself founded.</p>
                                 </div>
@@ -243,7 +243,7 @@
                                 <div class="wpo-section-title">
                                     <span><i><img src="assets/images/cleaning-icon.svg" alt=""></i>get in
                                         touch</span>
-                                    <h2 class="poort-text poort-in-right">Reach Out for a Sparkling
+                                    <h2 class="slide-title wow">Reach Out for a Sparkling
                                         Space today</h2>
                                 </div>
                                 <form method="post" class="contact-validation-active" id="contact-form">

@@ -24,8 +24,24 @@ class BookingController extends Controller
     {
         $data = $request->all();
 
+
         $worker = Worker::findOrFail($data['worker_id']);
+
+        // Normalize location_id: handle JSON, array, or single value
         $location_id = $worker->location_id;
+
+        if (is_string($location_id) && str_starts_with($location_id, '[')) {
+            $location_id = json_decode($location_id, true); // convert JSON string to array
+        }
+
+        if (!is_array($location_id)) {
+            $location_id = [$location_id]; // force into array
+        }
+
+        // If still empty after normalization
+        if (empty($location_id)) {
+            return response()->json(['error' => trans('messages.worker_not_assigned_location', [], session('locale'))], 422);
+        }
 
         if (is_null($location_id)) {
             return response()->json(['error' => trans('messages.worker_not_assigned_location', [], session('locale'))], 422);
@@ -66,7 +82,7 @@ class BookingController extends Controller
                     'user_id'        => $user_id,
                     'worker_id'      => $data['worker_id'],
                     'package_id'     => $data['package_id'],
-                    'location_id'    => $location_id,
+                    'location_id'    =>is_array($location_id) ? json_encode($location_id) : $location_id,
                     'start_date'     => $data['start_date'],
                     'duration'       => $data['duration'],
                     'visits'         => json_encode($data['visits']),
@@ -86,7 +102,7 @@ class BookingController extends Controller
                         'duration'     => $visit['duration'],
                         'visit_name'   => $booking->booking_no . '-v' . $counter, // 🔹 auto-generated
                         'worker_id'    => $booking->worker_id,
-                        'location_id'  => $location_id,
+                        'location_id'  => is_array($location_id) ? json_encode($location_id) : $location_id,
                         'user_id'      => $user_id,
                         'status'       => 1,
                         'added_by'     => $user_name,
@@ -217,15 +233,11 @@ class BookingController extends Controller
     public function voucher_apply(Request $request)
     {
 
-  
 
-        // Validate request
-        // dd($voucherCode = $request->input('code'));
 
         $code  = strtoupper(trim($request->input('voucher_code'))); 
 
-        // Find voucher by code (case-insensitive)
-        $voucher = Voucher::whereRaw('UPPER(voucher_name) = ?', [$code])->first();
+        $voucher = Voucher::whereRaw('UPPER(voucher_number) = ?', [$code])->first();
 
         if (!$voucher) {
             return response()->json([
@@ -259,9 +271,8 @@ class BookingController extends Controller
         $discount_amount = $request['discount_amount'];  
         $payment_method = $request['payment_method']; 
         $voucher_code  = strtoupper(trim($request->input('voucher_code')));  
-
         // Find voucher by code (case-insensitive)
-        $voucher_data = Voucher::whereRaw('UPPER(voucher_name) = ?', [$voucher_code])->first();
+        $voucher_data = Voucher::whereRaw('UPPER(voucher_number) = ?', [$voucher_code])->first();
         // Find voucher by code (case-insensitive) 
         $voucher_id=0;
          
@@ -270,11 +281,16 @@ class BookingController extends Controller
             $voucher_id = $voucher_data['id'];
         }
         
-        $booking_data->voucher_id = $voucher_id;      
-        $booking_data->total_amount = $total_amount;      
-        $booking_data->discount_amount = $discount_amount;      
-        $booking_data->voucher_amount = $voucher_amount;            
-        $booking_data->payment_method = $payment_method;            
+       $booking_data->voucher_id = $voucher_id;
+        $booking_data->discount_amount = $discount_amount;
+        $booking_data->voucher_amount = $voucher_amount;
+        $booking_data->payment_method = $payment_method;
+
+        // Adjust total_amount by subtracting voucher_amount if valid
+        $voucher_amount = (isset($voucher_amount) && is_numeric($voucher_amount) && $voucher_amount > 0)
+            ? floatval($voucher_amount)
+            : 0;
+        $booking_data->total_amount = max(0, floatval($total_amount) - $voucher_amount);            
         $booking_data->expiration_time = date('Y-m-d H:i:s', strtotime($booking_data->created_at . ' +15 minutes'));
     	$booking_data->save();
         $order_id = $booking_no;
@@ -306,8 +322,11 @@ class BookingController extends Controller
             
         // Build the string for secure hash calculation
         // Note: The parameters must be sorted alphabetically by key
+        $voucher_amount = (isset($order_data->voucher_amount) && is_numeric($order_data->voucher_amount))
+    ? floatval($order_data->voucher_amount)
+    : 0;
         $params = [
-            'Amount'            => number_format($order_data->total_amount,3, '.', ''),
+           'Amount' => number_format($order_data->total_amount - $voucher_amount, 3, '.', ''),
             'CurrencyId'        => $currencyId,
             'MerchantId'        => $merchantId,
             'MerchantReference' => $merchantReference,
@@ -384,6 +403,18 @@ class BookingController extends Controller
             $order_data->transactionId = $transactionId;
             $order_data->hostTransactionId = $hostTransactionId; 
             $order_data->save();
+
+
+            $contact= Customer::where('id', $order_data->customer_id)->value('phone_number');
+            
+            $smsParams = [
+                'sms_status' => 1, // assuming 1 is for new appointment
+                'booking_id' =>  $order_data->id,
+               
+            ];
+
+            $sms = get_sms($smsParams);
+            sms_module( $contact, $sms);
  
             
             session()->forget('order_id');
@@ -415,6 +446,17 @@ class BookingController extends Controller
 
 
                 $add_data = Carbon::parse($booking->created_at)->format('d-m-Y (h:i a)');
+
+
+                $locationIds = json_decode($booking->location_id, true);
+
+                if (!is_array($locationIds)) {
+                    $locationIds = [$locationIds];
+                }
+
+                $locations = Location::whereIn('id', $locationIds)->pluck('location_name')->toArray();
+                $locationNames = implode(', ', $locations);          
+
                 $location = Location::where('id', $booking->location_id)->value('location_name');
                 $customer = User::where('id', $booking->user_id)->value('user_name');
                 $customer_phone = User::where('id', $booking->user_id)->value('user_phone');
@@ -445,22 +487,25 @@ class BookingController extends Controller
 
 
                 $sno++;
-                $json[] = array(
-                    '<span class="booking-info ps-0">' . $sno . '</span>',
-                    '<span class="text-nowrap ms-2"> ' . $booking->booking_no . '</span>',
-                    '<span class="text-nowrap ms-2"> ' . $booking_date . '</span>',
-                    '<span class="text-primary">' . $customer . '</span>',
-                    '<span class="text-primary">' . $customer_phone . '</span>',
-                    '<span class="text-primary">' . $location . '</span>',
-                    '<span class="text-primary">' . $booking_status . '</span>',
-                    '<span class="text-primary">' . $booking->visits_count . '</span>',
-                    '<span class="text-primary">' . $booking->duration . '</span>',
-                    '<span class="text-primary">' . $package . '</span>',
-                    '<span class="text-primary">' . $package_price . '</span>',
-                    '<span>' . $booking->added_by . '</span>',
-                    '<span>' . $add_data . '</span>',
-                    $modal
-                );
+    $json[] = array(
+    '<span class="booking-info ps-0">' . $sno . '</span>',
+    '<a href="' . url('booking_profile/' . $booking->id) . '" class="text-decoration-none text-primary fw-bold">
+        ' . $booking->booking_no . '
+     </a>',
+    '<span class="text-nowrap ms-2"> ' . $booking_date . '</span>',
+    '<span class="text-primary">' . $customer . '</span>',
+    '<span class="text-primary">' . $customer_phone . '</span>',
+    '<span class="text-primary">' . $locationNames . '</span>',
+    '<span class="text-primary">' . $booking_status . '</span>',
+    '<span class="text-primary">' . $booking->visits_count . '</span>',
+    '<span class="text-primary">' . $booking->duration . '</span>',
+    '<span class="text-primary">' . $package . '</span>',
+    '<span class="text-primary">' . $package_price . '</span>',
+    '<span>' . $booking->added_by . '</span>',
+    '<span>' . $add_data . '</span>',
+    $modal
+);
+
             }
 
             return response()->json(['success' => true, 'aaData' => $json]);
@@ -620,11 +665,12 @@ class BookingController extends Controller
         $visit->added_by = 'System';
         $visit->save();
 
-        return response()->json([
-            'ok'      => true,
-            'message' => 'Visit created successfully',
-            'visit'   => $visit,
-        ]);
+     return response()->json([
+    'ok'      => true,
+    'message' => trans('messages.visit_created_success', [], session('locale')),
+    'visit'   => $visit,
+]);
+
     }
 
 
@@ -679,7 +725,7 @@ class BookingController extends Controller
 
         return response()->json([
             'ok'      => true,
-            'message' => 'Visit created successfully',
+          'message' => trans('messages.visit_created_success', [], session('locale')),
             'visit'   => $visit,
         ]);
     }
@@ -745,4 +791,91 @@ class BookingController extends Controller
 
         return response()->json($data);
     }
+
+
+
+    public function booking_profile($id){
+
+        $booking= Booking::where('id', $id)->first();
+        $customer_name= Customer::where('id', $booking->customer_id)->value('customer_name');
+        $phone= Customer::where('id', $booking->customer_id)->value('phone_number');
+
+        return view ('bookings.booking_profile', compact('booking', 'customer_name', 'phone'));
+    }
+
+
+    public function show_booking_visits(Request $request)
+    {
+        $sno = 0;
+                $bookingId = $request->input('booking_id'); 
+             
+        $visits = Visit::where('booking_id', $bookingId)->get(); // No user-type filtering
+
+        if ($visits->count() > 0) {
+            foreach ($visits as $visit) {
+             
+                $modal = '
+                <a href="javascript:void(0);" class="me-3 edit-staff" data-bs-toggle="modal" data-bs-target="#add_visit_modal" onclick=edit_visit("' . $visit->id . '")>
+                    <i class="fa fa-pencil fs-18 text-success"></i>
+                </a>
+                   <a href="javascript:void(0);" class="me-3 " data-bs-toggle="modal" data-bs-target="#add_condition_modal" onclick=condition("' . $visit->id . '")>
+                    <i class="fa fa-book fs-18 text-success"></i>
+                </a>
+                <a href="javascript:void(0);" onclick=del("' . $visit->id . '")>
+                    <i class="fa fa-trash fs-18 text-danger"></i>
+                </a>';
+
+                $add_data = Carbon::parse($visit->created_at)->format('d-m-Y (h:i a)');
+                $location_id = Booking::where('id', $visit->booking_id)->value('location_id');
+                $location = Location::where('id', $location_id)->value('location_name');
+                $booking_no = Booking::where('id', $visit->booking_id)->value('booking_no');
+                $customer = User::where('id', $visit->user_id)->value('user_name');
+                $visit_date = Carbon::parse($visit->visit_date)->format('d-m-Y');
+                $worker = Worker::where('id', $visit->worker_id)->value('worker_name');
+
+        $visit_status = '';
+
+                if ($visit->status == 1) {
+                    $visit_status = '<span class="badge bg-warning text-dark">
+                                        ' . trans('messages.pending', [], session('locale')) . '
+                                    </span>';
+                } elseif ($visit->status == 2) {
+                    $visit_status = '<span class="badge bg-success">
+                                        ' . trans('messages.completed', [], session('locale')) . '
+                                    </span>';
+                } elseif ($visit->status == 3) {
+                    $visit_status = '<span class="badge bg-danger">
+                                        ' . trans('messages.cancelled', [], session('locale')) . '
+                                    </span>';
+                } else {
+                    $visit_status = '<span class="badge bg-secondary">
+                                        -
+                                    </span>';
+                }
+
+
+
+                $sno++;
+                $json[] = array(
+                    '<span class="visit-info ps-0">' . $sno . '</span>',
+                    '<span class="text-nowrap ms-2"> ' . $booking_no . '</span>',
+                    '<span class="text-nowrap ms-2"> ' . $visit_date . '</span>',
+                    '<span class="text-primary">' . $customer . '</span>',
+                    '<span class="text-primary">' . $location . '</span>',
+                    '<span class="text-primary">' . $visit_status . '</span>',
+                    '<span class="text-primary">' . $worker . '</span>',
+                    '<span class="text-primary">' . $visit->shift . '</span>',
+                    '<span class="text-primary">' . $visit->duration . '</span>',
+                    '<span>' . $visit->added_by . '</span>',
+                    '<span>' . $add_data . '</span>',
+                    $modal
+                );
+            }
+
+            return response()->json(['success' => true, 'aaData' => $json]);
+        }
+
+        return response()->json(['sEcho' => 0, 'iTotalRecords' => 0, 'iTotalDisplayRecords' => 0, 'aaData' => []]);
+    }
+
 }

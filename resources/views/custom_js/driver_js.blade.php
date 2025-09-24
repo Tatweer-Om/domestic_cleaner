@@ -10,13 +10,31 @@
     $('#removeImage').hide();
     });
 
-    $('#all_drivers').DataTable({
-        "sAjaxSource": "{{ url('show_driver') }}",
-        "bFilter": true,
-        'pagingType': 'numbers',
-        "ordering": true,
-        "order": [[6, "desc"]]
-    });
+$('#all_drivers').DataTable({
+    "sAjaxSource": "{{ url('show_driver') }}",
+    "bFilter": true,
+    'pagingType': 'numbers',
+    "ordering": true,
+    "order": [[6, "desc"]],
+    "language": {
+        "sEmptyTable": "{{ trans('messages.no_data_available', [], session('locale')) }}",
+        "sInfo": "{{ trans('messages.showing_entries', [], session('locale')) }}",
+        "sInfoEmpty": "{{ trans('messages.no_entries', [], session('locale')) }}",
+        "sInfoFiltered": "{{ trans('messages.filtered_from_total', [], session('locale')) }}",
+        "sLengthMenu": "{{ trans('messages.show_menu_entries', [], session('locale')) }}",
+        "sLoadingRecords": "{{ trans('messages.loading', [], session('locale')) }}",
+        "sProcessing": "{{ trans('messages.processing', [], session('locale')) }}",
+        "sSearch": "{{ trans('messages.search', [], session('locale')) }}",
+        "sZeroRecords": "{{ trans('messages.no_matching_records', [], session('locale')) }}",
+        "oPaginate": {
+            "sFirst": "{{ trans('messages.first', [], session('locale')) }}",
+            "sLast": "{{ trans('messages.last', [], session('locale')) }}",
+            "sNext": "{{ trans('messages.next', [], session('locale')) }}",
+            "sPrevious": "{{ trans('messages.previous', [], session('locale')) }}"
+        }
+    }
+});
+
 
     $('.add_driver') .off('submit').on('submit', function(e) {
         e.preventDefault();
@@ -101,8 +119,15 @@ function edit(id) {
                 $('.driver_user_id').selectpicker('refresh');
                   $(".shift").val(fetch.shift).trigger('change');
                 $('.shift').selectpicker('refresh');
+                    if (Array.isArray(fetch.location_id)) {
                     $(".location_id").val(fetch.location_id).trigger('change');
-                $('.location_id').selectpicker('refresh');
+                    $('.location_id').selectpicker('refresh');
+                }
+                if(fetch.whatsapp_notification == 1){
+    $('#enable_whatsapp').prop('checked', true);
+} else {
+    $('#enable_whatsapp').prop('checked', false);
+}
                 $('#checked_html').html(fetch.checked_html);
                 $(".modal-title").html('<?php echo trans('messages.update_lang',[],session('locale')); ?>');
             }
@@ -188,5 +213,13 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
-
+$(document).ready(function() {
+    $('.selectpicker').selectpicker({
+        selectAllText: 'Select All', // Text for "select all" option
+        deselectAllText: 'Deselect All', // Text for "deselect all" option
+        multipleSeparator: ', ', // Separator for selected items in the display
+        maxOptions: 5, // Optional: Limit the number of selections
+        selectedTextFormat: 'count > 3' // Show count if more than 3 items are selected
+    });
+});
 </script>

@@ -84,21 +84,21 @@
                                 <table id="worker_users"
                                     class="table table-striped table-hover mb-4 dataTablesCard fs-14 align-middle text-nowrap">
                                     <thead class="bg-light text-dark">
-                                        <tr>
-                                            <th><i class="fa fa-hashtag me-1 text-primary"></i>
-                                                {{ trans('messages.sr_no') }}</th>
-                                            <th><i class="fa fa-user me-1 text-primary"></i>
-                                                {{ trans('messages.user_name') }}</th>
-                                            <th><i class="fa fa-phone me-1 text-success"></i> {{ trans('messages.phone') }}
-                                            </th>
-                                            <th><i class="fa fa-users-cog me-1 text-warning"></i>
-                                                {{ trans('messages.user_type') }}</th>
-                                            <th><i class="fa fa-user-shield me-1 text-info"></i>
-                                                {{ trans('messages.added_by') }}</th>
-                                            <th><i class="fa fa-calendar me-1 text-danger"></i>
-                                                {{ trans('messages.added_on') }}</th>
-                                       
-                                        </tr>
+                                  <tr>
+    <th><i class="fa fa-hashtag me-1 text-primary"></i>
+        {{ trans('messages.sr_no', [], session('locale')) }}</th>
+    <th><i class="fa fa-user me-1 text-primary"></i>
+        {{ trans('messages.user_name', [], session('locale')) }}</th>
+    <th><i class="fa fa-phone me-1 text-success"></i>
+        {{ trans('messages.phone', [], session('locale')) }}</th>
+    <th><i class="fa fa-users-cog me-1 text-warning"></i>
+        {{ trans('messages.user_type', [], session('locale')) }}</th>
+    <th><i class="fa fa-user-shield me-1 text-info"></i>
+        {{ trans('messages.added_by', [], session('locale')) }}</th>
+    <th><i class="fa fa-calendar me-1 text-danger"></i>
+        {{ trans('messages.added_on', [], session('locale')) }}</th>
+</tr>
+
                                     </thead>
                                     <tbody>
                                         {{-- Dynamic rows rendered via JS or Blade --}}

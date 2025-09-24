@@ -444,7 +444,7 @@
                         <td>OMR <span id="voucher-discount-amount">0.00</span></td>
                     </tr>
                     <tr class="total-row">
-                        <input type="hidden" class="total_amount" value="{{ number_format($booking_details['total_amount'] ?? 0, 3) }}">
+                        <input type="hidden" class="total_amount" id="total_amount" value="{{ number_format($booking_details['total_amount'] ?? 0, 3) }}">
                         <th scope="row">{{ trans('messages.total_amount', [], session('locale')) }}</th>
                         <td>OMR <span id="total-amount">{{ number_format($booking_details['total_amount'] ?? 0, 2) }}</span></td>
                     </tr>
@@ -499,14 +499,14 @@
                     </div>
                 </div> --}}
             </div>
-                <div class="form-check mt-4 text-start">
-                    <input class="form-check-input" type="checkbox" id="accept-policy">
-                    <label class="form-check-label" for="accept-policy">
-                        {{ trans('messages.i_accept_policy', [], session('locale')) }}
-                        <a href="{{ url('policy') }}" target="_blank">
-                            {{ trans('messages.view_policy', [], session('locale')) }}
-                        </a>
-                    </label>
+              <div class="form-check mt-4 text-start">
+                <input class="form-check-input" type="checkbox" id="accept-policy">
+                <label class="form-check-label" for="accept-policy">
+                    {{ trans('messages.i_accept_policy', [], session('locale')) }}
+                    <a href="#" id="view-policy-link" data-bs-toggle="modal" data-bs-target="#privacyPolicyModal">
+                    {{ trans('messages.view_policy', [], session('locale')) }}
+                    </a>
+                </label>
                 </div>
             <!-- Pay Now Button -->
             <div class="mt-4 text-center">
@@ -552,7 +552,27 @@
         </div>
     </div>
 </div>
-
+<!-- Privacy Policy Modal -->
+<div class="modal fade" id="privacyPolicyModal" tabindex="-1" role="dialog" aria-labelledby="privacyPolicyModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="privacyPolicyModalLabel">{{ trans('messages.privacy_policy', [], session('locale')) }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Privacy policy content will be loaded here -->
+        <div id="privacy-policy-content">
+          <p>Loading privacy policy...</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" id="accept-policy-btn">Accept</button>
+      </div>
+    </div>
+  </div>
+</div>
 <script>
 (function () {
   function toggleEntry(entry, checked) {

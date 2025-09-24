@@ -85,15 +85,13 @@ class HomeController extends Controller
     public function login_page(){
         return view ('pages.login');
     }
-
-    public function switchLanguage($locale)
+public function switchLanguage(Request $request)
 {
-    app()->setLocale($locale);
-    config(['app.locale' => $locale]);
-    // You can store the chosen locale in session for persistence
+    $locale = $request->get('locale', 'en'); // default to English if not provided
     session(['locale' => $locale]);
+    app()->setLocale($locale);
 
-    return redirect()->back(); // or any other redirect you want
+    return redirect()->back();
 }
 
 public  function login_error(){

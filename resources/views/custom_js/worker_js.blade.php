@@ -13,13 +13,27 @@ $(function () {
   }
 
   // === DataTable ===
-  const workersTable = $('#all_workers').DataTable({
+const workersTable = $('#all_workers').DataTable({
     ajax: { url: LIST_URL, type: 'GET' },
     bFilter: true,
     pagingType: 'numbers',
     ordering: true,
-    order: [[7, 'desc']]
-  });
+    order: [[7, 'desc']],
+    language: {
+        search: "{{ trans('messages.search', [], session('locale')) }}",
+        lengthMenu: "{{ trans('messages.show_entries', [], session('locale')) }}",
+        info: "{{ trans('messages.showing_entries', [], session('locale')) }}",
+        infoEmpty: "{{ trans('messages.no_entries', [], session('locale')) }}",
+        infoFiltered: "{{ trans('messages.filtered_from', [], session('locale')) }}",
+        zeroRecords: "{{ trans('messages.no_matching_records', [], session('locale')) }}",
+        paginate: {
+            first: "{{ trans('messages.first', [], session('locale')) }}",
+            last: "{{ trans('messages.last', [], session('locale')) }}",
+            next: "{{ trans('messages.next', [], session('locale')) }}",
+            previous: "{{ trans('messages.previous', [], session('locale')) }}"
+        }
+    }
+});
 
   // === Helpers ===
   function isTextInput(el) {
@@ -158,17 +172,12 @@ $(function () {
         return;
       }
       if (!status) {
-        show_notification('error', '{{ trans('messages.please_select_worker_status', [], session('locale')) }}');
-        return;
+        show_notification('error', '<?php echo trans('messages.select_worker_status',[],session('locale')); ?>');        return;
       }
 
-      // Build payload (FormData picks up file + all inputs including name="location_id")
       const formData = new FormData($form[0]);
       formData.set('status', status);
-      // If your Blade form already has @csrf, _token is included automatically.
-
-      // Optional: debug what’s being sent (remove in prod)
-      // for (const [k, v] of formData.entries()) console.log(k, v);
+   
 
       showPreloader();
       before_submit();
@@ -218,12 +227,7 @@ $(function () {
       });
     });
 
-  // === If you set values programmatically in edit flow, refresh selectpicker ===
-  // Example (call this after you fill the form with fetched data):
-  // $form.find('select.location_id').val(locationId);
-  // if ($.fn.selectpicker) $form.find('select.location_id').selectpicker('refresh');
-  // $form.find('select.worker_user_id').val(userId);
-  // if ($.fn.selectpicker) $form.find('select.worker_user_id').selectpicker('refresh');
+ 
 });
 
 
@@ -250,12 +254,13 @@ function edit(id) {
                 $(".worker_image").attr("src", fetch.worker_image);
                   $(".worker_user_id").val(fetch.worker_user_id).trigger('change');
                 $('.worker_user_id').selectpicker('refresh');
-                 $(".location_id").val(fetch.location_id).trigger('change');
-                $('.location_id').selectpicker('refresh');
+              if (Array.isArray(fetch.location_id)) {
+                    $(".location_id").val(fetch.location_id).trigger('change');
+                    $('.location_id').selectpicker('refresh');
+                }
                   $(".shift").val(fetch.shift).trigger('change');
                 $('.shift').selectpicker('refresh');
-                    $(".location_id").val(fetch.location_id).trigger('change');
-                $('.location_id').selectpicker('refresh');
+            
                 // Set status radio
                 if (fetch.status) {
                   $('input[name="status"][value="' + fetch.status + '"]').prop('checked', true);
@@ -318,5 +323,13 @@ function del(id) {
 
 
 
-
+$(document).ready(function() {
+    $('.selectpicker').selectpicker({
+        selectAllText: 'Select All', // Text for "select all" option
+        deselectAllText: 'Deselect All', // Text for "deselect all" option
+        multipleSeparator: ', ', // Separator for selected items in the display
+        maxOptions: 5, // Optional: Limit the number of selections
+        selectedTextFormat: 'count > 3' // Show count if more than 3 items are selected
+    });
+});
 </script>

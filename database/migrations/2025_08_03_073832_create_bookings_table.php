@@ -17,7 +17,7 @@ return new class extends Migration
             $table->integer('worker_id')->nullable();
             $table->integer('package_id')->nullable();
             $table->string('booking_no')->nullable();
-            $table->integer('location_id')->nullable();
+            $table->string('location_id')->nullable();
             $table->date('start_date')->nullable();
             $table->integer('duration')->nullable(); // Changed from unsignedTinyInteger
             $table->integer('visits_count')->nullable(); // Changed from unsignedInteger
