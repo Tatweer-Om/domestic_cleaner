@@ -896,4 +896,7 @@
             console.log("{{ trans('messages.no_slide_items_found', [], session('locale')) }}");
         }
     }
+
+
+    
 </script>

@@ -59,9 +59,9 @@
                     <h4 class="mb-1 text-primary d-flex align-items-center">
                         <i class="fas fa-list-alt me-2 fs-5"></i> {{ trans('messages.expense_category_lang', [], session('locale')) }}
                     </h4>
-                    <p class="text-muted mb-0 small">
+                    <!-- <p class="text-muted mb-0 small">
                         {{ trans('messages.manage_expense_category_description', [], session('locale')) }}
-                    </p>
+                    </p> -->
                 </div>
                 <a href="javascript:void(0);" class="btn btn-success btn-rounded d-flex align-items-center mt-3 mt-md-0"
                    data-bs-toggle="modal" data-bs-target="#add_expense_category_modal">

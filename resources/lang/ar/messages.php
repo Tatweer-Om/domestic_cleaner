@@ -799,6 +799,7 @@ return [
     'permissions_sms'      => 'صلاحيات الرسائل النصية',
     'permissions_account'  => 'صلاحيات الحساب',
     'permissions_customer' => 'صلاحيات العملاء',
+    'driver_credentials' => 'بيانات اعتماد السائق',
 'close'           => 'إغلاق',
 'save'            => 'حفظ',
 'delete_lang'         => 'هل تريد فعلاً حذف هذا السجل؟',
@@ -806,6 +807,18 @@ return [
 'delete_failed_lang'  => 'فشل في حذف السجل. حاول مرة أخرى.',
 'delete_success_lang' => 'تم حذف السجل بنجاح.',
 'safe_lang'           => 'سجلك آمن.',
+'add_expense_category_lang'   => 'إضافة فئة مصروفات',
+'expense_category_name_lang'  => 'اسم فئة المصروفات',
+'close'                       => 'إغلاق',
+'submit'                      => 'إرسال',
+'expense_lang' => 'المصروف',
+'expense_lang' => 'المصروف',
+'manage_expense_description' => 'إدارة ومتابعة جميع المصروفات الخاصة بك بسهولة وفعالية',
+'add_expense_lang' => 'إضافة مصروف',
+'type_lang' => 'النوع',
+'price_4_lang' => 'سعر 4 ساعات',
+'price_5_lang' => 'سعر 5 ساعات',
+'customer_number' => 'رقم العميل',
 
 
 

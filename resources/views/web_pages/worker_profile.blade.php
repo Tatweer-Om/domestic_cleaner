@@ -1054,6 +1054,7 @@
                                         </label>
                                     </div>
                                 </div>
+                                    <div class="col-lg-12 col-12 mt-3" id="packagePriceBox"></div>
 
                                 <div class="col-12 mt-4">
                                     <button type="submit" class="btn btn-success rounded-3 w-100 py-2 fw-semibold" id="generateBtn">

@@ -433,4 +433,28 @@ public function service_section(Request $request)
   //     ], 200);
   //   }
   // }
+
+
+  // In your controller
+public function check_package_price(Request $request)
+{
+
+  
+    $package_id = $request->input('package_id');
+    $package = Package::find($package_id);
+
+    if (!$package) {
+        return response()->json([
+            'ok' => false,
+            'message' => trans('messages.package_not_found', [], session('locale'))
+        ]);
+    }
+
+    return response()->json([
+        'ok' => true,
+        'price_4h' => $package->package_price_4, // adjust column name
+        'price_5h' => $package->package_price_5, // adjust column name
+    ]);
+}
+
 }
