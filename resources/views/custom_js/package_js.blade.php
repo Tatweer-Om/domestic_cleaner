@@ -6,13 +6,28 @@
                 $('.package_id').val('');
     });
 
-            $('#all_package').DataTable({
-                "sAjaxSource": "{{ url('show_package') }}",
-                "bFilter": true,
-                'pagingType': 'numbers',
-                "ordering": true,
-                "order": [[6, "dsc"]]
-            });
+         $('#all_package').DataTable({
+    "sAjaxSource": "{{ url('show_package') }}",
+    "bFilter": true,
+    'pagingType': 'numbers',
+    "ordering": true,
+    "order": [[6, "desc"]],
+    "language": {
+        "search": "{{ trans('messages.search', [], session('locale')) }}",
+        "lengthMenu": "{{ trans('messages.show_entries', [], session('locale')) }}",
+        "zeroRecords": "{{ trans('messages.no_matching_records', [], session('locale')) }}",
+        "info": "{{ trans('messages.showing_entries', [], session('locale')) }}",
+        "infoEmpty": "{{ trans('messages.no_entries', [], session('locale')) }}",
+        "infoFiltered": "{{ trans('messages.filtered_from_total', [], session('locale')) }}",
+        "paginate": {
+            "first": "{{ trans('messages.first', [], session('locale')) }}",
+            "last": "{{ trans('messages.last', [], session('locale')) }}",
+            "next": "{{ trans('messages.next', [], session('locale')) }}",
+            "previous": "{{ trans('messages.previous', [], session('locale')) }}"
+        }
+    }
+});
+
 
         $('.add_package').off().on('submit', function (e) {
         e.preventDefault();

@@ -105,7 +105,7 @@ if ($locale == 'ar') {
 
                         <ul class="navbar-nav header-right">
 
-                            <li class="nav-item dropdown notification_dropdown">
+                            <!-- <li class="nav-item dropdown notification_dropdown">
                                 <a class="nav-link  ai-icon" href="javascript:;" role="button"
                                     data-bs-toggle="dropdown">
                                     <svg width="25" height="25" viewBox="0 0 26 26" fill="none"
@@ -132,7 +132,7 @@ if ($locale == 'ar') {
                                         </ul>
                                     </div>
                                 </div>
-                            </li>
+                            </li> -->
 
                             <li class="nav-item dropdown notification_dropdown">
                                 <a class="nav-link bell dz-theme-mode" href="javascript:void(0);">

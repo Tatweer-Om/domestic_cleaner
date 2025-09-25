@@ -58,16 +58,16 @@
 <div class="form-head d-flex justify-content-between align-items-center mb-4 p-4 rounded bg-light flex-wrap shadow-sm">
     <div>
         <h4 class="mb-1 text-primary d-flex align-items-center">
-            <i class="fas fa-box-open me-2 fs-5"></i> {{ trans('messages.packages_lang', [], session('locale')) }}
+            <i class="fas fa-box-open me-2 fs-5"></i> {{ trans('messages.expense_lang', [], session('locale')) }}
         </h4>
         <p class="text-muted mb-0 small">
-            {{ trans('messages.manage_packages_description', [], session('locale')) }}
+            {{ trans('messages.manage_expense_description', [], session('locale')) }}
         </p>
     </div>
 
     <a href="javascript:void(0);" class="btn btn-success btn-rounded d-flex align-items-center mt-3 mt-md-0"
-       data-bs-toggle="modal" data-bs-target="#add_package_modal">
-        <i class="fas fa-plus-circle me-2"></i> {{ trans('messages.add_package_lang', [], session('locale')) }}
+       data-bs-toggle="modal" data-bs-target="#add_expense_modal">
+        <i class="fas fa-plus-circle me-2"></i> {{ trans('messages.add_expense_lang', [], session('locale')) }}
     </a>
 </div>
 

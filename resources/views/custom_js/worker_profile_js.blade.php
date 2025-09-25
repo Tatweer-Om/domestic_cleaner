@@ -989,4 +989,45 @@ if (res.package_price !== null) {
     }
   });
 });
+
+
+ $(document).ready(function() {
+    $('#packageSelect').on('change', function() {
+        var packageId = $(this).val();
+        if (!packageId) {
+            $('#packagePriceBox').html('');
+            return;
+        }
+
+        $.ajax({
+            url: "{{ route('check_package_price') }}",
+            method: 'POST',
+            data: {
+                _token: "{{ csrf_token() }}",
+                package_id: packageId
+            },
+            success: function(res) {
+                if (res.ok) {
+                    let html = `
+                        <div class="d-flex gap-2 flex-wrap mt-2 justify-content-start">
+                            <span class="badge bg-success">
+                                4h Price: ${res.price_4h} OMR
+                            </span>
+                            <span class="badge bg-info">
+                                5h Price: ${res.price_5h} OMR
+                            </span>
+                        </div>
+                    `;
+                    $('#packagePriceBox').html(html);
+                } else {
+                    $('#packagePriceBox').html('<div class="text-danger">' + res.message + '</div>');
+                }
+            },
+            error: function() {
+                $('#packagePriceBox').html('<div class="text-danger">{{ trans("messages.failed_to_check_package_price", [], session("locale")) }}</div>');
+            }
+        });
+    });
+});
+
 </script>

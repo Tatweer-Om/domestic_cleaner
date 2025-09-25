@@ -40,6 +40,7 @@ return [
     'permissions_sms'      => 'SMS Permissions',
     'permissions_account'  => 'Account Permissions',
     'permissions_customer' => 'Customer Permissions',
+    'driver_credentials' => 'Driver Credentials',
     'drivers_lang' => 'Drivers',
     'add_driver' => 'Add Driver',
     'sr_no' => 'Sr No',
@@ -141,7 +142,9 @@ return [
     'expense_lang' => 'Expense',
     'manage_expense_description' => 'View, track, and manage all expense records easily.',
     'manage_expense_category_description' => 'Manage and create categories to organize your expenses.',
-
+'expense_lang' => 'Expense',
+'manage_expense_description' => 'Manage and track all your expenses easily and effectively',
+'add_expense_lang' => 'Add Expense',
     'add_expense_category_lang' => 'Add Expense Category',
     'expense_category_name_lang' => 'Expense Category Name',
     'add_data_lang' => 'Add Account',

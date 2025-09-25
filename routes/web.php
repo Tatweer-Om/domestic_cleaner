@@ -180,6 +180,7 @@ Route::get('worker_profile/{id}', [WebController::class, 'worker_profile'])->nam
 Route::get('/worker-slides',  [WebController::class, 'worker_slides'])->name('worker.slides'); // AJAX
 Route::get('service_page',  [WebController::class, 'service_page'])->name('service_page'); // AJAX
 Route::get('service_section',  [WebController::class, 'service_section'])->name('service_section'); // AJAX
+Route::post('/check-package-price', [WebController::class, 'check_package_price'])->name('check_package_price');
 
 Route::get('about',  [WebController::class, 'about'])->name('about'); // AJAX
 Route::get('contact',  [WebController::class, 'contact'])->name('contact'); // AJAX
