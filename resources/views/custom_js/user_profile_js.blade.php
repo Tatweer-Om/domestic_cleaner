@@ -191,10 +191,14 @@ $(document).ready(function () {
             </div>
             <div class="col-auto">
               <label class="small text-muted me-1">Shift</label>
-              <select class="form-select form-select-sm edit-shift">
-                <option value="Morning" ${v.shift === 'Morning' ? 'selected' : ''}>Morning</option>
-                <option value="Evening" ${v.shift === 'Evening' ? 'selected' : ''}>Evening</option>
-              </select>
+          <select class="form-select form-select-sm edit-shift">
+            <option value="Morning" ${v.shift === 'Morning' ? 'selected' : ''}>
+                <?php echo trans('messages.morning_shift', [], session('locale')); ?>
+            </option>
+            <option value="Evening" ${v.shift === 'Evening' ? 'selected' : ''}>
+                <?php echo trans('messages.evening_shift', [], session('locale')); ?>
+            </option>
+        </select>
             </div>
           </div>
         </div>
@@ -229,8 +233,9 @@ $(document).ready(function () {
       },
       error: function (xhr) {
         console.error("Error loading visits:", xhr.responseText);
-        $('#visits-pane').html('<p class="text-danger p-3">Failed to load visits.</p>');
-      }
+$('#visits-pane').html(
+    '<p class="text-danger p-3"><?php echo trans('messages.failed_to_load_visits', [], session('locale')); ?></p>'
+);      }
     });
   }
 
@@ -242,7 +247,10 @@ function user_feedback() {
     data: { user_id: userId },
     success: function (res) {
       if (!res.ok || !Array.isArray(res.bookings) || res.bookings.length === 0) {
-        $('#workers-pane').html('<p class="text-muted p-3">No active bookings found.</p>');
+      $('#workers-pane').html(
+    '<p class="text-muted p-3"><?php echo trans('messages.no_active_bookings_found', [], session('locale')); ?></p>'
+);
+
         return;
       }
 

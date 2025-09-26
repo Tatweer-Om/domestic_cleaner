@@ -190,13 +190,13 @@ return [
   'image' => 'صورة',
   'close' => 'إغلاق',
   'add_data' => 'إضافة البيانات',
-  // resources/lang/en/messages.php
+  // resources/lang/en/php
   'oman_net_alt' => 'OmanNET Logo',
   'visa_alt' => 'Visa Logo',
   'mastercard_alt' => 'MasterCard Logo',
   'paypal_alt' => 'PayPal Logo',
 
-  // resources/lang/ar/messages.php
+  // resources/lang/ar/php
   'oman_net_alt' => 'شعار عمان نت',
   'visa_alt' => 'شعار فيزا',
   'mastercard_alt' => 'شعار ماستركارد',
@@ -819,7 +819,122 @@ return [
 'price_4_lang' => 'سعر 4 ساعات',
 'price_5_lang' => 'سعر 5 ساعات',
 'customer_number' => 'رقم العميل',
+'price_4_lang' => 'سعر ٤ ساعات',
+'price_5_lang' => 'سعر ٥ ساعات',
+'please_login_first' => 'الرجاء تسجيل الدخول أولاً',
+'permission_denied' => 'تم رفض الإذن',
+    'all' => 'الكل',
+        'get_data_failed_lang' => 'فشل في جلب البيانات. يرجى المحاولة مرة أخرى.',
+           'add_visit_name_lang'      => 'الرجاء اختيار تاريخ الزيارة.',
+    'add_duration_lang'        => 'الرجاء إدخال المدة.',
+    'add_hours_lang'           => 'الرجاء إدخال الساعات.',
+    'add_worker_lang'          => 'الرجاء اختيار العامل.',
+    'add_shift_lang'           => 'الرجاء اختيار الوردية.',
 
+    // Success / failure
+    'data_update_success_lang' => 'تم تحديث البيانات بنجاح.',
+    'data_add_success_lang'    => 'تمت إضافة البيانات بنجاح.',
+    'data_update_failed_lang'  => 'فشل في تحديث البيانات.',
+    'data_add_failed_lang'     => 'فشل في إضافة البيانات.',
+
+    // Voucher
+    'provide_voucher_code_lang'=> 'الرجاء إدخال رمز القسيمة.',
+    'data_voucher_success_lang'=> 'تم تطبيق القسيمة بنجاح.',
+
+    // Policy
+    'please_accept_privacy_policy' => 'الرجاء قبول سياسة الخصوصية.',
+
+    // Update
+    'update_lang'              => 'تحديث',
+
+    // Edit
+    'edit_failed_lang'         => 'فشل في تحميل البيانات للتعديل.',
+
+    // Save
+    'saved_successfully'       => 'تم الحفظ بنجاح.',
+    'save_failed_lang'         => 'فشل في الحفظ. يرجى المحاولة مرة أخرى.',
+
+    // Delete
+    'sure_lang'                => 'هل أنت متأكد؟',
+    'delete_lang'              => 'لا يمكن التراجع عن هذا الإجراء!',
+    'delete_it_lang'           => 'نعم، احذفها!',
+    'delete_failed_lang'       => 'فشل في الحذف.',
+    'delete_success_lang'      => 'تم الحذف بنجاح.',
+    'safe_lang'                => 'بياناتك في أمان.',
+        'cancel_lang'          => 'سيؤدي هذا الإجراء إلى إلغاء الحجز!',
+    'cancel_it_lang'       => 'نعم، قم بالإلغاء!',
+    'cancel_failed_lang'   => 'فشل في إلغاء الحجز.',
+    'cancel_success_lang'  => 'تم إلغاء الحجز بنجاح.',
+'add_driver_name_lang'   => 'يرجى إدخال اسم السائق',  
+'add_driver_phone_lang'  => 'يرجى إدخال رقم هاتف السائق',  
+'add_driver_user_id_lang'=> 'يرجى اختيار معرف المستخدم للسائق',
+
+'data_update_success_lang' => 'تم تحديث السائق بنجاح',  
+'data_add_success_lang'    => 'تمت إضافة السائق بنجاح',  
+'data_update_failed_lang'  => 'فشل في تحديث السائق',  
+'data_add_failed_lang'     => 'فشل في إضافة السائق',
+'no_data'                  => 'لا توجد بيانات متاحة',
+'no_visits_today'          => 'لا توجد زيارات مجدولة لليوم',
+'no_visits_next24'         => 'لا توجد زيارات خلال الـ 24 ساعة القادمة',
+'no_visits_this_week'      => 'لا توجد زيارات مجدولة هذا الأسبوع',
+
+'mark_visit_completed'     => 'هل تريد تأكيد إتمام الزيارة؟',
+'update_status_completed'  => 'هل تريد تحديث الحالة إلى مكتمل؟',
+'confirm'                  => 'تأكيد',
+'cancel'                   => 'إلغاء',
+'visit_marked_completed'   => 'تم تأكيد إتمام الزيارة بنجاح',
+'error_general'            => 'خطأ',
+'could_not_update_status'  => 'تعذر تحديث الحالة، يرجى المحاولة مرة أخرى',
+ 'add_location_name_lang'    => 'الرجاء إدخال اسم الموقع',
+    'add_location_fare_lang'    => 'الرجاء إدخال أجرة الموقع',
+    'add_location_polygon_lang' => 'الرجاء إدخال أو رسم مضلع الموقع',
+
+    // Success Messages
+    'data_update_success_lang'  => 'تم تحديث الموقع بنجاح',
+    'data_add_success_lang'     => 'تمت إضافة الموقع بنجاح',
+
+    // Error Messages
+    'data_update_failed_lang'   => 'فشل في تحديث الموقع',
+    'data_add_failed_lang'      => 'فشل في إضافة الموقع',
+        'error_unexpected'  => 'حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.',
+    'error_timeout'     => 'انتهت مهلة الطلب. يرجى التحقق من اتصال الإنترنت.',
+    'error_no_internet' => 'لم يتم اكتشاف اتصال بالإنترنت. يرجى التحقق من الشبكة.',
+        'add_package_name_lang'     => 'يرجى إدخال اسم الباقة.',
+    'add_package_price_4_lang'  => 'يرجى إدخال سعر ٤ ساعات.',
+    'add_package_price_5_lang'  => 'يرجى إدخال سعر ٥ ساعات.',
+
+    // CRUD success/failure
+    'data_update_success_lang'  => 'تم تحديث البيانات بنجاح.',
+    'data_add_success_lang'     => 'تمت إضافة البيانات بنجاح.',
+    'data_update_failed_lang'   => 'فشل في تحديث البيانات.',
+    'data_add_failed_lang'      => 'فشل في إضافة البيانات.',
+
+    // Edit/Update
+    'update_lang'               => 'تحديث',
+    'edit_failed_lang'          => 'فشل في جلب البيانات للتعديل.',
+        'provide_voucher_code_lang' => 'يرجى إدخال رمز القسيمة.',
+    'data_voucher_success_lang' => 'تم تطبيق القسيمة بنجاح.',
+    'data_update_failed_lang'   => 'فشل في تحديث البيانات. يرجى المحاولة مرة أخرى.',
+     'add_service_name_lang'       => 'يرجى إدخال اسم الخدمة.',
+    'service_fee_placeholder'     => 'يرجى إدخال رسوم خدمة صحيحة.',
+    'data_update_success_lang'    => 'تم تحديث الخدمة بنجاح.',
+    'data_add_success_lang'       => 'تمت إضافة الخدمة بنجاح.',
+    'data_update_failed_lang'     => 'فشل تحديث الخدمة. حاول مرة أخرى.',
+    'data_add_failed_lang'        => 'فشل إضافة الخدمة. حاول مرة أخرى.',
+    'update_lang'                 => 'تحديث الخدمة',
+    'edit_failed_lang'            => 'فشل في جلب تفاصيل الخدمة. حاول مرة أخرى.',
+       'add_user_name_lang'       => 'يرجى إدخال اسم المستخدم.',
+    'provide_password_lang'    => 'يرجى إدخال كلمة المرور.',
+    'add_doctor_phone_lang'    => 'يرجى إدخال رقم الهاتف.',
+    'data_update_success_lang' => 'تم تحديث المستخدم بنجاح.',
+    'data_add_success_lang'    => 'تمت إضافة المستخدم بنجاح.',
+    'data_update_failed_lang'  => 'فشل تحديث المستخدم. حاول مرة أخرى.',
+    'data_add_failed_lang'     => 'فشل إضافة المستخدم. حاول مرة أخرى.',
+    'update_lang'              => 'تحديث المستخدم',
+    'edit_failed_lang'         => 'فشل في جلب تفاصيل المستخدم. حاول مرة أخرى.',
+    'no_visits_found' => 'لا توجد زيارات.',
+    'failed_to_load_visits' => 'فشل في تحميل الزيارات.',
+    'no_active_bookings_found' => 'لم يتم العثور على حجوزات نشطة.',
 
 
 ];

@@ -54,28 +54,29 @@ $(document).ready(function () {
                     show_notification('error', response.message);
                 }
             },
-            error: function (xhr, textStatus) {
-                let errorMessage = "An unexpected error occurred. Please try again.";
+        error: function (xhr, textStatus) {
+    let errorMessage = "<?php echo trans('messages.error_unexpected', [], session('locale')); ?>";
 
-                // Check for timeout or network issues
-                if (textStatus === "timeout") {
-                    errorMessage = "Request timed out. Please check your internet connection.";
-                } else if (xhr.status === 0) {
-                    errorMessage = "No internet connection detected. Please check your network.";
-                } else if (xhr.responseJSON) {
-                    // Laravel validation errors
-                    if (xhr.responseJSON.errors) {
-                        errorMessage = Object.values(xhr.responseJSON.errors).flat().join("\n");
-                    }
-                    // Laravel custom message
-                    else if (xhr.responseJSON.message) {
-                        errorMessage = xhr.responseJSON.message;
-                    }
-                }
+    // Check for timeout or network issues
+    if (textStatus === "timeout") {
+        errorMessage = "<?php echo trans('messages.error_timeout', [], session('locale')); ?>";
+    } else if (xhr.status === 0) {
+        errorMessage = "<?php echo trans('messages.error_no_internet', [], session('locale')); ?>";
+    } else if (xhr.responseJSON) {
+        // Laravel validation errors
+        if (xhr.responseJSON.errors) {
+            errorMessage = Object.values(xhr.responseJSON.errors).flat().join("\n");
+        }
+        // Laravel custom message
+        else if (xhr.responseJSON.message) {
+            errorMessage = xhr.responseJSON.message;
+        }
+    }
 
-                show_notification('error', errorMessage);
-                alert(errorMessage);
-            },
+    show_notification('error', errorMessage);
+    alert(errorMessage);
+},
+
             complete: function () {
                 // Re-enable the button
                 $button.prop("disabled", false).text("Login");

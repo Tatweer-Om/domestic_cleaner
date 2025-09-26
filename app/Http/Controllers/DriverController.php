@@ -19,23 +19,25 @@ use Illuminate\Support\Facades\Hash;
 class DriverController extends Controller
 {
     public function index()
-    {
-
-        if (!Auth::check()) {
-        return redirect()->route('login_page')->with('error', 'Please login first');
+{
+    if (!Auth::check()) {
+        return redirect()->route('login_page')
+            ->with('error', trans('messages.please_login_first', [], session('locale')));
     }
-
 
     $permissions = explode(',', Auth::user()->permissions ?? '');
 
-
     if (!in_array('3', $permissions)) {
-        return redirect()->route('login_error')->with('error', 'Permission denied');
+        return redirect()->route('login_error')
+            ->with('error', trans('messages.permission_denied', [], session('locale')));
     }
-        $locations = Location::select('id', 'location_name')->get();
-        $users= User::where('user_type', 3)->get();
-        return view('drivers.drivers', compact('locations', 'users'));
-    }
+
+    $locations = Location::select('id', 'location_name')->get();
+    $users = User::where('user_type', 3)->get();
+
+    return view('drivers.drivers', compact('locations', 'users'));
+}
+
 
     public function show_driver()
     {
