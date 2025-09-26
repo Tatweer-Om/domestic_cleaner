@@ -315,31 +315,31 @@ return [
     'evening'                  => 'Evening',
     'hours_short'              => 'h',
     'driver_available' => 'Delivery Availability',
-    'messages.available_variables'  => 'Available Variables',   // المتغيرات المتاحة
-    'messages.worker_name'          => 'Worker Name',           // اسم العامل
-    'messages.booking_no'           => 'Booking Number',        // رقم الحجز
-    'messages.booking_date'         => 'Booking Date',          // تاريخ الحجز
-    'messages.booking_time'         => 'Booking Time',          // وقت الحجز
-    'messages.visit_date'           => 'Visit Date',            // تاريخ الزيارة
-    'messages.visit_time'           => 'Visit Time',            // وقت الزيارة
-    'messages.package'              => 'Package',               // الباقة
-    'messages.location'             => 'Location',              // الموقع
-    'messages.total_visits'         => 'Total Visits',          // إجمالي الزيارات
-    'messages.remianing_visits'     => 'Remaining Visits',      // الزيارات المتبقية
-    'messages.next_visit_date'      => 'Next Visit Date',       // تاريخ الزيارة القادمة
-    'messages.extention_time'       => 'Extension Time',        // وقت التمديد
-    'messages.extention_date'       => 'Extension Date',        // تاريخ التمديد
-    'messages.cancel_date'          => 'Cancel Date',           // تاريخ الإلغاء
-    'messages.driver_no'            => 'Driver Number',
-    'messages.select_sms_type'       => 'Select SMS Type',        // اختر نوع الرسالة
-    'messages.choose'                => 'Choose',                // اختر
-    'messages.booking'               => 'Booking Message',        // رسالة الحجز
-    'messages.visit_done'            => 'Visit Done Message',     // رسالة إتمام الزيارة
-    'messages.next_visit_message'    => 'Next Visit Message',     // رسالة الزيارة القادمة
-    'messages.extend_booking_message' => 'Extend Booking Message', // رسالة تمديد الحجز
-    'messages.cancel_booking_message' => 'Cancel Booking Message', // رسالة إلغاء الحجز
-    'messages.driver_message'        => 'Driver Message',         // رسالة السائق
-    'messages.worker_message'        => 'Worker Message',
+    'available_variables'  => 'Available Variables',   // المتغيرات المتاحة
+    'worker_name'          => 'Worker Name',           // اسم العامل
+    'booking_no'           => 'Booking Number',        // رقم الحجز
+    'booking_date'         => 'Booking Date',          // تاريخ الحجز
+    'booking_time'         => 'Booking Time',          // وقت الحجز
+    'visit_date'           => 'Visit Date',            // تاريخ الزيارة
+    'visit_time'           => 'Visit Time',            // وقت الزيارة
+    'package'              => 'Package',               // الباقة
+    'location'             => 'Location',              // الموقع
+    'total_visits'         => 'Total Visits',          // إجمالي الزيارات
+    'remianing_visits'     => 'Remaining Visits',      // الزيارات المتبقية
+    'next_visit_date'      => 'Next Visit Date',       // تاريخ الزيارة القادمة
+    'extention_time'       => 'Extension Time',        // وقت التمديد
+    'extention_date'       => 'Extension Date',        // تاريخ التمديد
+    'cancel_date'          => 'Cancel Date',           // تاريخ الإلغاء
+    'driver_no'            => 'Driver Number',
+    'select_sms_type'       => 'Select SMS Type',        // اختر نوع الرسالة
+    'choose'                => 'Choose',                // اختر
+    'booking'               => 'Booking Message',        // رسالة الحجز
+    'visit_done'            => 'Visit Done Message',     // رسالة إتمام الزيارة
+    'next_visit_message'    => 'Next Visit Message',     // رسالة الزيارة القادمة
+    'extend_booking_message' => 'Extend Booking Message', // رسالة تمديد الحجز
+    'cancel_booking_message' => 'Cancel Booking Message', // رسالة إلغاء الحجز
+    'driver_message'        => 'Driver Message',         // رسالة السائق
+    'worker_message'        => 'Worker Message',
 
     'select_sms_type'        => 'Select SMS Type',
     'choose'                 => 'Choose',
@@ -867,4 +867,124 @@ return [
     'driver_availability' => 'Driver Availability',
 'whatsapp_notifi' => 'WhatsApp Notification',
 'enable_whatsapp' => 'Enable WhatsApp',
+'price_4_lang' => '4 Hours Price',
+'price_5_lang' => '5 Hours Price',
+
+'please_login_first' => 'Please login first',
+'permission_denied' => 'Permission denied',
+    'get_data_failed_lang' => 'Failed to retrieve data. Please try again.',
+        'add_visit_name_lang'      => 'Please select a visit date.',
+    'add_duration_lang'        => 'Please enter the duration.',
+    'add_hours_lang'           => 'Please enter the hours.',
+    'add_worker_lang'          => 'Please select a worker.',
+    'add_shift_lang'           => 'Please select a shift.',
+
+    // Success / failure
+    'data_update_success_lang' => 'Data updated successfully.',
+    'data_add_success_lang'    => 'Data added successfully.',
+    'data_update_failed_lang'  => 'Failed to update data.',
+    'data_add_failed_lang'     => 'Failed to add data.',
+
+    // Voucher
+    'provide_voucher_code_lang'=> 'Please enter a voucher code.',
+    'data_voucher_success_lang'=> 'Voucher applied successfully.',
+
+    // Policy
+    'please_accept_privacy_policy' => 'Please accept the privacy policy.',
+
+    // Update
+    'update_lang'              => 'Update',
+
+    // Edit
+    'edit_failed_lang'         => 'Failed to load data for editing.',
+
+    // Save
+    'saved_successfully'       => 'Saved successfully.',
+    'save_failed_lang'         => 'Failed to save. Please try again.',
+
+    // Delete
+    'sure_lang'                => 'Are you sure?',
+    'delete_lang'              => 'This action cannot be undone!',
+    'delete_it_lang'           => 'Yes, delete it!',
+    'delete_failed_lang'       => 'Failed to delete.',
+    'delete_success_lang'      => 'Deleted successfully.',
+    'safe_lang'                => 'Your data is safe.',
+        'cancel_lang'          => 'This action will cancel the booking!',
+    'cancel_it_lang'       => 'Yes, cancel it!',
+    'cancel_failed_lang'   => 'Failed to cancel booking.',
+    'cancel_success_lang'  => 'Booking cancelled successfully.',
+    'add_driver_name_lang'   => 'Please enter driver name',  
+'add_driver_phone_lang'  => 'Please enter driver phone number',  
+'add_driver_user_id_lang'=> 'Please select a user ID for the driver',
+'data_update_success_lang' => 'Driver updated successfully',  
+'data_add_success_lang'    => 'Driver added successfully',  
+'data_update_failed_lang'  => 'Failed to update driver',  
+'data_add_failed_lang'     => 'Failed to add driver',
+'no_data'                  => 'No data available',
+'no_visits_today'          => 'No visits scheduled for today',
+'no_visits_next24'         => 'No visits in the next 24 hours',
+'no_visits_this_week'      => 'No visits scheduled this week',
+
+'mark_visit_completed'     => 'Mark visit as completed?',
+'update_status_completed'  => 'Do you want to update the status to completed?',
+'confirm'                  => 'Confirm',
+'cancel'                   => 'Cancel',
+'visit_marked_completed'   => 'The visit has been marked as completed',
+'error_general'            => 'Error',
+'could_not_update_status'  => 'Could not update status. Please try again.',
+   'add_location_name_lang'    => 'Please enter location name',
+    'add_location_fare_lang'    => 'Please enter location fare',
+    'add_location_polygon_lang' => 'Please draw or enter location polygon',
+
+    // Success Messages
+    'data_update_success_lang'  => 'Location updated successfully',
+    'data_add_success_lang'     => 'Location added successfully',
+
+    // Error Messages
+    'data_update_failed_lang'   => 'Failed to update location',
+    'data_add_failed_lang'      => 'Failed to add location',
+    'error_unexpected'  => 'An unexpected error occurred. Please try again.',
+    'error_timeout'     => 'Request timed out. Please check your internet connection.',
+    'error_no_internet' => 'No internet connection detected. Please check your network.',
+        'add_package_name_lang'     => 'Please enter the package name.',
+    'add_package_price_4_lang'  => 'Please enter the price for 4 hours.',
+    'add_package_price_5_lang'  => 'Please enter the price for 5 hours.',
+
+    // CRUD success/failure
+    'data_update_success_lang'  => 'Data updated successfully.',
+    'data_add_success_lang'     => 'Data added successfully.',
+    'data_update_failed_lang'   => 'Failed to update data.',
+    'data_add_failed_lang'      => 'Failed to add data.',
+
+    // Edit/Update
+    'update_lang'               => 'Update',
+    'edit_failed_lang'          => 'Failed to fetch data for editing.',
+        'provide_voucher_code_lang' => 'Please enter a voucher code.',
+    'data_voucher_success_lang' => 'Voucher applied successfully.',
+    'data_update_failed_lang'   => 'Failed to update data. Please try again.',
+      'add_service_name_lang'       => 'Please enter the service name.',
+    'service_fee_placeholder'     => 'Please enter a valid service fee.',
+    'data_update_success_lang'    => 'Service updated successfully.',
+    'data_add_success_lang'       => 'Service added successfully.',
+    'data_update_failed_lang'     => 'Failed to update service. Please try again.',
+    'data_add_failed_lang'        => 'Failed to add service. Please try again.',
+    'update_lang'                 => 'Update Service',
+    'edit_failed_lang'            => 'Failed to fetch service details. Please try again.',
+        'add_user_name_lang'       => 'Please enter the user name.',
+    'provide_password_lang'    => 'Please provide a password.',
+    'add_doctor_phone_lang'    => 'Please enter the phone number.',
+    'data_update_success_lang' => 'User updated successfully.',
+    'data_add_success_lang'    => 'User added successfully.',
+    'data_update_failed_lang'  => 'Failed to update user. Please try again.',
+    'data_add_failed_lang'     => 'Failed to add user. Please try again.',
+    'update_lang'              => 'Update User',
+    'edit_failed_lang'         => 'Failed to fetch user details. Please try again.',
+    'no_visits_found' => 'No visits found.',
+    'failed_to_load_visits' => 'Failed to load visits.',
+    'no_active_bookings_found' => 'No active bookings found.',
+
+
+
+
 ];
+

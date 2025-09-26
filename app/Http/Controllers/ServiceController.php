@@ -13,23 +13,23 @@ use Illuminate\Support\Facades\File;
 
 class ServiceController extends Controller
 {
-      public function index()
+public function index()
 {
-
-    
-            if (!Auth::check()) {
-        return redirect()->route('login_page')->with('error', 'Please login first');
+    if (!Auth::check()) {
+        return redirect()->route('login_page')
+            ->with('error', trans('messages.please_login_first', [], session('locale')));
     }
-
 
     $permissions = explode(',', Auth::user()->permissions ?? '');
 
-
     if (!in_array('6', $permissions)) {
-        return redirect()->route('login_error')->with('error', 'Permission denied');
+        return redirect()->route('login_error')
+            ->with('error', trans('messages.permission_denied', [], session('locale')));
     }
+
     return view('bookings.service');
 }
+
 
 public function show_service()
 {

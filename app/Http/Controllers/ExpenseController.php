@@ -18,34 +18,26 @@ use Illuminate\Support\Facades\Response;
 
 class ExpenseController extends Controller
 {
-    public function index()
-    {
-
-
-    
-            if (!Auth::check()) {
-        return redirect()->route('login_page')->with('error', 'Please login first');
+   public function index()
+{
+    if (!Auth::check()) {
+        return redirect()->route('login_page')
+            ->with('error', trans('messages.please_login_first', [], session('locale')));
     }
-
 
     $permissions = explode(',', Auth::user()->permissions ?? '');
 
-
     if (!in_array('8', $permissions)) {
-        return redirect()->route('login_error')->with('error', 'Permission denied');
+        return redirect()->route('login_error')
+            ->with('error', trans('messages.permission_denied', [], session('locale')));
     }
 
+    $view_account = Account::get();
+    $expense_cats = Expensecat::all();
 
-        $view_account = Account::get();
-        $expense_cats = Expensecat::all();
+    return view('expense.expense', compact('view_account', 'expense_cats'));
+}
 
-
-
-
-        return view('expense.expense', compact('view_account',  'expense_cats'));
-
-
-    }
 
     public function show_expense()
     {

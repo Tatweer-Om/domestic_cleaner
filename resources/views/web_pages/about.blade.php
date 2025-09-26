@@ -31,7 +31,7 @@
                         </div>
                         <div class="col-lg-8">
                             <div class="main-title">
-                                <h2 class="text-opacity-animation">{{ trans('messages.we_believe_clean_space', [], session('locale')) }}</h2>
+                                <h2 class="">{{ trans('messages.we_believe_clean_space', [], session('locale')) }}</h2>
                             </div>
                         </div>
                     </div>
@@ -104,7 +104,7 @@
                             <div class="wpo-choose-right-side wow fadeInRightSlow" data-wow-duration="1000ms">
                                 <div class="wpo-section-title-s2">
                                     <span><i><img src="assets/images/cleaning-icon.svg" alt=""></i>{{ trans('messages.why_choose_us', [], session('locale')) }}</span>
-                                    <h2 class="poort-text poort-in-right">{{ trans('messages.why_choose_heading', [], session('locale')) }}</h2>
+                                    <h2 class="slide-title wow">{{ trans('messages.why_choose_heading', [], session('locale')) }}</h2>
                                     <p>{{ trans('messages.why_choose_desc', [], session('locale')) }}</p>
                                 </div>
                                 <ul>

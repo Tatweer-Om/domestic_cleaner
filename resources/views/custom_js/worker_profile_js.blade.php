@@ -587,8 +587,6 @@ if (res.package_price !== null) {
 }
 
 
-
-
         let html = '';
         res.worker_availability.forEach((availability, index) => {
           const visit = Array.isArray(res.visits) ? res.visits[index] : null;
@@ -1009,14 +1007,14 @@ if (res.package_price !== null) {
             success: function(res) {
                 if (res.ok) {
                     let html = `
-                        <div class="d-flex gap-2 flex-wrap mt-2 justify-content-start">
-                            <span class="badge bg-success">
-                                4h Price: ${res.price_4h} OMR
-                            </span>
-                            <span class="badge bg-info">
-                                5h Price: ${res.price_5h} OMR
-                            </span>
-                        </div>
+                    <div class="d-flex gap-2 flex-wrap mt-2 justify-content-start">
+                      <span class="badge bg-success">
+                          {{ trans('messages.price_4_lang', [], session('locale')) }}: ${res.price_4h} OMR
+                      </span>
+                      <span class="badge bg-info">
+                          {{ trans('messages.price_5_lang', [], session('locale')) }}: ${res.price_5h} OMR
+                      </span>
+                  </div>
                     `;
                     $('#packagePriceBox').html(html);
                 } else {

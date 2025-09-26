@@ -116,6 +116,45 @@ function get_sms($params)
         }
     }
 
+     else if ($params['sms_status'] == 7) {
+        $visit_done = Visit::where('id', $params['visit_id'])
+            ->where('status', 1)
+            ->first();
+
+        if ($visit_done) {
+            $worker         = Worker::find($visit_done->worker_id);
+            $worker_name    = $worker->worker_name ?? '';
+            $worker_no      = $worker->phone ?? '';
+
+            $customer       = Customer::find($visit_done->customer_id);
+            $customer_no    = $customer->phone_number ?? '';
+            $customer_name  = $customer->customer_name ?? '';
+
+            $visit_date     = $visit_done->visit_date ?? '';
+            $shift          = $visit_done->shift ?? '';
+            $duration       = $visit_done->duration ?? '';
+        }
+    }
+     else if ($params['sms_status'] == 8) {
+        $visit_done = Visit::where('id', $params['visit_id'])
+            ->where('status', 1)
+            ->first();
+
+        if ($visit_done) {
+            $worker         = Worker::find($visit_done->worker_id);
+            $worker_name    = $worker->worker_name ?? '';
+            $worker_no      = $worker->phone ?? '';
+
+            $customer       = Customer::find($visit_done->customer_id);
+            $customer_no    = $customer->phone_number ?? '';
+            $customer_name  = $customer->customer_name ?? '';
+
+            $visit_date     = $visit_done->visit_date ?? '';
+            $shift          = $visit_done->shift ?? '';
+            $duration       = $visit_done->duration ?? '';
+        }
+    }
+
     // Define template replacement variables (aligned with upper vars)
     $variables = [
         'worker_name'       => $worker_name,
